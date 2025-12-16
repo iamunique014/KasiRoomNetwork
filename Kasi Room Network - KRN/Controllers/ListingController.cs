@@ -65,8 +65,48 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View();
             }
 
-            // NOTE: actual file saving logic will be added in UI layer
-            var filePath = "/uploads/listings/" + Guid.NewGuid() + Path.GetExtension(photo.FileName);
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(photo.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError("", "Only JPG and PNG images are allowed.");
+                ViewBag.ListingId = listingId;
+                return View();
+            }
+
+            // Validate file size (max 2MB)
+            if (photo.Length > 2 * 1024 * 1024)
+            {
+                ModelState.AddModelError("", "Image size cannot exceed 2MB.");
+                ViewBag.ListingId = listingId;
+                return View();
+            }
+
+            // Create uploads path
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/uploads/listings"
+            );
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Generate safe file name
+            var fileName = Guid.NewGuid().ToString() + extension;
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            // Save file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            // Store relative path in DB
+            var dbPath = "/uploads/listings/" + fileName;
 
             await _listingRepository.AddListingPhoto(listingId, filePath, isPrimary);
 

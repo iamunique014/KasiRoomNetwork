@@ -25,4 +25,8 @@
     <ProjectReference Include="..\KasiRoomNetwork.Data\KasiRoomNetwork.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\listings\" />
+  </ItemGroup>
+
 </Project>
