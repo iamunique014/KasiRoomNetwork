@@ -1,0 +1,103 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Listings.ListingSearchViewModel
+
+@{
+    ViewData["Title"] = "Find a Room";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Find a Room</h2>
+
+    <!-- SEARCH FORM -->
+    <form asp-action="SearchListings" method="get" class="card mb-4">
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Province</label>
+                    <input name="Province" value="@Model.Province" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">City</label>
+                    <input name="City" value="@Model.City" class="form-control" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Suburb</label>
+                    <input name="Suburb" value="@Model.Suburb" class="form-control" />
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Min Price</label>
+                    <input name="MinPrice" value="@Model.MinPrice" class="form-control" />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Max Price</label>
+                    <input name="MaxPrice" value="@Model.MaxPrice" class="form-control" />
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+
+        </div>
+    </form>
+
+    <!-- RESULTS -->
+    @if (Model.Results != null && Model.Results.Any())
+    {
+        <div class="row">
+
+            @foreach (var listing in Model.Results)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+
+                        @if (!string.IsNullOrEmpty(listing.PrimaryPhoto))
+                        {
+                            <img src="@listing.PrimaryPhoto"
+                                 class="card-img-top"
+                                 style="height: 180px; object-fit: cover;"
+                                 alt="Listing image" />
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title">@listing.Title</h5>
+                            <p class="card-text">
+                                @listing.Suburb, @listing.City<br />
+                                <strong>R @listing.Price</strong>
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-white">
+                            <a asp-action="Details"
+                               asp-route-id="@listing.ListingId"
+                               class="btn btn-outline-primary w-100">
+                                View Details
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+    else if (Context.Request.Query.Any())
+    {
+        <div class="alert alert-warning">
+            No listings found matching your search.
+        </div>
+    }
+
+</div>
+
