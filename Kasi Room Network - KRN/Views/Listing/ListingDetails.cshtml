@@ -8,13 +8,28 @@
 
     <!-- TITLE + PRICE -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>@Model.Title</h2>
-        <h4 class="text-success">R @Model.Price</h4>
+
+        <h2 class="fw-bold">@Model.Title</h2>
+        <p class="text-muted mb-0">
+            📍 @Model.Suburb, @Model.City, @Model.Province
+        </p>
+
+        <div class="text-end">
+            <h4 class="text-success fw-bold mb-0">
+                R @Model.Price
+            </h4>
+            <small class="text-muted">
+                per month
+            </small>
+        </div>
     </div>
 
     <!-- PHOTOS -->
     @if (Model.Photos != null && Model.Photos.Any())
     {
+        <p class="text-muted small mb-2">
+            Photos (@Model.Photos.Count)
+        </p>
         <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
             <div class="carousel-inner">
 
@@ -52,7 +67,9 @@
         <div class="card-body">
 
             <h5>Description</h5>
-            <p>@Model.Description</p>
+            <p class="mb-0">
+                @Model.Description
+            </p>
 
             <hr />
 
@@ -66,27 +83,36 @@
     </div>
 
     <!-- LANDLORD INFO -->
-    <div class="card mb-4">
+    <div class="card mb-4 border-success">
         <div class="card-body">
 
-            <h5>Landlord</h5>
+            <h5 class="fw-bold mb-2">Landlord</h5>
+
+            <p class="mb-1">
+                👤 Local landlord
+            </p>
+
             <p>
-                Contact via platform<br />
                 <small class="text-muted">
-                    Verified listing: @(Model.IsVerified ? "Yes" : "Pending")
+                    Listing verified by Kasi Room Network: @(Model.IsVerified ? "Yes" : "Pending")
                 </small>
             </p>
 
-            <button class="btn btn-primary" disabled>
-                Contact Landlord (Coming Soon)
+            <button class="btn btn-success btn-lg w-100" disabled>
+                Contact Landlord
             </button>
+
+            <p class="text-muted small mt-2 text-center">
+                Chat safely without sharing your phone number
+            </p>
 
         </div>
     </div>
 
-    <a asp-action="SearchListings" class="btn btn-link">
-        Back to search
+    <a asp-action="SearchListings" class="btn btn-outline-secondary w-100">
+        Back to search results
     </a>
+
 
 </div>
 
