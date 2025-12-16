@@ -21,7 +21,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CreateListing()
         {
             return View();
         }
