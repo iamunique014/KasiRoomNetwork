@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Add Photos";
+    var listingId = ViewBag.ListingId;
+}
+
+<h2 class="mb-4">Add Photos</h2>
+
+<form asp-action="AddListingPhotos" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="listingId" value="@listingId" />
+
+    <div class="card">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="form-label">Upload Photo</label>
+                <input type="file" name="photo" class="form-control" required />
+            </div>
+
+            <div class="form-check mb-3">
+                <input type="checkbox" name="isPrimary" class="form-check-input" />
+                <label class="form-check-label">
+                    Set as primary photo
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Upload Photo
+            </button>
+
+            <a asp-action="CreateListing" class="btn btn-secondary ms-2">
+                Finish Later
+            </a>
+
+        </div>
+    </div>
+</form>
+
