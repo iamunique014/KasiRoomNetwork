@@ -96,7 +96,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Search(ListingSearchViewModel model)
+        public async Task<IActionResult> SearchListings(ListingSearchViewModel model)
         {
             if (Request.Query.Any())
             {
