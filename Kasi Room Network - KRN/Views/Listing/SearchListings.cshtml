@@ -12,45 +12,76 @@
     <form asp-action="SearchListings" method="get" class="card mb-4">
         <div class="card-body">
 
-            <div class="row">
-
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Province</label>
-                    <input name="Province" value="@Model.Province" class="form-control" />
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">City</label>
-                    <input name="City" value="@Model.City" class="form-control" />
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Suburb</label>
-                    <input name="Suburb" value="@Model.Suburb" class="form-control" />
-                </div>
-
+            <!-- SIMPLE SEARCH -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    Where are you looking?
+                </label>
+                <input name="City"
+                       value="@Model.City"
+                       class="form-control form-control-lg"
+                       placeholder="Town, city, or area" />
             </div>
 
-            <div class="row">
-
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Min Price</label>
-                    <input name="MinPrice" value="@Model.MinPrice" class="form-control" />
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Max Price</label>
-                    <input name="MaxPrice" value="@Model.MaxPrice" class="form-control" />
-                </div>
-
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    Max price (optional)
+                </label>
+                <input name="MaxPrice"
+                       value="@Model.MaxPrice"
+                       class="form-control form-control-lg"
+                       placeholder="e.g. 1500" />
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Search
+            <!-- ADVANCED FILTERS -->
+            <div class="accordion mt-3" id="advancedFilters">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#moreFilters">
+                            More filters (optional)
+                        </button>
+                    </h2>
+                    <div id="moreFilters"
+                         class="accordion-collapse collapse">
+                        <div class="accordion-body">
+
+                            <div class="mb-3">
+                                <label class="form-label">Province</label>
+                                <input name="Province"
+                                       value="@Model.Province"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Suburb</label>
+                                <input name="Suburb"
+                                       value="@Model.Suburb"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Min Price</label>
+                                <input name="MinPrice"
+                                       value="@Model.MinPrice"
+                                       class="form-control" />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary btn-lg w-100 mt-3">
+                Search Rooms
             </button>
 
         </div>
     </form>
+
 
     <!-- RESULTS -->
     @if (Model.Results != null && Model.Results.Any())
@@ -74,7 +105,9 @@
                             <h5 class="card-title">@listing.Title</h5>
                             <p class="card-text">
                                 @listing.Suburb, @listing.City<br />
-                                <strong>R @listing.Price</strong>
+                                <span class="fw-bold text-success fs-5">
+                                    R @listing.Price per month
+                                </span>
                             </p>
                         </div>
 
@@ -95,7 +128,7 @@
     else if (Context.Request.Query.Any())
     {
         <div class="alert alert-warning">
-            No listings found matching your search.
+            No Rooms found matching your search.
         </div>
     }
 
