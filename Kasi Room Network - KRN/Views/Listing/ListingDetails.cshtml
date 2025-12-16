@@ -1,0 +1,92 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Listings.ListingDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+
+    <!-- TITLE + PRICE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>@Model.Title</h2>
+        <h4 class="text-success">R @Model.Price</h4>
+    </div>
+
+    <!-- PHOTOS -->
+    @if (Model.Photos != null && Model.Photos.Any())
+    {
+        <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+
+                @for (int i = 0; i < Model.Photos.Count; i++)
+                {
+                    var photo = Model.Photos[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@photo.PhotoPath"
+                             class="d-block w-100 rounded"
+                             style="max-height: 350px; object-fit: cover;"
+                             alt="Listing photo" />
+                    </div>
+                }
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+
+            <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-secondary mb-4">
+            No photos available for this listing.
+        </div>
+    }
+
+    <!-- DETAILS -->
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <h5>Description</h5>
+            <p>@Model.Description</p>
+
+            <hr />
+
+            <h5>Location</h5>
+            <p>
+                @Model.Suburb, @Model.City<br />
+                @Model.Province
+            </p>
+
+        </div>
+    </div>
+
+    <!-- LANDLORD INFO -->
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <h5>Landlord</h5>
+            <p>
+                Contact via platform<br />
+                <small class="text-muted">
+                    Verified listing: @(Model.IsVerified ? "Yes" : "Pending")
+                </small>
+            </p>
+
+            <button class="btn btn-primary" disabled>
+                Contact Landlord (Coming Soon)
+            </button>
+
+        </div>
+    </div>
+
+    <a asp-action="SearchListings" class="btn btn-link">
+        Back to search
+    </a>
+
+</div>
+
