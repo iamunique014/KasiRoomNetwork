@@ -1,8 +1,167 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Kasi Room Network";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid px-2">
+
+    <!-- HERO -->
+    <section class="d-flex align-items-center text-center bg-light" style="min-height: 90vh;">
+        <div class="w-100 px-3">
+
+            <h1 class="fw-bold display-6">
+                Find a Room Near You
+            </h1>
+
+            <p class="text-muted mt-2">
+                Safe, verified rooms from local landlords.
+            </p>
+
+            <div class="mt-4">
+                <a href="/Listing/SearchListings" class="btn btn-success btn-lg w-100 mb-2">
+                    Find a Room
+                </a>
+
+                <a href="/Landlord/Start" class="btn btn-outline-primary btn-lg w-100">
+                    Post a Room
+                </a>
+            </div>
+
+            <p class="text-muted small mt-3">
+                For workers, students, and families in our communities
+            </p>
+
+        </div>
+    </section>
+
+   
+
+    <!-- TRUST -->
+    <section class="mt-5 text-center">
+        <h4 class="fw-bold mb-4">
+            Why Use Kasi Room Network?
+        </h4>
+
+        <div class="row g-3">
+
+            <div class="col-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="fs-3">✅</div>
+                    <p class="mb-0 fw-semibold">Verified Landlords</p>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="fs-3">📸</div>
+                    <p class="mb-0 fw-semibold">Real Room Photos</p>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="fs-3">💬</div>
+                    <p class="mb-0 fw-semibold">
+                        Chat Without Sharing Number
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="fs-3">🛡</div>
+                    <p class="mb-0 fw-semibold">
+                        Admin Approved Listings
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="mt-5 text-center">
+        <h4 class="fw-bold mb-4">How It Works</h4>
+
+        <div class="accordion" id="howItWorksAccordion">
+
+            <!-- STEP 1 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#stepOne">
+                        1️⃣ Search a Room
+                    </button>
+                </h2>
+                <div id="stepOne"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body text-start">
+                        Enter your area and price to see available rooms
+                        near your work or school.
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#stepTwo">
+                        2️⃣ View Room Details
+                    </button>
+                </h2>
+                <div id="stepTwo"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body text-start">
+                        See real photos, room rules, price,
+                        and landlord information before contacting.
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#stepThree">
+                        3️⃣ Contact Landlord Safely
+                    </button>
+                </h2>
+                <div id="stepThree" class="accordion-collapse collapse" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body text-start">
+                        Chat inside Kasi Room Network without
+                        sharing your phone number.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="mt-5 text-center">
+        <h4 class="fw-bold">Built for Our Communities</h4>
+        <p class="text-muted">
+            Helping workers, students, and families find rooms
+            in mining towns and kasi areas.
+        </p>
+        <p class="fw-semibold">
+            Rustenburg • Marikana • Brits • Phokeng
+        </p>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="mt-4 mb-5 text-center">
+        <a href="/Listing/SearchListings" class="btn btn-success btn-lg w-100">
+            Find a Room
+        </a>
+    </section>
+
 </div>
