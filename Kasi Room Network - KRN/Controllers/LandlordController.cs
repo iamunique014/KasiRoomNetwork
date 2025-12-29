@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
-    public class Landlord : Controller
+    public class LandlordController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public Landlord(UserManager<ApplicationUser> userManager)
+        public LandlordController(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
