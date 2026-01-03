@@ -109,6 +109,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             var dbPath = "/uploads/listings/" + fileName;
 
             await _listingRepository.AddListingPhoto(listingId, filePath, isPrimary);
+            //ViewBag.PhotoCount = _listingRepository.GetCountByListing(listingId);  //Define and Implement Method in repo.
+            TempData["PhotoUploaded"] = "Photo uploaded successfully";
 
             return RedirectToAction(nameof(AddListingPhotos), new { listingId });
         }
