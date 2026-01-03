@@ -3,37 +3,61 @@
     var listingId = ViewBag.ListingId;
 }
 
-<h2 class="mb-4">Add Photos</h2>
+<div class="container mt-4">
 
-<form asp-action="AddListingPhotos" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
+    <p class="text-muted mb-2">Step 2 of 2: Add photos</p>
 
-    <input type="hidden" name="listingId" value="@listingId" />
+    <h2 class="mb-2">Add Room Photos</h2>
+    <p class="text-muted mb-4">
+        Photos help people trust your listing and get more views
+    </p>
 
-    <div class="card">
-        <div class="card-body">
+    <form asp-action="AddListingPhotos" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
 
-            <div class="mb-3">
-                <label class="form-label">Upload Photo</label>
-                <input type="file" name="photo" class="form-control" required />
+        <input type="hidden" name="listingId" value="@listingId" />
+        @if (TempData["PhotoUploaded"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["PhotoUploaded"]
             </div>
+        }
+        <div class="card">
+            <div class="card-body">
 
-            <div class="form-check mb-3">
-                <input type="checkbox" name="isPrimary" class="form-check-input" />
-                <label class="form-check-label">
-                    Set as primary photo
-                </label>
+                <div class="mb-3">
+                    <label class="form-label">Upload Photo</label>
+                   @*  @if (ViewBag.PhotoCount > 0)
+                    {
+                        <p class="text-muted">
+                            @ViewBag.PhotoCount photo(s) uploaded
+                        </p>
+                    } *@
+                    <input type="file" name="photo" class="form-control" accept="image/*" required />
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" name="isPrimary" class="form-check-input" />
+                    <label class="form-check-label">
+                        Make this the main photo
+                    </label>
+                    <small class="text-muted d-block">
+                        This photo will show first when people search
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Upload & Add Another
+                </button>
+
+                <a asp-action="CreateListing" class="btn btn-outline-secondary ms-2">
+                    Finish Later
+                </a>
+
             </div>
-
-            <button type="submit" class="btn btn-success">
-                Upload Photo
-            </button>
-
-            <a asp-action="CreateListing" class="btn btn-secondary ms-2">
-                Finish Later
-            </a>
-
         </div>
-    </div>
-</form>
+    </form>
+
+</div>
+
 
