@@ -27,12 +27,18 @@
 
                 <div class="mb-3">
                     <label class="form-label">Upload Photo</label>
-                   @*  @if (ViewBag.PhotoCount > 0)
+                    @if ((int)ViewBag.PhotoCount > 0)
                     {
                         <p class="text-muted">
                             @ViewBag.PhotoCount photo(s) uploaded
                         </p>
-                    } *@
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            No photos uploaded yet.
+                        </p>
+                    }
                     <input type="file" name="photo" class="form-control" accept="image/*" required />
                 </div>
 
@@ -47,12 +53,25 @@
                 </div>
 
                 <button type="submit" class="btn btn-success">
-                    Upload & Add Another
+                    Upload
                 </button>
 
-                <a asp-action="CreateListing" class="btn btn-outline-secondary ms-2">
-                    Finish Later
-                </a>
+                @if (ViewBag.PhotoCount > 0)
+                {
+                    <a asp-action="ListingSubmitted" asp-route-id="@listingId" class="btn btn-primary ms-2">
+                        Finish & Submit
+                    </a>
+                }
+                else
+                {
+                    <span data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="You cannot leave a trip that has already departed.">
+                        <button class="btn btn-secondary ms-2" disabled>
+                            Finish & Submit
+                        </button>
+                    </span>
+                }
 
             </div>
         </div>
