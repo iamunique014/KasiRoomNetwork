@@ -81,5 +81,15 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.ToList();
         }
+
+        public async Task<int> GetListingPhotoCount(int listingId)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Get_Listing_Photo_Count_By_Listing", new 
+            { 
+                ListingId = listingId 
+            });
+
+            return result.FirstOrDefault();
+        }
     }
 }
