@@ -21,6 +21,9 @@ namespace KasiRoomNetwork.Data.Interfaces
         // sp_Get_Listing_Photos
         Task<List<ListingPhotoViewModel>> GetListingPhotos(int listingId);
 
+        //SP_Get_Listing_Photo_Count_By_Listing
+        Task<int> GetListingPhotoCount(int listingId);
+
         // sp_Search_Listings
         Task<List<ListingSearchResultViewModel>> SearchListings(ListingSearchViewModel searchModel);
     }
