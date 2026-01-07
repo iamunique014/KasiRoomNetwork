@@ -110,7 +110,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             // Store relative path in DB
             var dbPath = "/uploads/listings/" + fileName;
 
-            await _listingRepository.AddListingPhoto(listingId, filePath, isPrimary);
+            await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary);
             TempData["PhotoUploaded"] = "Photo uploaded successfully";
 
             return RedirectToAction(nameof(AddListingPhotos), new { listingId });
@@ -143,6 +143,13 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             if (Request.Query.Any())
             {
+                model.Province = string.IsNullOrWhiteSpace(model.Province) ? null : model.Province;
+                model.City = string.IsNullOrWhiteSpace(model.City) ? null : model.City;
+                model.Suburb = string.IsNullOrWhiteSpace(model.Suburb) ? null : model.Suburb;
+
+                model.MinPrice = model.MinPrice <= 0 ? null : model.MinPrice;
+                model.MaxPrice = model.MaxPrice <= 0 ? null : model.MaxPrice;
+
                 model.Results = await _listingRepository.SearchListings(model);
             }
 
