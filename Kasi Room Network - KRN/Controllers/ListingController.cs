@@ -3,6 +3,7 @@ using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -47,9 +48,10 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public IActionResult AddListingPhotos(int listingId)
+        public async Task<IActionResult> AddListingPhotos(int listingId)
         {
             ViewBag.ListingId = listingId;
+            ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
             return View();
         }
 
@@ -109,7 +111,6 @@ namespace Kasi_Room_Network___KRN.Controllers
             var dbPath = "/uploads/listings/" + fileName;
 
             await _listingRepository.AddListingPhoto(listingId, filePath, isPrimary);
-            //ViewBag.PhotoCount = _listingRepository.GetCountByListing(listingId);  //Define and Implement Method in repo.
             TempData["PhotoUploaded"] = "Photo uploaded successfully";
 
             return RedirectToAction(nameof(AddListingPhotos), new { listingId });
@@ -146,6 +147,16 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             return View(model);
+        }
+
+        // ==============================
+        // LISTING SUBMITTED CONFIRMATION
+        // ==============================
+
+        public IActionResult ListingSubmitted(int id)
+        {
+            ViewBag.ListingId = id;
+            return View();
         }
     }
 }
