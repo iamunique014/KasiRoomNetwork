@@ -1,0 +1,89 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Admin.AdminListingReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Listing";
+}
+
+<h2 class="mb-3">Review Listing</h2>
+@await Html.PartialAsync("_AdminAlerts")
+<!-- Photos -->
+<div class="row mb-4">
+    @if (!Model.Photos.Any())
+    {
+        <div class="alert alert-warning">
+            ⚠ This listing has no photos. Verify with caution.
+        </div>
+    }
+    else
+    {
+
+
+        @foreach (var photo in Model.Photos)
+        {
+            <div class="col-md-4 mb-3">
+                <img src="@photo.PhotoPath"
+                class="img-fluid rounded shadow-sm"
+                style="object-fit: cover; height: 200px;" />
+            </div>
+        }
+
+    }
+</div>
+
+<!-- Listing Info -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h4>@Model.Title</h4>
+        <p class="text-muted">@Model.Suburb, @Model.City</p>
+
+        <p><strong>Price:</strong> R @Model.Price</p>
+        <p>@Model.Description</p>
+
+        <hr />
+
+        <p>
+            <strong>Landlord:</strong> @Model.LandlordName <br />
+            <strong>Phone:</strong> @Model.PhoneNumber
+        </p>
+    </div>
+</div>
+
+<!-- Approve / Reject -->
+<div class="card border-danger">
+    <div class="card-body">
+        <form asp-action="VerifyListing" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ListingId" value="@Model.ListingId" />
+
+            <div class="mb-3">
+                <label class="form-label">Admin Notes (optional)</label>
+                <textarea name="Notes"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Required if rejecting a listing..."></textarea>
+
+            </div>
+
+            <div class="d-flex gap-2">
+                <button name="IsApproved"
+                        value="true"
+                        type="submit"
+                        class="btn btn-success">
+                    ✅ Approve
+                </button>
+
+                <button name="IsApproved"
+                        value="false"
+                        type="submit"
+                        class="btn btn-danger">
+                    ❌ Reject
+                </button>
+
+                <a asp-action="UnverifiedListings"
+                   class="btn btn-outline-secondary ms-auto">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
