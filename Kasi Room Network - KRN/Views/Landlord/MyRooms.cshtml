@@ -1,0 +1,62 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Landlord.LandlordListingViewModel>
+@{
+    ViewData["Title"] = "My Rooms";
+}
+
+<div class="container mt-4">
+  
+    @if (Model.Any())
+    {
+        <div class="row">
+
+            @foreach (var listing in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+
+                        @* <div class="card-footer bg-white">
+                            @if (Model.IsVerified)
+                            {
+                                SU
+                            }
+                        </div> *@
+
+                        @if (!string.IsNullOrEmpty(listing.PrimaryPhoto))
+                        {
+                            <img src="@listing.PrimaryPhoto"
+                                 class="card-img-top"
+                                 style="height: 180px; object-fit: cover;"
+                                 alt="Listing image" />
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title">@listing.Title</h5>
+                            <p class="card-text">
+                                @listing.Suburb, @listing.City<br />
+                                <span class="fw-bold text-success fs-5">
+                                    R @listing.Price per month
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-white">
+                            <a asp-action="ListingDetails"
+                               asp-route-id="@listing.ListingId"
+                               class="btn btn-outline-primary w-100">
+                                View Details
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            No Rooms found.
+        </div>
+    }
+</div>
