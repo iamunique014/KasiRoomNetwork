@@ -1,0 +1,42 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.AdminVerificationLogViewModel>
+@{
+    ViewData["Title"] = "Verification Logs";
+}
+
+<div class="continer mt4">
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Inspector</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>@item.AdminUser</td>
+                            <td>@item.Action</td>
+                            <td>@item.Notes</td>
+                            <td>@item.CreatedOn</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 bg-warning">
+            <p class="text-muted">
+                There are no verification logs.
+            </p>
+        </div>
+    }
+</div>

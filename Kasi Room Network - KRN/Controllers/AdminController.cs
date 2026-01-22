@@ -85,7 +85,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         // ===============================
         public async Task<IActionResult> VerificationLogs(int listingId)
         {
-            var logs = await _adminRepository.GetVerificationLogsAsync("Listing", listingId);
+            var logs = await _adminRepository.GetVerificationLogsAsync();
             return View(logs);
         }
     }

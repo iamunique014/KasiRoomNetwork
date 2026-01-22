@@ -79,18 +79,12 @@ namespace KasiRoomNetwork.Data.Repositories
         // ===============================
         // Verification Logs
         // ===============================
-        public async Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync(
-            string entityType,
-            int entityId
-        )
+        public async Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync()
         {
             return await _db.GetData<AdminVerificationLogViewModel, dynamic>(
                 "sp_Admin_Get_Verification_Logs",
                 new
-                {
-                    EntityType = entityType,
-                    EntityId = entityId
-                }
+                { }
             );
         }
     }

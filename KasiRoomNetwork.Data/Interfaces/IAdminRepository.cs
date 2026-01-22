@@ -21,6 +21,6 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task VerifyListingAsync(int listingId, string adminUserId, bool isApproved, string notes );
 
         // ===== Audit Logs =====
-        Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync(string entityType, int entityId);
+        Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync();
     }
 }
