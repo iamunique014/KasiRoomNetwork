@@ -64,6 +64,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 ModelState.AddModelError("", "Please upload a photo.");
                 ViewBag.ListingId = listingId;
+                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
@@ -75,6 +76,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 ModelState.AddModelError("", "Only JPG and PNG images are allowed.");
                 ViewBag.ListingId = listingId;
+                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
@@ -83,6 +85,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 ModelState.AddModelError("", "Image size cannot exceed 2MB.");
                 ViewBag.ListingId = listingId;
+                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
