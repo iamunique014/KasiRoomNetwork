@@ -20,33 +20,36 @@
 
 else
 {
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Location</th>
-                <th>Price</th>
-                <th>Submitted</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
                 <tr>
-                    <td><strong>@item.Title</strong></td>
-                    <td>@item.Suburb, @item.City</td>
-                    <td>R @item.Price</td>
-                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
-                    <td>
-                        <a asp-action="ReviewListing"
-                           asp-route-id="@item.ListingId"
-                           class="btn btn-sm btn-primary">
-                            Review
-                        </a>
-                    </td>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Price</th>
+                    <th>Submitted</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Title</strong></td>
+                        <td>@item.Suburb, @item.City</td>
+                        <td>R @item.Price</td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="ReviewListing"
+                               asp-route-id="@item.ListingId"
+                               class="btn btn-sm btn-primary">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
 }
