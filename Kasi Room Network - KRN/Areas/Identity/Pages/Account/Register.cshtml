@@ -1,4 +1,5 @@
 ﻿@page
+@using Kasi_Room_Network___KRN.Constants
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -17,6 +18,16 @@
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <select asp-for="Input.Role" class="form-control">
+                    @foreach (var role in Enum.GetValues(typeof(Roles)).Cast<Roles>().Where(r => r != Roles.Admin))
+                    {
+                        <option value="@role">@role</option>
+                    }
+                </select>
+                <label asp-for="Input.Role">Select Role</label>
+                <span asp-validation-for="Input.Role" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
