@@ -22,5 +22,8 @@ namespace KasiRoomNetwork.Data.Interfaces
 
         // ===== Audit Logs =====
         Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync();
+
+        // ===== User Management =====
+        Task<IEnumerable<ManageUsersViewModel>> GetUsersAsync();
     }
 }
