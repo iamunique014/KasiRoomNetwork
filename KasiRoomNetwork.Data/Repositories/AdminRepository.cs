@@ -87,5 +87,18 @@ namespace KasiRoomNetwork.Data.Repositories
                 { }
             );
         }
+
+        // ===============================
+        // User Management - Get All
+        // ===============================
+
+        public async Task<IEnumerable<ManageUsersViewModel>> GetUsersAsync()
+        {
+            return await _db.GetData<ManageUsersViewModel, dynamic>(
+                 "sp_Admin_Get_Users",
+                 new
+                 { }
+            );
+        }
     }
 }
