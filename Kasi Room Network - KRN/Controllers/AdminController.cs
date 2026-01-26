@@ -88,5 +88,15 @@ namespace Kasi_Room_Network___KRN.Controllers
             var logs = await _adminRepository.GetVerificationLogsAsync();
             return View(logs);
         }
+
+        // ===============================
+        // User Management - GET ALL USER
+        // ===============================
+
+        public async Task<IActionResult> UserManagement()
+        {
+            var users = await _adminRepository.GetUsersAsync();
+            return View(users);
+        }
     }
 }
