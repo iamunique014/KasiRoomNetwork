@@ -1,0 +1,55 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.ManageUsersViewModel>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<h2 class="mb-4">User Management</h2>
+
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4 class="text-warning">Something is not right!</h4>
+        <p class="text-muted">
+            There's currently no user in the system'
+        </p>
+    </div>
+}
+
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>UserID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined On</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Id</strong></td>
+                        <td>@item.Username</td>
+                        <td>@item.Email</td>
+                        <td>@item.RoleName</td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="ManageUser"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-primary">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+   
+}
