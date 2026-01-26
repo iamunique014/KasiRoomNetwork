@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -125,6 +126,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, Input.Role);
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
@@ -145,8 +147,24 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                     }
                     else
                     {
+                        var userRoles = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(userId));
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        if (userRoles.Contains("Admin"))
+                        {
+                            return RedirectToAction("AdminDashboard", "Admin");
+                        }
+                        else if (userRoles.Contains("Tenant"))
+                        {
+                            return RedirectToAction("TenantDashboard", "Tenant");
+                        }
+                        else if (userRoles.Contains("Landlord"))
+                        {
+                            return RedirectToAction("LandlordDashboard", "Landlord");
+                        }
+                        else
+                        {
+                            return LocalRedirect(returnUrl);
+                        }
                     }
                 }
                 foreach (var error in result.Errors)
