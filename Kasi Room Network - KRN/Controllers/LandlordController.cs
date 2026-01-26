@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
-    [Authorize(Roles = "Landlord")]
+    //Authorize(Roles = "Landlord")]
     public class LandlordController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
