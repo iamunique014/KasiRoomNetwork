@@ -26,6 +26,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public string? Street { get; set; }
 
         // Landlord
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PhoneNumber { get; set; }
         public string LandlordUserId { get; set; }
         public string LandlordEmail { get; set; }
 
