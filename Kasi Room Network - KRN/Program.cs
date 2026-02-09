@@ -33,6 +33,7 @@ builder.Services.AddTransient<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
+builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
 
 builder.Services.AddRazorPages();
 
