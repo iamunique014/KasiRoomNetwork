@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Kasi_Room_Network___KRN.Constants;
 using KasiRoomNetwork.Data.Domain.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -116,6 +117,18 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            var allowedRoles = new[]
+            {
+                Roles.Tenant.ToString(),
+                Roles.Landlord.ToString()
+            };
+
+            if (string.IsNullOrWhiteSpace(Input?.Role) || !allowedRoles.Contains(Input.Role))
+            {
+                ModelState.AddModelError("Input.Role", "Invalid role selection.");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
