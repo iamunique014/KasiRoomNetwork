@@ -26,6 +26,14 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.FirstOrDefault();
         }
+        public async Task<bool> Exists(string userId)
+        {
+            var result = await _db.GetData<int, dynamic>(
+                "sp_Profile_Get_By_UserId",
+                new { UserId = userId });
+
+            return result.Any();
+        }
 
         public async Task SaveProfile(ProfileViewModel profile, string userId)
         {
