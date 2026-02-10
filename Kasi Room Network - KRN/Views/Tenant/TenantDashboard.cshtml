@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Tenant Dashboard";
+}
+
+<div class="container py-4">
+    <h1 class="fw-bold mb-3">Tenant Dashboard</h1>
+    <p class="text-muted mb-4">Welcome to your dashboard. Start browsing verified rooms now.</p>
+
+    <div class="d-grid gap-2 d-md-flex">
+        <a asp-controller="Listing" asp-action="SearchListings" class="btn btn-success">Find a Room</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Home</a>
+    </div>
+</div>
