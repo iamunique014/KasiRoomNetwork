@@ -24,11 +24,18 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MyProfile(ProfileViewModel model)
+        public async Task<IActionResult> MyProfile(ProfileViewModel model, string? returnUrl)
         {
+            if (!ModelState.IsValid)
+                return View(model);
+
             var userId = _userManager.GetUserId(User);
             await _profileRepository.SaveProfile(model, userId);
-            TempData["Success"] = "Profile updated";
+            TempData["Success"] = "Profile saved successfully";
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction(nameof(MyProfile));
         }
     }
