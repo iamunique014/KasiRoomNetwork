@@ -4,6 +4,13 @@
     ViewData["Title"] = "My Profile";
     var isLandlord = ViewBag.IsLandlord as bool? ?? false;
     var landlordProfile = ViewBag.LandlordProfile as LandlordPublicProfileViewModel;
+
+    if (Context.Request.Query.ContainsKey("returnUrl"))
+    {
+        <div class="alert alert-info">
+            Complete your profile to contact landlords.
+        </div>
+    }
 }
 
 <div class="container mt-4">
@@ -27,6 +34,12 @@
 
     <form asp-action="MyProfile" method="post" novalidate>
         @Html.AntiForgeryToken()
+        @if (Context.Request.Query.ContainsKey("returnUrl"))
+        {
+            <input type="hidden"
+                   name="returnUrl"
+                   value="@Context.Request.Query["returnUrl"]" />
+        }
 
         <div class="mb-3">
             <label asp-for="FullName" class="form-label"></label>
