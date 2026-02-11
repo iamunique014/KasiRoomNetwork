@@ -11,6 +11,7 @@ namespace KasiRoomNetwork.Data.Interfaces
     {
         Task<ProfileViewModel?> GetByUserId(string userId);
         Task<bool> Exists(string userId);
+        Task<bool> IsComplete(string userId);
         Task SaveProfile(ProfileViewModel profile, string userId);
         Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId);
     }

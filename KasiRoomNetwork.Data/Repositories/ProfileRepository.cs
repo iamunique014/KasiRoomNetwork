@@ -47,6 +47,18 @@ namespace KasiRoomNetwork.Data.Repositories
             });
         }
 
+        public async Task<bool> IsComplete(string userId)
+        {
+            var profile = await GetByUserId(userId);
+            if (profile == null)
+                return false;
+
+            return !string.IsNullOrWhiteSpace(profile.FullName)
+                && !string.IsNullOrWhiteSpace(profile.PhoneNumber)
+                && !string.IsNullOrWhiteSpace(profile.City)
+                && !string.IsNullOrWhiteSpace(profile.Province);
+        }
+
         public async Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId)
         {
             var result = await _db.GetData<LandlordPublicProfileViewModel, dynamic>(

@@ -10,10 +10,12 @@ namespace Kasi_Room_Network___KRN.Controllers
     public class ListingController : Controller
     {
         private readonly IListingRepository _listingRepository;
+        private readonly IProfileRepository _profileRepository;
 
-        public ListingController(IListingRepository listingRepository)
+        public ListingController(IListingRepository listingRepository, IProfileRepository profileRepository)
         {
             _listingRepository = listingRepository;
+            _profileRepository = profileRepository;
         }
 
         // =========================
@@ -22,8 +24,21 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public IActionResult CreateListing()
+        public async Task<IActionResult> CreateListing()
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] = "Before posting a room, complete your landlord profile so tenants can trust your listing.";
+                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
+            }
+
             return View();
         }
 
@@ -36,6 +51,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(model);
 
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] = "Complete your profile first to continue posting your room.";
+                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
+            }
 
             int listingId = await _listingRepository.CreateListing(model, landlordUserId);
 

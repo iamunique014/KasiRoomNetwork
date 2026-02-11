@@ -4,13 +4,15 @@
     ViewData["Title"] = "My Profile";
     var isLandlord = ViewBag.IsLandlord as bool? ?? false;
     var landlordProfile = ViewBag.LandlordProfile as LandlordPublicProfileViewModel;
+    var returnUrl = ViewBag.ReturnUrl as string;
+    var profilePrompt = ViewBag.ProfilePrompt as string;
 
-    if (Context.Request.Query.ContainsKey("returnUrl"))
-    {
-        <div class="alert alert-info">
-            Complete your profile to contact landlords.
-        </div>
-    }
+    var completedFields = 0;
+    if (!string.IsNullOrWhiteSpace(Model?.FullName)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.City)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.Province)) completedFields++;
+    var completionPercent = completedFields * 25;
 }
 
 <div class="container mt-4">
@@ -18,91 +20,106 @@
     <h2>My Profile</h2>
 
     <p class="text-muted">
-        @(isLandlord ? "Your landlord information" : "Your personal information")
+        @(isLandlord ? "Build trust with tenants by completing your landlord profile." : "Complete your personal details to unlock messaging.")
     </p>
 
-    @* Success message *@
+    @if (!string.IsNullOrWhiteSpace(profilePrompt))
+    {
+        <div class="alert alert-info" role="alert">
+            @profilePrompt
+        </div>
+    }
+
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
+        <div class="alert alert-success" role="alert">
             @TempData["Success"]
         </div>
     }
 
-    @* Validation summary *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-semibold">Profile completion</span>
+                <span class="text-muted">@completionPercent%</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="Profile completion" aria-valuenow="@completionPercent" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar @(completionPercent == 100 ? "bg-success" : "")" style="width: @completionPercent%"></div>
+            </div>
+            <small class="text-muted d-block mt-2">All 4 fields are required so landlords and tenants can safely connect.</small>
+        </div>
+    </div>
+
     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
     <form asp-action="MyProfile" method="post" novalidate>
         @Html.AntiForgeryToken()
-        @if (Context.Request.Query.ContainsKey("returnUrl"))
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
         {
-            <input type="hidden"
-                   name="returnUrl"
-                   value="@Context.Request.Query["returnUrl"]" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
         }
 
         <div class="mb-3">
-            <label asp-for="FullName" class="form-label"></label>
-            <input asp-for="FullName" class="form-control" />
+            <label asp-for="FullName" class="form-label">Full name</label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" placeholder="e.g. Lindiwe Mokoena" />
             <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="PhoneNumber" class="form-label"></label>
-            <input asp-for="PhoneNumber" class="form-control" />
+            <label asp-for="PhoneNumber" class="form-label">Phone number</label>
+            <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" placeholder="e.g. 071 234 5678" />
             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="City" class="form-label"></label>
-            <input asp-for="City" class="form-control" />
+            <label asp-for="City" class="form-label">City</label>
+            <input asp-for="City" class="form-control" autocomplete="address-level2" placeholder="e.g. Johannesburg" />
             <span asp-validation-for="City" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Province" class="form-label"></label>
-            <input asp-for="Province" class="form-control" />
+            <label asp-for="Province" class="form-label">Province</label>
+            <input asp-for="Province" class="form-control" autocomplete="address-level1" placeholder="e.g. Gauteng" />
             <span asp-validation-for="Province" class="text-danger"></span>
         </div>
 
         <button type="submit" class="btn btn-primary">
-            Save Profile
+            Save & Continue
         </button>
+
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <p class="text-muted small mt-2 mb-0">After saving, you'll continue where you left off.</p>
+        }
     </form>
 
-    @* ---------------- LANDLORD SECTION ---------------- *@
     @if (isLandlord && landlordProfile != null)
     {
         <hr class="my-4" />
 
-        <div class="card">
+        <div class="card border-success">
             <div class="card-body">
-                <h5 class="card-title">Landlord Status</h5>
+                <h5 class="card-title">Landlord trust status</h5>
 
                 @if (landlordProfile.IsVerified)
                 {
                     <span class="badge bg-success mb-2">Verified</span>
-                    <p class="text-success mt-2">
-                        Your profile is verified. Tenants can trust your listings.
+                    <p class="text-success mt-2 mb-2">
+                        Great news! Your profile is verified and visible as trusted to tenants.
                     </p>
                 }
                 else
                 {
-                    <span class="badge bg-warning text-dark mb-2">Pending Verification</span>
-                    <p class="text-muted mt-2">
-                        Your profile is under review by our team.
+                    <span class="badge bg-warning text-dark mb-2">Pending verification</span>
+                    <p class="text-muted mt-2 mb-2">
+                        You're almost there. Keep your details accurate while our team reviews your account.
                     </p>
                 }
 
                 <div class="mt-3">
-                    <label class="form-label">About you (optional)</label>
-                    <textarea class="form-control"
-                              rows="4"
-                              disabled>@landlordProfile.Bio</textarea>
-
-                    <small class="text-muted">
-                        This information helps tenants trust you.
-                    </small>
+                    <label class="form-label">Public bio preview</label>
+                    <textarea class="form-control" rows="4" disabled>@(string.IsNullOrWhiteSpace(landlordProfile.Bio) ? "No bio added yet." : landlordProfile.Bio)</textarea>
+                    <small class="text-muted">A clear profile helps tenants feel safe to contact you.</small>
                 </div>
             </div>
         </div>
@@ -113,4 +130,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-

@@ -15,12 +15,18 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILandlordRepository _landlordRepository;
         private readonly IListingRepository _listingRepository;
+        private readonly IProfileRepository _profileRepository;
 
-        public LandlordController(UserManager<ApplicationUser> userManager, ILandlordRepository landlordRepository, IListingRepository listingRepository)
+        public LandlordController(
+            UserManager<ApplicationUser> userManager,
+            ILandlordRepository landlordRepository,
+            IListingRepository listingRepository,
+            IProfileRepository profileRepository)
         {
             _userManager = userManager;
             _landlordRepository = landlordRepository;
             _listingRepository = listingRepository;
+            _profileRepository = profileRepository;
         }
 
         public async Task<IActionResult> start()
@@ -39,9 +45,23 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             return View();
         }
-
-        public IActionResult LandlordDashboard()
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public async Task<IActionResult> LandlordDashboard()
         {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var hasCompleteProfile = await _profileRepository.IsComplete(userId);
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] = "Complete your landlord profile first. It takes under a minute and unlocks room posting.";
+                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("LandlordDashboard", "Landlord") });
+            }
+
             return View();
         }
 
