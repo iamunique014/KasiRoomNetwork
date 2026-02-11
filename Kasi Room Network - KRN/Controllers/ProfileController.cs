@@ -18,7 +18,9 @@ namespace Kasi_Room_Network___KRN.Controllers
             _profileRepository = profileRepository;
             _userManager = userManager;
         }
-        public async Task<IActionResult> MyProfile()
+
+        [HttpGet]
+        public async Task<IActionResult> MyProfile(string? returnUrl)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
@@ -27,11 +29,16 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             await PopulateLandlordProfileAsync(userId);
+
+            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ProfilePrompt = TempData["ProfilePrompt"] as string;
+
             var profile = await _profileRepository.GetByUserId(userId);
             return View(profile ?? new ProfileViewModel());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MyProfile(ProfileViewModel model, string? returnUrl)
         {
             if (!ModelState.IsValid)
@@ -42,6 +49,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     await PopulateLandlordProfileAsync(invalidUserId);
                 }
 
+                ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
@@ -55,7 +63,9 @@ namespace Kasi_Room_Network___KRN.Controllers
             TempData["Success"] = "Profile saved successfully";
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
                 return Redirect(returnUrl);
+            }
 
             return RedirectToAction(nameof(MyProfile));
         }

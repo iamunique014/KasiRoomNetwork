@@ -20,11 +20,16 @@ namespace Kasi_Room_Network___KRN.Controllers
         public async Task<IActionResult> ContactLandlord(int listingId)
         {
             var userId = _userManager.GetUserId(User);
-
-            var hasProfile = await _profileRepository.Exists(userId);
-
-            if (!hasProfile)
+            if (string.IsNullOrWhiteSpace(userId))
             {
+                return Challenge();
+            }
+
+            var hasCompleteProfile = await _profileRepository.IsComplete(userId);
+
+            if (!hasCompleteProfile)
+            {
+                TempData["ProfilePrompt"] = "Before contacting a landlord, complete your profile so they can trust who is reaching out.";
                 return RedirectToAction(
                     "MyProfile",
                     "Profile",

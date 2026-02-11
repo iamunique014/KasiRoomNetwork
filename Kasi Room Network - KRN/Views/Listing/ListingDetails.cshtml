@@ -95,7 +95,7 @@
                 </small>
             </p>
 
-            <a asp-action="ContactLandlord" asp-controller="Messages" class="btn btn-success btn-lg w-100" disabled>
+            <a asp-action="ContactLandlord" asp-controller="Messages" asp-route-listingId="@Model.ListingId" class="btn btn-success btn-lg w-100">
                 Contact Landlord
             </a>
 
