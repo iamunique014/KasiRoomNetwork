@@ -23,31 +23,34 @@ namespace Kasi_Room_Network___KRN.Controllers
         public async Task<IActionResult> MyProfile(string? returnUrl)
         {
             var userId = _userManager.GetUserId(User);
+            var isLandlord = User.IsInRole("Landlord");
+           
             if (string.IsNullOrEmpty(userId))
             {
                 return Challenge();
             }
 
-            await PopulateLandlordProfileAsync(userId);
-
+            //await PopulateLandlordProfileAsync(userId);
+            ViewBag.IsLandlord = isLandlord;
             ViewBag.ReturnUrl = returnUrl;
             ViewBag.ProfilePrompt = TempData["ProfilePrompt"] as string;
 
             var profile = await _profileRepository.GetByUserId(userId);
-            return View(profile ?? new ProfileViewModel());
+
+            return View(profile ?? new ProfilePageViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MyProfile(ProfileViewModel model, string? returnUrl)
+        public async Task<IActionResult> MyProfile(ProfilePageViewModel model, string? returnUrl)
         {
             if (!ModelState.IsValid)
             {
-                var invalidUserId = _userManager.GetUserId(User);
-                if (!string.IsNullOrEmpty(invalidUserId))
-                {
-                    await PopulateLandlordProfileAsync(invalidUserId);
-                }
+                //var invalidUserId = _userManager.GetUserId(User);
+                //if (!string.IsNullOrEmpty(invalidUserId))
+                //{
+                //    await PopulateLandlordProfileAsync(invalidUserId);
+                //}
 
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
@@ -59,7 +62,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            await _profileRepository.SaveProfile(model, userId);
+
+            var isLandlord = User.IsInRole("Landlord");
+            if (isLandlord) 
+            {
+                await _profileRepository.SaveLandlordProfile(model, userId);
+            }
+            else
+            {
+                await _profileRepository.SaveProfile(model, userId);
+            }
+                
             TempData["Success"] = "Profile saved successfully";
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -70,15 +83,15 @@ namespace Kasi_Room_Network___KRN.Controllers
             return RedirectToAction(nameof(MyProfile));
         }
 
-        private async Task PopulateLandlordProfileAsync(string userId)
-        {
-            var isLandlord = User.IsInRole("Landlord");
-            ViewBag.IsLandlord = isLandlord;
+        //private async Task PopulateLandlordProfileAsync(string userId)
+        //{
+        //    var isLandlord = User.IsInRole("Landlord");
+        //    ViewBag.IsLandlord = isLandlord;
 
-            if (isLandlord)
-            {
-                ViewBag.LandlordProfile = await _profileRepository.GetLandlordPublic(userId);
-            }
-        }
+        //    if (isLandlord)
+        //    {
+        //        ViewBag.LandlordProfile = await _profileRepository.GetLandlordPublic(userId);
+        //    }
+        //}
     }
 }

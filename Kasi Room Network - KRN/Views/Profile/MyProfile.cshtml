@@ -1,5 +1,5 @@
 ﻿@using KasiRoomNetwork.Common.ViewModel.Profiles
-@model KasiRoomNetwork.Common.ViewModel.Profiles.ProfileViewModel
+@model KasiRoomNetwork.Common.ViewModel.Profiles.ProfilePageViewModel
 @{
     ViewData["Title"] = "My Profile";
     var isLandlord = ViewBag.IsLandlord as bool? ?? false;
@@ -7,12 +7,24 @@
     var returnUrl = ViewBag.ReturnUrl as string;
     var profilePrompt = ViewBag.ProfilePrompt as string;
 
+    var completionPercent = 0;
     var completedFields = 0;
-    if (!string.IsNullOrWhiteSpace(Model?.FullName)) completedFields++;
-    if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber)) completedFields++;
-    if (!string.IsNullOrWhiteSpace(Model?.City)) completedFields++;
-    if (!string.IsNullOrWhiteSpace(Model?.Province)) completedFields++;
-    var completionPercent = completedFields * 25;
+
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile.FullName)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile.PhoneNumber)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile.City)) completedFields++;
+    if (!string.IsNullOrWhiteSpace(Model?.UserProfile.Province)) completedFields++;
+
+    if (isLandlord)
+    {
+        if (!string.IsNullOrWhiteSpace(Model?.LandlordProfile.Bio)) completedFields++;
+        completionPercent = completedFields * 20;
+    }
+    else
+    {
+        completionPercent = completedFields * 25;
+    }
+    
 }
 
 <div class="container mt-4">
@@ -46,7 +58,7 @@
             <div class="progress" role="progressbar" aria-label="Profile completion" aria-valuenow="@completionPercent" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-bar @(completionPercent == 100 ? "bg-success" : "")" style="width: @completionPercent%"></div>
             </div>
-            <small class="text-muted d-block mt-2">All 4 fields are required so landlords and tenants can safely connect.</small>
+            <small class="text-muted d-block mt-2">All @(isLandlord ? 5 : 4) fields are required so landlords and tenants can safely connect.</small>
         </div>
     </div>
 
@@ -60,29 +72,63 @@
         }
 
         <div class="mb-3">
-            <label asp-for="FullName" class="form-label">Full name</label>
-            <input asp-for="FullName" class="form-control" autocomplete="name" placeholder="e.g. Lindiwe Mokoena" />
-            <span asp-validation-for="FullName" class="text-danger"></span>
+            <label asp-for="UserProfile.FullName" class="form-label">Full name</label>
+            <input asp-for="UserProfile.FullName" class="form-control" autocomplete="name" placeholder="e.g. Lindiwe Mokoena" />
+            <span asp-validation-for="UserProfile.FullName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="PhoneNumber" class="form-label">Phone number</label>
-            <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" placeholder="e.g. 071 234 5678" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <label asp-for="UserProfile.PhoneNumber" class="form-label">Phone number</label>
+            <input asp-for="UserProfile.PhoneNumber" class="form-control" autocomplete="tel" placeholder="e.g. 071 234 5678" />
+            <span asp-validation-for="UserProfile.PhoneNumber" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="City" class="form-label">City</label>
-            <input asp-for="City" class="form-control" autocomplete="address-level2" placeholder="e.g. Johannesburg" />
-            <span asp-validation-for="City" class="text-danger"></span>
+            <label asp-for="UserProfile.City" class="form-label">City</label>
+            <input asp-for="UserProfile.City" class="form-control" autocomplete="address-level2" placeholder="e.g. Johannesburg" />
+            <span asp-validation-for="UserProfile.City" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Province" class="form-label">Province</label>
-            <input asp-for="Province" class="form-control" autocomplete="address-level1" placeholder="e.g. Gauteng" />
-            <span asp-validation-for="Province" class="text-danger"></span>
+            <label asp-for="UserProfile.Province" class="form-label">Province</label>
+            <input asp-for="UserProfile.Province" class="form-control" autocomplete="address-level1" placeholder="e.g. Gauteng" />
+            <span asp-validation-for="UserProfile.Province" class="text-danger"></span>
         </div>
 
+        @if (isLandlord && Model.LandlordProfile != null) //Does'nt display to new landlords unless landlordProfile 
+                                                    //Exists. Auto create on registration. 
+        {
+            <hr class="my-4" />
+
+            <div class="card border-success">`
+                <div class="card-body">
+                    <h5 class="card-title">Landlord trust status</h5>
+
+                    @if (Model.LandlordProfile.IsVerified)
+                    {
+                        <span class="badge bg-success mb-2">Verified</span>
+                        <p class="text-success mt-2 mb-2">
+                            Great news! Your profile is verified and visible as trusted to tenants.
+                        </p>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark mb-2">Pending verification</span>
+                        <p class="text-muted mt-2 mb-2">
+                            You're almost there. Keep your details accurate while our team reviews your account.
+                        </p>
+                    }
+
+                    <div class="mt-3">
+                        <label asp-for="LandlordProfile.Bio" class="form-label">Public bio preview</label>
+                        <textarea asp-for="LandlordProfile.Bio" class="form-control" rows="4">@(string.IsNullOrWhiteSpace(landlordProfile.Bio) ? "No bio added yet." : landlordProfile.Bio)</textarea>
+                        <span asp-validation-for="LandlordProfile.Bio" class="text-danger"></span>
+                        <small class="text-muted">A clear profile helps tenants feel safe to contact you.</small>
+                    </div>
+                </div>
+            </div>
+        }
+        
         <button type="submit" class="btn btn-primary">
             Save & Continue
         </button>
@@ -93,37 +139,8 @@
         }
     </form>
 
-    @if (isLandlord && landlordProfile != null)
-    {
-        <hr class="my-4" />
-
-        <div class="card border-success">
-            <div class="card-body">
-                <h5 class="card-title">Landlord trust status</h5>
-
-                @if (landlordProfile.IsVerified)
-                {
-                    <span class="badge bg-success mb-2">Verified</span>
-                    <p class="text-success mt-2 mb-2">
-                        Great news! Your profile is verified and visible as trusted to tenants.
-                    </p>
-                }
-                else
-                {
-                    <span class="badge bg-warning text-dark mb-2">Pending verification</span>
-                    <p class="text-muted mt-2 mb-2">
-                        You're almost there. Keep your details accurate while our team reviews your account.
-                    </p>
-                }
-
-                <div class="mt-3">
-                    <label class="form-label">Public bio preview</label>
-                    <textarea class="form-control" rows="4" disabled>@(string.IsNullOrWhiteSpace(landlordProfile.Bio) ? "No bio added yet." : landlordProfile.Bio)</textarea>
-                    <small class="text-muted">A clear profile helps tenants feel safe to contact you.</small>
-                </div>
-            </div>
-        </div>
-    }
+    
+    
 
 </div>
 
