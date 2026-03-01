@@ -32,5 +32,23 @@ namespace KasiRoomNetwork.Data.DataAccess
             using IDbConnection connection = new SqlConnection(_config.GetConnectionString(connectionID));
             await connection.ExecuteAsync(spName, parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<IEnumerable<TReturn>> GetMultiData<TFirst, TSecond, TReturn>(
+        string spName,
+        Func<TFirst, TSecond, TReturn> map,
+        object parameters,
+        string splitOn,
+        string connectionID = "conn")
+        {
+            using IDbConnection connection =
+                new SqlConnection(_config.GetConnectionString(connectionID));
+
+            return await connection.QueryAsync<TFirst, TSecond, TReturn>(
+                spName,
+                map,
+                parameters,
+                commandType: CommandType.StoredProcedure,
+                splitOn: splitOn);
+        }
     }
 }
