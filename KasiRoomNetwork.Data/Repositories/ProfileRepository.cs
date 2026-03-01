@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+//using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
@@ -18,32 +19,54 @@ namespace KasiRoomNetwork.Data.Repositories
         {
             _db = db;
         }
-        public async Task<ProfileViewModel?> GetByUserId(string userId)
+        public async Task<ProfilePageViewModel?> GetByUserId(string userId)
         {
-            var result = await _db.GetData<ProfileViewModel, dynamic>(
+            var result = await _db.GetMultiData<ProfileViewModel, LandlordPublicProfileViewModel, ProfilePageViewModel>(
                 "sp_Profile_Get_By_UserId",
-                new { UserId = userId});
+                (user, landlord) =>
+                {
+                    return new ProfilePageViewModel
+                    {
+                        UserProfile = user,
+                        LandlordProfile = landlord
+                    };
+                },
+                new { UserId = userId },
+                splitOn: "LandlordSplit");
 
             return result.FirstOrDefault();
         }
-        public async Task<bool> Exists(string userId)
-        {
-            var result = await _db.GetData<int, dynamic>(
-                "sp_Profile_Get_By_UserId",
-                new { UserId = userId });
+        //public async Task<bool> Exists(string userId)
+        //{
+        //    var result = await _db.GetData<int, dynamic>(
+        //        "sp_Profile_Get_By_UserId",
+        //        new { UserId = userId });
 
-            return result.Any();
-        }
+        //    return result.Any();
+        //}
 
-        public async Task SaveProfile(ProfileViewModel profile, string userId)
+        public async Task SaveProfile(ProfilePageViewModel profile, string userId)
         {
             await _db.SaveData("sp_Profile_Upsert", new
             {
                 userId,
-                profile.FullName,
-                profile.PhoneNumber,
-                profile.City,
-                profile.Province
+                profile.UserProfile.FullName,
+                profile.UserProfile.PhoneNumber,
+                profile.UserProfile.City,
+                profile.UserProfile.Province
+            });
+        }
+
+        public async Task SaveLandlordProfile(ProfilePageViewModel profile, string userId)
+        {
+            await _db.SaveData("sp_LandlordProfile_Create", new
+            {
+                userId,
+                profile.UserProfile.FullName,
+                profile.UserProfile.PhoneNumber,
+                profile.UserProfile.City,
+                profile.UserProfile.Province,
+                profile.LandlordProfile.Bio
             });
         }
 
@@ -53,19 +76,19 @@ namespace KasiRoomNetwork.Data.Repositories
             if (profile == null)
                 return false;
 
-            return !string.IsNullOrWhiteSpace(profile.FullName)
-                && !string.IsNullOrWhiteSpace(profile.PhoneNumber)
-                && !string.IsNullOrWhiteSpace(profile.City)
-                && !string.IsNullOrWhiteSpace(profile.Province);
+            return !string.IsNullOrWhiteSpace(profile.UserProfile.FullName)
+                && !string.IsNullOrWhiteSpace(profile.UserProfile.PhoneNumber)
+                && !string.IsNullOrWhiteSpace(profile.UserProfile.City)
+                && !string.IsNullOrWhiteSpace(profile.UserProfile.Province);
         }
 
-        public async Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId)
-        {
-            var result = await _db.GetData<LandlordPublicProfileViewModel, dynamic>(
-               "sp_Profile_LandlordProfile_Public",
-               new { UserId = userId });
+        //public async Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId)
+        //{
+        //    var result = await _db.GetData<LandlordPublicProfileViewModel, dynamic>(
+        //       "sp_Profile_LandlordProfile_Public",
+        //       new { UserId = userId });
 
-            return result.FirstOrDefault();
-        }
+        //    return result.FirstOrDefault();
+        //}
     }
 }

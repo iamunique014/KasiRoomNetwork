@@ -9,11 +9,12 @@ namespace KasiRoomNetwork.Data.Interfaces
 {
     public interface IProfileRepository
     {
-        Task<ProfileViewModel?> GetByUserId(string userId);
-        Task<bool> Exists(string userId);
+        Task<ProfilePageViewModel?> GetByUserId(string userId);
+        //Task<bool> Exists(string userId);
         Task<bool> IsComplete(string userId);
-        Task SaveProfile(ProfileViewModel profile, string userId);
-        Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId);
+        Task SaveProfile(ProfilePageViewModel profile, string userId);
+        Task SaveLandlordProfile(ProfilePageViewModel profile, string userId);
+        //Task<LandlordPublicProfileViewModel?> GetLandlordPublic(string userId);
     }
 
 }
