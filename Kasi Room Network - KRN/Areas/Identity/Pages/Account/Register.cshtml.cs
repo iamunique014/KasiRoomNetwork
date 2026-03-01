@@ -12,7 +12,9 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Kasi_Room_Network___KRN.Constants;
+using KasiRoomNetwork.Common.ViewModel.Profiles;
 using KasiRoomNetwork.Data.Domain.Models;
+using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -28,6 +30,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IProfileRepository _profileRepository;
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
@@ -36,6 +39,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
+            IProfileRepository profileRepository,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
@@ -46,6 +50,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _profileRepository = profileRepository;
         }
 
         /// <summary>
@@ -172,6 +177,8 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                         }
                         else if (userRoles.Contains("Landlord"))
                         {
+                            //create landlord public profile
+                            await _profileRepository.SaveLandlordProfile(new ProfilePageViewModel(), userId);
                             return RedirectToAction("LandlordDashboard", "Landlord");
                         }
                         else
