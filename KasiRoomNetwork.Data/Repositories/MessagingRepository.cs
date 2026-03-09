@@ -1,0 +1,68 @@
+﻿using KasiRoomNetwork.Common.ViewModel.Messaging;
+using KasiRoomNetwork.Data.DataAccess;
+using KasiRoomNetwork.Data.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KasiRoomNetwork.Data.Repositories
+{
+    public class MessagingRepository : IMessagingRepository
+    {
+        private readonly ISqlDataAccess _db;
+
+        public MessagingRepository(ISqlDataAccess db)
+        {
+            _db = db;
+        }
+
+       
+        public async Task<int> CreateConversation(int listingId, string tenantId, string landlordId)
+        {
+            var result = await _db.GetData<int, dynamic>(
+                "sp_Create_Conversation",
+                new 
+                { 
+                    listingId, tenantId, landlordId 
+                } 
+               
+            );
+
+            return result.FirstOrDefault();
+        }
+
+        public async Task SendMessage(SendMessageViewModel model)
+        {
+            await _db.SaveData("sp_Send_Message", new
+            {
+                model.ConversationId,
+                model.SenderId,
+                model.MessageText
+            });
+        }
+
+        public async Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId)
+        {
+            return await _db.GetData<MessageViewModel, dynamic>(
+                "sp_Get_Convearsation_Messages",
+                new { ConversationId = conversationId });
+        }
+
+        public async Task<IEnumerable<ConversationViewModel>> GetInbox(string userId)
+        {
+            return await _db.GetData<ConversationViewModel, dynamic>(
+               "sp_Get_Inbox",
+               new { UserId = userId });
+        }
+
+        public async Task MarkConversation(int conversationId, string userId)
+        {
+            await _db.SaveData("sp_Mark_Conversation_Read", new { 
+                    ConversationId = conversationId, UserId = userId
+
+            });
+        }
+    }
+}
