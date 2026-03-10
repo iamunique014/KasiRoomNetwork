@@ -1,0 +1,53 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Messaging.ConversationViewModel>
+
+@{
+    ViewData["Title"] = "Inbox";
+}
+
+<h2>Inbox</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No messages yet.
+    </div>
+}
+else
+{
+    <div class="list-group">
+
+        @foreach (var conversation in Model)
+        {
+            <a asp-controller="Messages"
+               asp-action="Conversation"
+               asp-route-id="@conversation.ConversationId"
+               class="list-group-item list-group-item-action">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>@conversation.OtherUserName</strong>
+
+                    <small>
+                        @conversation.LastMessageAt.ToString("g")
+                    </small>
+
+                </div>
+
+                <div class="d-flex justify-content-between">
+
+                    <span>@conversation.LastMessage</span>
+
+                    @if (conversation.UnreadCount > 0)
+                    {
+                        <span class="badge bg-danger">
+                            @conversation.UnreadCount
+                        </span>
+                    }
+
+                </div>
+
+            </a>
+        }
+
+    </div>
+}
