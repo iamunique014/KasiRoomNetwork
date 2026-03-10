@@ -22,7 +22,7 @@ namespace KasiRoomNetwork.Data.Repositories
         public async Task<int> CreateConversation(int listingId, string tenantId, string landlordId)
         {
             var result = await _db.GetData<int, dynamic>(
-                "sp_Create_Conversation",
+                "sp_Messaging_Create_Conversation",
                 new 
                 { 
                     listingId, tenantId, landlordId 
@@ -35,7 +35,7 @@ namespace KasiRoomNetwork.Data.Repositories
 
         public async Task SendMessage(SendMessageViewModel model)
         {
-            await _db.SaveData("sp_Send_Message", new
+            await _db.SaveData("sp_Messaging_Send_Message", new
             {
                 model.ConversationId,
                 model.SenderId,
@@ -46,20 +46,20 @@ namespace KasiRoomNetwork.Data.Repositories
         public async Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId)
         {
             return await _db.GetData<MessageViewModel, dynamic>(
-                "sp_Get_Convearsation_Messages",
+                "sp_Messaging_Get_Conversation_Messages",
                 new { ConversationId = conversationId });
         }
 
         public async Task<IEnumerable<ConversationViewModel>> GetInbox(string userId)
         {
             return await _db.GetData<ConversationViewModel, dynamic>(
-               "sp_Get_Inbox",
+               "sp_Messaging_Get_Inbox",
                new { UserId = userId });
         }
 
-        public async Task MarkConversation(int conversationId, string userId)
+        public async Task MarkConversationRead(int conversationId, string userId)
         {
-            await _db.SaveData("sp_Mark_Conversation_Read", new { 
+            await _db.SaveData("sp_Messaging_Mark_Conversation_Read", new { 
                     ConversationId = conversationId, UserId = userId
 
             });
