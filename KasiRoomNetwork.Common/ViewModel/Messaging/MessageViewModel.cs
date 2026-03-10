@@ -9,7 +9,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Messaging
     public class MessageViewModel
     {
         public int MessageId { get; set; }
-        public int ConverstionId { get; set; }
+        public int ConversationId { get; set; }
         public string SenderId { get; set; }
         public string MessageText { get; set; }
         public bool IsRead { get; set; }
