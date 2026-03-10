@@ -13,6 +13,6 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task SendMessage(SendMessageViewModel model);
         Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId);
         Task<IEnumerable<ConversationViewModel>> GetInbox(string userId);
-        Task MarkConversation(int conversationId, string userId);
+        Task MarkConversationRead(int conversationId, string userId);
     }
 }
