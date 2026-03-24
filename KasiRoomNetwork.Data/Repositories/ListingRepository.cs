@@ -21,7 +21,7 @@ namespace KasiRoomNetwork.Data.Repositories
         // sp_Create_Listing
         public async Task<int> CreateListing(CreateListingViewModel model,string landlordUserId)
         {
-            var result = await _db.GetData<int, dynamic>("sp_Create_Listing", new
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Create_Listing", new
             {
                 LandlordUserId = landlordUserId,
                 model.Province,
@@ -39,7 +39,7 @@ namespace KasiRoomNetwork.Data.Repositories
         // sp_Add_Listing_Photo
         public async Task AddListingPhoto(int listingId, string photoPath, bool isPrimary)
         {
-            await _db.SaveData("sp_Add_Listing_Photo", new
+            await _db.SaveData("sp_Listing_Add_Listing_Photo", new
             {
                 ListingId = listingId,
                 PhotoPath = photoPath,
@@ -51,7 +51,7 @@ namespace KasiRoomNetwork.Data.Repositories
         public async Task<ListingDetailsViewModel?> GetListingById(int listingId)
         {
             var result = await _db.GetData<ListingDetailsViewModel, dynamic>(
-                "sp_Get_Listing_By_Id",
+                "sp_Listing_Get_Listing_By_Id",
                 new { ListingId = listingId });
 
             return result.FirstOrDefault();
@@ -61,7 +61,7 @@ namespace KasiRoomNetwork.Data.Repositories
         public async Task<List<ListingPhotoViewModel>> GetListingPhotos(int listingId)
         {
             var result = await _db.GetData<ListingPhotoViewModel, dynamic>(
-                "sp_Get_Listing_Photos",
+                "sp_Listing_Get_Listing_Photos",
                 new { ListingId = listingId });
 
             return result.ToList();
@@ -70,7 +70,7 @@ namespace KasiRoomNetwork.Data.Repositories
         // sp_Search_Listings
         public async Task<List<ListingSearchResultViewModel>> SearchListings(ListingSearchViewModel searchModel)
         {
-            var result = await _db.GetData<ListingSearchResultViewModel, dynamic>("sp_Search_Listings", new
+            var result = await _db.GetData<ListingSearchResultViewModel, dynamic>("sp_Listing_Search_Listings", new
             {
                 searchModel.Province,
                 searchModel.City,
@@ -84,7 +84,7 @@ namespace KasiRoomNetwork.Data.Repositories
 
         public async Task<int> GetListingPhotoCount(int listingId)
         {
-            var result = await _db.GetData<int, dynamic>("sp_Get_Listing_Photo_Count_By_Listing", new 
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Get_Photo_Count_By_Listing", new 
             { 
                 ListingId = listingId 
             });

@@ -1,4 +1,5 @@
-﻿using KasiRoomNetwork.Data.Domain.Models;
+﻿using KasiRoomNetwork.Common.ViewModel.Messaging;
+using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,14 +11,16 @@ namespace Kasi_Room_Network___KRN.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IProfileRepository _profileRepository;
-        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository)
+        private readonly IMessagingRepository _messagingRepository;
+        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository, IMessagingRepository messagingRepository)
         {
             _userManager = userManager;
             _profileRepository = profileRepository;
+            _messagingRepository = messagingRepository;
         }
 
         [Authorize(Roles = "Tenant")]
-        public async Task<IActionResult> ContactLandlord(int listingId)
+        public async Task<IActionResult> ContactLandlord(int listingId, string landlordId)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrWhiteSpace(userId))
@@ -33,12 +36,67 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(
                     "MyProfile",
                     "Profile",
-                    new { returnUrl = Url.Action("ContactLandlord", new { listingId }) }
+                    new { returnUrl = Url.Action("ContactLandlord", new { listingId, landlordId }) }
                 );
             }
 
             // if profile exists continue
-            return RedirectToAction("StartConversation", new { listingId });
+            return RedirectToAction("StartConversation", new { listingId, landlordId });
+        }      
+
+        public async Task<IActionResult> StartConversation(int listingId, string landlordId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var conversationId = await _messagingRepository.CreateConversation(listingId, userId, landlordId);
+            return RedirectToAction("Conversation", new { conversationId });
+        }
+
+        public async Task<IActionResult> Inbox()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId)) 
+            {
+                return Challenge();
+            }
+
+            var inbox = await _messagingRepository.GetInbox(userId);
+
+            return View(inbox);
+        }
+
+        public async Task<IActionResult> Conversation(int conversationId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            await _messagingRepository.MarkConversationRead(conversationId, userId);
+
+            var messages = await _messagingRepository.GetConversationMessages(conversationId);
+            ViewBag.ConversationId = conversationId;
+            return View(messages);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Send(SendMessageViewModel model)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            model.SenderId = userId;
+
+            await _messagingRepository.SendMessage(model);
+
+            return RedirectToAction("Conversation", new { conversationId = model.ConversationId });
         }
     }
 }
