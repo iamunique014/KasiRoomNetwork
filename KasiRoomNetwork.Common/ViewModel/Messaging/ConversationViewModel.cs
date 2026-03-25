@@ -10,6 +10,8 @@ namespace KasiRoomNetwork.Common.ViewModel.Messaging
     {
         public int ConversationId { get; set; }
         public int ListingId { get; set; }
+        public string ListingTitle { get; set; }
+        public string OtherUserId { get; set; }
         public string OtherUserName { get; set; }
         public string LastMessage { get; set; }
         public DateTime LastMessageAt { get; set; }
