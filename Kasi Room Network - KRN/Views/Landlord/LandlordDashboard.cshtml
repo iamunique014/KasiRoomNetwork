@@ -1,8 +1,51 @@
 ﻿@{
     ViewData["Title"] = "KRN - Landlord";
+    int UnreadMessages = ViewBag.UnreadCount ?? 0;
 }
 
 <div class="container mt-5 text-center">
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <h6 class="fw-bold mb-2">
+                Messages 
+                @if (UnreadMessages > 0)
+                {
+                    <span class="badge bg-danger ms-2">
+                        @UnreadMessages
+                    </span>
+                }
+            </h6>
+
+            @if (UnreadMessages > 0)
+            {
+                <p class="mb-2">
+                    You have 
+                    <span class="badge bg-danger">
+                        @UnreadMessages
+                    </span>
+                    new message(s)
+                </p>
+
+                <a href="/Messages/Inbox" class="btn btn-primary btn-sm w-100">
+                    View Messages
+                </a>
+            }
+            else
+            {
+                <p class="text-muted mb-2">
+                    No new messages
+                </p>
+
+                <a href="/Messages/Inbox" class="btn btn-outline-secondary btn-sm w-100">
+                    Open Inbox
+                </a>
+            }
+
+        </div>
+    </div>
+
     <div class="row g-3">
 
         <div class="col-6">
