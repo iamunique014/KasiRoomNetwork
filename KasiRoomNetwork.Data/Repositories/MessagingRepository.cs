@@ -64,5 +64,15 @@ namespace KasiRoomNetwork.Data.Repositories
 
             });
         }
+
+        public async Task<int> GetUnreadCount(string userId)
+        {
+            var result = await _db.GetData<int, dynamic>(
+                "sp_Messaging_Get_Unread_Count",
+                new { UserId = userId }
+            );
+
+            return result.FirstOrDefault();
+        }
     }
 }

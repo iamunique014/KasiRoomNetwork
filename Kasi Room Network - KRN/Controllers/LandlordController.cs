@@ -16,17 +16,20 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly ILandlordRepository _landlordRepository;
         private readonly IListingRepository _listingRepository;
         private readonly IProfileRepository _profileRepository;
+        private readonly IMessagingRepository _messagingRepository;
 
         public LandlordController(
             UserManager<ApplicationUser> userManager,
             ILandlordRepository landlordRepository,
             IListingRepository listingRepository,
-            IProfileRepository profileRepository)
+            IProfileRepository profileRepository,
+            IMessagingRepository messagingRepository)
         {
             _userManager = userManager;
             _landlordRepository = landlordRepository;
             _listingRepository = listingRepository;
             _profileRepository = profileRepository;
+            _messagingRepository = messagingRepository;
         }
 
         public async Task<IActionResult> start()
@@ -61,7 +64,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 TempData["ProfilePrompt"] = "Complete your landlord profile first. It takes under a minute and unlocks room posting.";
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("LandlordDashboard", "Landlord") });
             }
-
+            ViewBag.UnreadCount = await _messagingRepository.GetUnreadCount(userId);
             return View();
         }
 

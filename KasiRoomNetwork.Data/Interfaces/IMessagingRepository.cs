@@ -14,5 +14,6 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId);
         Task<IEnumerable<ConversationViewModel>> GetInbox(string userId);
         Task MarkConversationRead(int conversationId, string userId);
+        Task<int> GetUnreadCount(string userId);
     }
 }
