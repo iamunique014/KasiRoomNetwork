@@ -1,0 +1,78 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Properties.CreatePropertyViewModel
+
+@{
+    ViewData["Title"] = "Create Property";
+}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Create Property</h2>
+    <p class="text-muted">Fill in the details below to add your property.</p>
+
+    <form asp-action="CreateProperty" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3">Property Details</h5>
+
+                <div class="mb-3">
+                    <label asp-for="PropertyType" class="form-label"></label>
+                    <input asp-for="PropertyType" class="form-control" placeholder="e.g. Apartment, House, Commune" />
+                    <span asp-validation-for="PropertyType" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PropertyName" class="form-label"></label>
+                    <input asp-for="PropertyName" class="form-control" placeholder="Optional property name" />
+                    <span asp-validation-for="PropertyName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TotalRooms" class="form-label"></label>
+                    <input asp-for="TotalRooms" class="form-control" min="0" />
+                    <small class="text-muted">Optional</small>
+                    <span asp-validation-for="TotalRooms" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3">Address</h5>
+
+                <div class="mb-3">
+                    <label asp-for="Street" class="form-label"></label>
+                    <input asp-for="Street" class="form-control" />
+                    <span asp-validation-for="Street" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Province" class="form-label"></label>
+                    <input asp-for="Province" class="form-control" />
+                    <span asp-validation-for="Province" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="City" class="form-label"></label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Suburb" class="form-label"></label>
+                    <input asp-for="Suburb" class="form-control" />
+                    <span asp-validation-for="Suburb" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg w-100">Create Property</button>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
