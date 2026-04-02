@@ -24,10 +24,7 @@ namespace KasiRoomNetwork.Data.Repositories
             var result = await _db.GetData<int, dynamic>("sp_Listing_Create_Listing", new
             {
                 LandlordUserId = landlordUserId,
-                model.Province,
-                model.City,
-                model.Suburb,
-                model.Street,
+                model.PropertyId,
                 model.Title,
                 model.Description,
                 model.Price

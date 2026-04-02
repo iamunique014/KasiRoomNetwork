@@ -24,42 +24,6 @@
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
 
-
-                <div class="mb-3">
-                    <label asp-for="Province" class="form-label">Province</label>
-                    <input asp-for="Province" class="form-control" />
-                    <span asp-validation-for="Province" class="text-danger"></span>
-                </div>
-
-
-                <div class="mb-3">
-                    <label asp-for="City" class="form-label">City</label>
-                    <input asp-for="City" class="form-control" />
-                    <span asp-validation-for="City" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Suburb" class="form-label">Suburb</label>
-                    <input asp-for="Suburb" class="form-control" />
-                    <span asp-validation-for="Suburb" class="text-danger"></span>
-                </div>
-
-
-                <div class="mb-3">
-                    <label asp-for="Street" class="form-label">Street</label>
-                    <input asp-for="Street" class="form-control" />
-                    <small class="text-muted">optional</small>
-                    <span asp-validation-for="Street" class="text-danger"></span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- PRICE -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Price</h5>
-
                 <div class="mb-3">
                     <label asp-for="Price" class="form-label">Monthly price (R)</label>
                     <input asp-for="Price" class="form-control" />
@@ -67,16 +31,13 @@
                     <span asp-validation-for="Price" class="text-danger"></span>
                 </div>
 
-            </div>
-        </div>
+                <div class="mb-2">
+                    <label asp-for="Description" class="form-label">Description</label>
 
-        <!-- DESCRIPTION -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Description</h5>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the room, rules, bathroom, electricity, etc."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
 
-                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the room, rules, bathroom, electricity, etc."></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
         </div>
 

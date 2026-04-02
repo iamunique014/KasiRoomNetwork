@@ -9,19 +9,11 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
 {
     public class CreateListingViewModel
     {
-        // Address
-        [Required]
-        public string Province { get; set; }
-
-        [Required]
-        public string City { get; set; }
-
-        [Required]
-        public string Suburb { get; set; }
-
-        public string? Street { get; set; }
 
         // Listing
+        [Required]
+        public int PropertyId { get; set; }
+
         [Required]
         [StringLength(200)]
         public string Title { get; set; }
