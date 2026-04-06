@@ -1,9 +1,26 @@
 ﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Landlord.LandlordListingViewModel>
 @{
-    ViewData["Title"] = "My Rooms";
+    ViewData["Title"] = "My Properties";
 }
 
 <div class="container mt-4">
+    <h2 class="fw-bold mb-3">My Properties</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <span>@TempData["SuccessMessage"]</span>
+            <a asp-controller="Listing" asp-action="CreateListing" class="btn btn-success btn-sm">
+                Add Room (Listing)
+            </a>
+        </div>
+    }
+
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-controller="Listing" asp-action="CreateListing" class="btn btn-outline-primary">
+            Add Room (Listing)
+        </a>
+    </div>
   
     @if (Model.Any())
     {
