@@ -60,10 +60,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
 
-            var propertyId = await _propertyRepository.CreateProperty(model, landlordUserId);
-            TempData["SuccessMessage"] = "Property created successfully.";
+            await _propertyRepository.CreateProperty(model, landlordUserId);
+            TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
 
-            return RedirectToAction("LandlordDashboard", "Landlord", new { propertyId });
+            return RedirectToAction(nameof(MyProperties));
+        }
+
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public IActionResult MyProperties()
+        {
+            return View();
         }
     }
 }
