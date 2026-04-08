@@ -68,9 +68,16 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public IActionResult MyProperties()
+        public async Task<IActionResult> MyProperties()
         {
-            return View();
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var properties = await _propertyRepository.GetPropertiesByUser(landlordUserId);
+            return View(properties);
         }
     }
 }
