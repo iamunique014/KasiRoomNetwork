@@ -30,5 +30,15 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.First();
         }
+        // sp_Landlord_Get_Properties_By_User
+        public async Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId)
+        {
+            var result = await _db.GetData<LandlordPropertyViewModel, dynamic>("sp_Landlord_Get_Properties_By_User", new
+            {
+                LandlordUserId = landlordUserId
+            });
+
+            return result.ToList();
+        }
     }
 }
