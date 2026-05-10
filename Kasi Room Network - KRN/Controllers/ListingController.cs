@@ -24,7 +24,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public async Task<IActionResult> CreateListing()
+        public async Task<IActionResult> CreateListing(int propertyId)
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
