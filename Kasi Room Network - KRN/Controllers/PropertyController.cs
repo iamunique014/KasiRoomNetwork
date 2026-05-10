@@ -10,11 +10,18 @@ namespace Kasi_Room_Network___KRN.Controllers
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly IProfileRepository _profileRepository;
+        private readonly ILandlordRepository _landlordRepository;
+        private readonly IAmenityRepository _amenityRepository;
 
-        public PropertyController(IPropertyRepository propertyRepository, IProfileRepository profileRepository)
+        public PropertyController(IPropertyRepository propertyRepository,
+            IProfileRepository profileRepository, 
+            ILandlordRepository landlordRepository, 
+            IAmenityRepository amenityRepository)
         {
             _propertyRepository = propertyRepository;
             _profileRepository = profileRepository;
+            _landlordRepository = landlordRepository;
+            _amenityRepository = amenityRepository;
         }
 
         [Authorize(Roles = "Landlord")]
@@ -34,7 +41,13 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
 
-            return View();
+            var amenities = await _amenityRepository.GetAllAmenities();
+            var model = new CreatePropertyViewModel
+            {
+                Amenities = amenities.ToList()
+            };
+
+            return View(model);
         }
 
         [Authorize(Roles = "Landlord")]
@@ -44,6 +57,9 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var amenities = await _amenityRepository.GetAllAmenities();
+                model.Amenities = amenities.ToList();
+
                 return View(model);
             }
 
@@ -60,7 +76,16 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
 
-            await _propertyRepository.CreateProperty(model, landlordUserId);
+            int propertyId = await _propertyRepository.CreateProperty(model, landlordUserId);
+
+            if (model.SelectedAmenityIds != null && model.SelectedAmenityIds.Any())
+            {
+                foreach (var amenityId in model.SelectedAmenityIds)
+                {
+                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId);
+                }
+            }
+
             TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
 
             return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
@@ -153,8 +178,33 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            var properties = await _propertyRepository.GetPropertiesByUser(landlordUserId);
+            var properties = await _landlordRepository.GetAllPropertiesByLandlord(landlordUserId);
             return View(properties);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> PropertyDetails(int propertyId)
+        {
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            // Load amenities
+            property.Amenities = (await _amenityRepository
+                .GetAmenitiesByPropertyId(propertyId))
+                .ToList();
+
+            return View(property);
+        }
+
+        public IActionResult PropertySubmitted(int propertyId)
+        {
+            ViewBag.PropertyId = propertyId;
+            return View();
+        }
+
     }
 }
