@@ -68,6 +68,53 @@
             </div>
         </div>
 
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+
+                <h5 class="mb-3">Amenities</h5>
+
+                @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
+                {
+                    <div class="mb-4">
+
+                        <h6 class="fw-bold text-primary">
+                            @categoryGroup.Key
+                        </h6>
+
+                        <div class="row">
+
+                            @foreach (var amenity in categoryGroup)
+                            {
+                                <div class="col-md-4 mb-2">
+
+                                    <div class="form-check">
+
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="SelectedAmenityIds"
+                                               value="@amenity.AmenityId"
+                                               id="amenity_@amenity.AmenityId" />
+
+                                        <label class="form-check-label"
+                                               for="amenity_@amenity.AmenityId">
+
+                                            @amenity.Name
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-success btn-lg w-100">Create Property</button>
     </form>
 

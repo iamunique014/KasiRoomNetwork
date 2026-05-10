@@ -1,0 +1,128 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Properties.PropertyDetailsViewModel
+
+@{
+    ViewData["Title"] = "Property Details";
+}
+
+<div class="container mt-4">
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <!-- Property Photos -->
+            @if (Model.Photos != null && Model.Photos.Any())
+            {
+                <div id="propertyCarousel"
+                     class="carousel slide mb-4"
+                     data-bs-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        @for (int i = 0; i < Model.Photos.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                                <img src="@Model.Photos[i].PhotoPath"
+                                     class="d-block w-100 rounded"
+                                     style="height:400px; object-fit:cover;"
+                                     alt="Property Photo" />
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <button class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#propertyCarousel"
+                            data-bs-slide="prev">
+
+                        <span class="carousel-control-prev-icon"></span>
+
+                    </button>
+
+                    <button class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#propertyCarousel"
+                            data-bs-slide="next">
+
+                        <span class="carousel-control-next-icon"></span>
+
+                    </button>
+
+                </div>
+            }
+
+            <!-- Property Info -->
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-body">
+
+                    <h2 class="mb-3">
+                        @Model.PropertyName
+                    </h2>
+
+                    <p class="text-muted mb-2">
+
+                        @Model.PropertyType
+
+                    </p>
+
+                    <p class="mb-0">
+
+                        @Model.Suburb,
+                        @Model.City,
+                        @Model.Province
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Amenities -->
+            @if (Model.Amenities != null && Model.Amenities.Any())
+            {
+                <div class="card shadow-sm mb-4">
+
+                    <div class="card-body">
+
+                        <h4 class="mb-3">
+                            Amenities
+                        </h4>
+
+                        @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
+                        {
+                            <div class="mb-4">
+
+                                <h6 class="fw-bold text-primary">
+                                    @categoryGroup.Key
+                                </h6>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    @foreach (var amenity in categoryGroup)
+                                    {
+                                        <span class="badge bg-light text-dark border p-2">
+
+                                            @amenity.Name
+
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
