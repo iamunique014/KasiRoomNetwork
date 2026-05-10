@@ -30,5 +30,11 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.ToList();
         }
+        public async Task<IEnumerable<PropertyCardViewModel>> GetAllPropertiesByLandlord(string landlordId)
+        {
+            return await _db.GetData<PropertyCardViewModel, dynamic>(
+                "sp_Landlord_Get_All_Properties",
+                new { LandlordId = landlordId });
+        }   
     }
 }

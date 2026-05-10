@@ -9,6 +9,7 @@ namespace KasiRoomNetwork.Data.Interfaces
 {
     public interface ILandlordRepository
     {
-        Task<IEnumerable<LandlordListingViewModel>> GetAllLandlordListings(String landlordId);
+        Task<IEnumerable<LandlordListingViewModel>> GetAllLandlordListings(string landlordId);
+        Task<IEnumerable<PropertyCardViewModel>> GetAllPropertiesByLandlord(string landlordId);
     }
 }

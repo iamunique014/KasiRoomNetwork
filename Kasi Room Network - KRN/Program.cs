@@ -36,6 +36,7 @@ builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
 builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
 builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 
 builder.Services.AddRazorPages();
 
