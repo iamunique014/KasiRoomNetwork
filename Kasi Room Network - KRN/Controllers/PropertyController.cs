@@ -101,7 +101,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             ViewBag.PropertyId = propertyId;
             ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
-            return View();
+            return View(); 
         }
 
         [Authorize(Roles = "Landlord")]

@@ -103,14 +103,14 @@
 
                                 <a asp-controller="Listing"
                                    asp-action="CreateListing"
-                                   asp-route-id="@property.PropertyId"
+                                   asp-route-propertyId="@property.PropertyId"
                                    class="btn btn-success">
                                     Add Listing
                                 </a>
 
                                 <a asp-controller="Property"
-                                   asp-action="Details"
-                                   asp-route-id="@property.PropertyId"
+                                   asp-action="PropertyDetails"
+                                   asp-route-propertyId="@property.PropertyId"
                                    class="btn btn-outline-primary">
                                     View Property
                                 </a>
