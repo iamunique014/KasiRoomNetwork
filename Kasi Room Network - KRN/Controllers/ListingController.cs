@@ -39,7 +39,12 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
             }
 
-            return View();
+            var model = new CreateListingViewModel
+            {
+                PropertyId = propertyId
+            };
+
+            return View(model);
         }
 
         [Authorize(Roles = "Landlord")]
