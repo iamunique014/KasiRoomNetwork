@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using KasiRoomNetwork.Common.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace KasiRoomNetwork.Common.ViewModel.Properties
 {
@@ -29,5 +30,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
         [Required]
         [StringLength(100)]
         public string Suburb { get; set; }
+
+        public List<int> SelectedAmenityIds { get; set; } = new();
+
+        public List<AmenityModel> Amenities { get; set; } = new();
     }
 }
