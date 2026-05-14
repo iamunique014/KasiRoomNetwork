@@ -97,6 +97,18 @@ namespace Kasi_Room_Network___KRN.Controllers
         [HttpGet]
         public IActionResult Address()
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
             return View();
         }
 
