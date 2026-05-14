@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "KRN - Landlord";
     int UnreadMessages = ViewBag.UnreadCount ?? 0;
 }
@@ -63,7 +63,7 @@
         </div>
 
         <div class="col-6">
-            <a href="/Listing/CreateListing" class="text-decoration-none">
+            <a asp-controller="PostRoomWizard" asp-action="Start" class="text-decoration-none">
                 <div class="border rounded p-3 h-100">
                     <p class="mb-0 fw-semibold">POST A ROOM</p>
                 </div>
