@@ -1,7 +1,6 @@
 using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
@@ -44,6 +43,14 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             SaveWizardState(landlordUserId, wizardState);
 
+            return View();
+        }
+
+        [HttpPost]
+        [ActionName(nameof(Start))]
+        [ValidateAntiForgeryToken]
+        public IActionResult StartPost()
+        {
             return RedirectToAction(nameof(BasicPropertyInfo));
         }
 
@@ -109,6 +116,73 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(Start));
             }
 
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            return View(wizardState.Address);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Address(PostRoomAddressStepViewModel model)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            wizardState.Address = model;
+            wizardState.UpdatedAtUtc = DateTime.UtcNow;
+
+            SaveWizardState(landlordUserId, wizardState);
+
+            return RedirectToAction(nameof(Amenities));
+        }
+
+        [HttpGet]
+        public IActionResult Amenities()
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!HasCompletedAddress(wizardState))
+            {
+                return RedirectToAction(nameof(Address));
+            }
+
             return View();
         }
 
@@ -120,13 +194,33 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return null;
             }
 
-            return JsonSerializer.Deserialize<PostRoomWizardStateViewModel>(sessionJson);
+            var wizardState = JsonSerializer.Deserialize<PostRoomWizardStateViewModel>(sessionJson);
+            if (wizardState != null)
+            {
+                wizardState.BasicPropertyInfo ??= new PostRoomBasicPropertyInfoStepViewModel();
+                wizardState.Address ??= new PostRoomAddressStepViewModel();
+            }
+
+            return wizardState;
         }
 
         private void SaveWizardState(string landlordUserId, PostRoomWizardStateViewModel wizardState)
         {
             var sessionJson = JsonSerializer.Serialize(wizardState);
             HttpContext.Session.SetString(GetSessionKey(landlordUserId), sessionJson);
+        }
+
+        private static bool HasCompletedBasicPropertyInfo(PostRoomWizardStateViewModel wizardState)
+        {
+            return !string.IsNullOrWhiteSpace(wizardState.BasicPropertyInfo.PropertyType);
+        }
+
+        private static bool HasCompletedAddress(PostRoomWizardStateViewModel wizardState)
+        {
+            return !string.IsNullOrWhiteSpace(wizardState.Address.Province)
+                && !string.IsNullOrWhiteSpace(wizardState.Address.City)
+                && !string.IsNullOrWhiteSpace(wizardState.Address.Suburb)
+                && !string.IsNullOrWhiteSpace(wizardState.Address.Street);
         }
 
         private static string GetSessionKey(string landlordUserId)
