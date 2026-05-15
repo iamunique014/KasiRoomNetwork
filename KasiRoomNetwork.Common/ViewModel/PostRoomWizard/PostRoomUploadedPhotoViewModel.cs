@@ -8,6 +8,6 @@ namespace KasiRoomNetwork.Common.ViewModel.PostRoomWizard
 
         public string OriginalFileName { get; set; } = string.Empty;
 
-        public bool IsSelectedForRoom { get; set; } = false;
+        public bool UseForRoom { get; set; } = false;
     }
 }
