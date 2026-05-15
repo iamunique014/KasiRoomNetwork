@@ -42,6 +42,14 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("Start", "PostRoomWizard") });
             }
 
+            // CLEAN OLD TEMP FILES
+            _photoStorageService.DeleteLandlordTemporaryPhotos(
+                landlordUserId);
+
+            // CLEAR OLD SESSION STATE
+            HttpContext.Session.Remove(
+                GetSessionKey(landlordUserId));
+
             var now = DateTime.UtcNow;
             var wizardState = new PostRoomWizardStateViewModel
             {
@@ -335,6 +343,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 _photoStorageService.DeleteTemporaryPhoto(photo.TempRelativePath);
                 wizardState.UploadedPhotos.Remove(photo);
+
+                // CLEAN EMPTY TEMP FOLDER
+                if (!wizardState.UploadedPhotos.Any())
+                {
+                    _photoStorageService.DeleteLandlordTemporaryPhotos(
+                        landlordUserId);
+                }
+
                 wizardState.UpdatedAtUtc = DateTime.UtcNow;
                 SaveWizardState(landlordUserId, wizardState);
                 TempData["PhotoSuccess"] = "Photo removed.";
@@ -420,5 +436,13 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             return $"PostRoomWizard:{landlordUserId}";
         }
+
+
+        //Cleanup After Final Submit
+        //        _photoStorageService.DeleteLandlordTemporaryPhotos(
+        //    landlordUserId);
+
+        //HttpContext.Session.Remove(
+        //    GetSessionKey(landlordUserId));
     }
 }

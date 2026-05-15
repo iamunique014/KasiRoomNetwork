@@ -47,6 +47,7 @@ builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 builder.Services.AddScoped<IPhotoStorageService, PhotoStorageService>();
+builder.Services.AddHostedService<WizardTempCleanupHostedService>();
 
 builder.Services.AddRazorPages();
 

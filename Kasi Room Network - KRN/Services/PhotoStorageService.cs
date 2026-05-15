@@ -79,11 +79,86 @@ namespace Kasi_Room_Network___KRN.Services
             }
         }
 
+        public void DeleteTemporaryPhotos(IEnumerable<string>? tempRelativePaths)
+        {
+            if (tempRelativePaths == null)
+            {
+                return;
+            }
+
+            foreach (var path in tempRelativePaths)
+            {
+                try
+                {
+                    DeleteTemporaryPhoto(path);
+                }
+                catch
+                {
+                    // Ignore individual failures
+                }
+            }
+        }
+
+        public void DeleteLandlordTemporaryPhotos(string landlordUserId)
+        {
+            var safeLandlordUserId = SanitizePathSegment(landlordUserId);
+
+            var folderPath = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                "uploads",
+                "wizard-temp",
+                safeLandlordUserId);
+
+            if (!Directory.Exists(folderPath))
+            {
+                return;
+            }
+
+            try
+            {
+                Directory.Delete(folderPath, true);
+            }
+            catch
+            {
+                // Ignore cleanup failures
+            }
+        }
         private static string SanitizePathSegment(string value)
         {
             var invalidChars = Path.GetInvalidFileNameChars();
             var sanitized = new string(value.Select(character => invalidChars.Contains(character) ? '-' : character).ToArray());
             return string.IsNullOrWhiteSpace(sanitized) ? "unknown" : sanitized;
+        }
+        public void CleanupExpiredTemporaryPhotos(TimeSpan maxAge)
+        {
+            var tempRoot = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                "uploads",
+                "wizard-temp");
+
+            if (!Directory.Exists(tempRoot))
+            {
+                return;
+            }
+
+            var directories = Directory.GetDirectories(tempRoot);
+
+            foreach (var directory in directories)
+            {
+                try
+                {
+                    var creationTime = Directory.GetCreationTimeUtc(directory);
+
+                    if (DateTime.UtcNow - creationTime > maxAge)
+                    {
+                        Directory.Delete(directory, true);
+                    }
+                }
+                catch
+                {
+                    // Ignore cleanup failures
+                }
+            }
         }
     }
 }
