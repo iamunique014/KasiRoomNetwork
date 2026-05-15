@@ -9,6 +9,8 @@ namespace Kasi_Room_Network___KRN.Services
         void DeleteTemporaryPhoto(string tempRelativePath);
         void DeleteTemporaryPhotos(IEnumerable<string>? tempRelativePaths);
         void CleanupExpiredTemporaryPhotos(TimeSpan maxAge);
+        Task<string> CopyTemporaryPhotoToPermanentAsync(string tempRelativePath, string permanentFolderName);
+        void DeleteTemporaryWizardFolder(string landlordUserId);
         void DeleteLandlordTemporaryPhotos(string landlordUserId);
     }
 }
