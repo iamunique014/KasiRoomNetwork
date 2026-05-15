@@ -10,6 +10,8 @@ namespace KasiRoomNetwork.Common.ViewModel.PostRoomWizard
 
         public List<int> SelectedAmenityIds { get; set; } = new();
 
+        public PostRoomDetailsStepViewModel RoomDetails { get; set; } = new();
+
         public List<PostRoomUploadedPhotoViewModel> UploadedPhotos { get; set; } = new();
 
         public DateTime StartedAtUtc { get; set; }
