@@ -307,7 +307,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     TempPhotoId = Guid.NewGuid().ToString(),
                     TempRelativePath = tempRelativePath,
                     OriginalFileName = Path.GetFileName(photo?.FileName ?? string.Empty),
-                    IsSelectedForRoom = false
+                    UseForRoom = false
                 });
                 wizardState.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -474,7 +474,69 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(RoomDetails));
             }
 
-            return View(wizardState.UploadedPhotos);
+            return View(BuildSelectRoomPhotosViewModel(wizardState));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SelectRoomPhotos(SelectRoomPhotosStepViewModel model)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!HasCompletedAddress(wizardState))
+            {
+                return RedirectToAction(nameof(Address));
+            }
+
+            if (!wizardState.UploadedPhotos.Any())
+            {
+                TempData["PhotoError"] = "Upload at least one photo before continuing.";
+                return RedirectToAction(nameof(Photos));
+            }
+
+            if (!HasCompletedRoomDetails(wizardState))
+            {
+                return RedirectToAction(nameof(RoomDetails));
+            }
+
+            var selectedTempPhotoIds = (model.Photos ?? new List<RoomPhotoSelectionItemViewModel>())
+                .Where(photo => photo.UseForRoom)
+                .Select(photo => photo.TempPhotoId.ToString())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var hasSelectedUploadedPhoto = wizardState.UploadedPhotos
+                .Any(uploadedPhoto => selectedTempPhotoIds.Contains(uploadedPhoto.TempPhotoId));
+
+            if (!hasSelectedUploadedPhoto)
+            {
+                ModelState.AddModelError(string.Empty, "Select at least one room photo before continuing.");
+                return View(BuildSelectRoomPhotosViewModel(wizardState, selectedTempPhotoIds));
+            }
+
+            foreach (var uploadedPhoto in wizardState.UploadedPhotos)
+            {
+                uploadedPhoto.UseForRoom = selectedTempPhotoIds.Contains(uploadedPhoto.TempPhotoId);
+            }
+
+            wizardState.UpdatedAtUtc = DateTime.UtcNow;
+            SaveWizardState(landlordUserId, wizardState);
+
+            return RedirectToAction("ReviewAndSubmit");
         }
 
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
@@ -496,6 +558,27 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             return wizardState;
+        }
+
+
+        private static SelectRoomPhotosStepViewModel BuildSelectRoomPhotosViewModel(
+            PostRoomWizardStateViewModel wizardState,
+            HashSet<string>? selectedTempPhotoIds = null)
+        {
+            return new SelectRoomPhotosStepViewModel
+            {
+                Photos = wizardState.UploadedPhotos
+                    .Select(photo => new RoomPhotoSelectionItemViewModel
+                    {
+                        TempPhotoId = Guid.TryParse(photo.TempPhotoId, out var tempPhotoId)
+                            ? tempPhotoId
+                            : Guid.Empty,
+                        PhotoPath = photo.TempRelativePath,
+                        OriginalFileName = photo.OriginalFileName,
+                        UseForRoom = selectedTempPhotoIds?.Contains(photo.TempPhotoId) ?? photo.UseForRoom
+                    })
+                    .ToList()
+            };
         }
 
         private void SaveWizardState(string landlordUserId, PostRoomWizardStateViewModel wizardState)
