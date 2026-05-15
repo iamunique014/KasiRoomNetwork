@@ -1,3 +1,5 @@
+@model KasiRoomNetwork.Common.ViewModel.PostRoomWizard.PostRoomDetailsStepViewModel
+
 @{
     ViewData["Title"] = "Post Room - Room Details";
 }
@@ -6,13 +8,51 @@
     <div class="mx-auto" style="max-width: 640px;">
         <p class="text-muted mb-2">Step 5 of 7</p>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4 text-center">
-                <h2 class="fw-bold">Room Details</h2>
-                <p class="text-muted mb-4">Room details step coming next.</p>
+        <h2 class="fw-bold">Room Details</h2>
+        <p class="text-muted">Add the room information tenants will see before choosing the room photos.</p>
 
-                <a asp-action="Photos" class="btn btn-outline-secondary btn-lg w-100">Back to Photos</a>
+        <form asp-action="RoomDetails" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Room Title</label>
+                        <input asp-for="Title" class="form-control form-control-lg" maxlength="150" placeholder="e.g. Sunny room near taxi route" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Price" class="form-label">Monthly Price</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">R</span>
+                            <input asp-for="Price" class="form-control" type="number" min="0" max="999999" step="0.01" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" maxlength="2000" placeholder="Optional: share helpful details about the room."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check form-switch mb-0">
+                        <input asp-for="IsAvailable" class="form-check-input" type="checkbox" role="switch" />
+                        <label asp-for="IsAvailable" class="form-check-label">Available now</label>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-success btn-lg">Continue</button>
+                <a asp-action="Photos" class="btn btn-outline-secondary btn-lg">Back</a>
+            </div>
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

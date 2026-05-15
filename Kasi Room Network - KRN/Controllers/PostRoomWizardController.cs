@@ -390,7 +390,91 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(Photos));
             }
 
-            return View();
+            return View(wizardState.RoomDetails);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RoomDetails(PostRoomDetailsStepViewModel model)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!HasCompletedAddress(wizardState))
+            {
+                return RedirectToAction(nameof(Address));
+            }
+
+            if (!wizardState.UploadedPhotos.Any())
+            {
+                TempData["PhotoError"] = "Upload at least one photo before continuing.";
+                return RedirectToAction(nameof(Photos));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            wizardState.RoomDetails = model;
+            wizardState.UpdatedAtUtc = DateTime.UtcNow;
+
+            SaveWizardState(landlordUserId, wizardState);
+
+            return RedirectToAction(nameof(SelectRoomPhotos));
+        }
+
+        [HttpGet]
+        public IActionResult SelectRoomPhotos()
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!HasCompletedAddress(wizardState))
+            {
+                return RedirectToAction(nameof(Address));
+            }
+
+            if (!wizardState.UploadedPhotos.Any())
+            {
+                TempData["PhotoError"] = "Upload at least one photo before continuing.";
+                return RedirectToAction(nameof(Photos));
+            }
+
+            if (!HasCompletedRoomDetails(wizardState))
+            {
+                return RedirectToAction(nameof(RoomDetails));
+            }
+
+            return View(wizardState.UploadedPhotos);
         }
 
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
@@ -406,6 +490,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 wizardState.BasicPropertyInfo ??= new PostRoomBasicPropertyInfoStepViewModel();
                 wizardState.Address ??= new PostRoomAddressStepViewModel();
+                wizardState.RoomDetails ??= new PostRoomDetailsStepViewModel();
                 wizardState.SelectedAmenityIds ??= new List<int>();
                 wizardState.UploadedPhotos ??= new List<PostRoomUploadedPhotoViewModel>();
             }
@@ -430,6 +515,12 @@ namespace Kasi_Room_Network___KRN.Controllers
                 && !string.IsNullOrWhiteSpace(wizardState.Address.City)
                 && !string.IsNullOrWhiteSpace(wizardState.Address.Suburb)
                 && !string.IsNullOrWhiteSpace(wizardState.Address.Street);
+        }
+
+        private static bool HasCompletedRoomDetails(PostRoomWizardStateViewModel wizardState)
+        {
+            return !string.IsNullOrWhiteSpace(wizardState.RoomDetails.Title)
+                && wizardState.RoomDetails.Price >= 0;
         }
 
         private static string GetSessionKey(string landlordUserId)
