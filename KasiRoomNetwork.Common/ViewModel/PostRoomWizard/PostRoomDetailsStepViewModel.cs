@@ -9,7 +9,7 @@ namespace KasiRoomNetwork.Common.ViewModel.PostRoomWizard
         public string Title { get; set; } = string.Empty;
 
         [Required]
-        [Range(0, 999999)]
+        [Range(typeof(decimal), "1", "999999")]
         public decimal Price { get; set; }
 
         [StringLength(2000)]
