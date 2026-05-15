@@ -3,6 +3,7 @@ using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
+using Kasi_Room_Network___KRN.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +46,7 @@ builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
 builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<IPhotoStorageService, PhotoStorageService>();
 
 builder.Services.AddRazorPages();
 

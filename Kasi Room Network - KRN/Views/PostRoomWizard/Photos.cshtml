@@ -1,0 +1,100 @@
+@model List<KasiRoomNetwork.Common.ViewModel.PostRoomWizard.PostRoomUploadedPhotoViewModel>
+
+@{
+    ViewData["Title"] = "Post Room - Photos";
+    var hasPhotos = Model.Any();
+    var hasReachedMaxPhotos = Model.Count >= 10;
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 720px;">
+        <p class="text-muted mb-2">Step 4 of 7</p>
+
+        <h2 class="fw-bold">Photos</h2>
+        <p class="text-muted">Upload up to 10 clear photos once. You will choose room-specific photos later.</p>
+
+        @if (TempData["PhotoError"] != null)
+        {
+            <div class="alert alert-danger">@TempData["PhotoError"]</div>
+        }
+
+        @if (TempData["PhotoSuccess"] != null)
+        {
+            <div class="alert alert-success">@TempData["PhotoSuccess"]</div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data" class="d-grid gap-3">
+                    @Html.AntiForgeryToken()
+                    <div>
+                        <label for="photo" class="form-label fw-semibold">Upload a photo</label>
+                        <input id="photo"
+                               name="photo"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                               class="form-control form-control-lg"
+                               @(hasReachedMaxPhotos ? "disabled" : string.Empty) />
+                        <small class="text-muted">JPG or PNG only. Maximum file size is 2MB.</small>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg" @(hasReachedMaxPhotos ? "disabled" : string.Empty)>
+                        Upload Photo
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 fw-bold mb-0">Uploaded photos</h3>
+            <span class="badge bg-secondary">@Model.Count / 10</span>
+        </div>
+
+        @if (hasPhotos)
+        {
+            <div class="row g-3 mb-4">
+                @foreach (var photo in Model)
+                {
+                    <div class="col-12 col-sm-6">
+                        <div class="card h-100 shadow-sm">
+                            <img src="@photo.TempRelativePath"
+                                 alt="@photo.OriginalFileName"
+                                 class="card-img-top"
+                                 style="height: 220px; object-fit: cover;" />
+                            <div class="card-body d-grid gap-2">
+                                @if (!string.IsNullOrWhiteSpace(photo.OriginalFileName))
+                                {
+                                    <p class="small text-muted text-truncate mb-0">@photo.OriginalFileName</p>
+                                }
+                                <form asp-action="RemovePhoto" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="tempPhotoId" value="@photo.TempPhotoId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-lg w-100">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="card border-dashed mb-4">
+                <div class="card-body text-center p-4">
+                    <p class="mb-0 text-muted">No photos uploaded yet. Add at least one photo to continue.</p>
+                </div>
+            </div>
+        }
+
+        <div class="d-grid gap-2 mb-4">
+            @if (hasPhotos)
+            {
+                <a asp-action="RoomDetails" class="btn btn-success btn-lg">Continue</a>
+            }
+            else
+            {
+                <button type="button" class="btn btn-success btn-lg" disabled>Continue</button>
+            }
+            <a asp-action="Amenities" class="btn btn-outline-secondary btn-lg">Back</a>
+        </div>
+    </div>
+</div>
