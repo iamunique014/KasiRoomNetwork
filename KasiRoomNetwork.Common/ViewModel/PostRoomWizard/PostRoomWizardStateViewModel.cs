@@ -8,6 +8,10 @@ namespace KasiRoomNetwork.Common.ViewModel.PostRoomWizard
 
         public PostRoomAddressStepViewModel Address { get; set; } = new();
 
+        public List<int> SelectedAmenityIds { get; set; } = new();
+
+        public List<PostRoomUploadedPhotoViewModel> UploadedPhotos { get; set; } = new();
+
         public DateTime StartedAtUtc { get; set; }
 
         public DateTime UpdatedAtUtc { get; set; }
