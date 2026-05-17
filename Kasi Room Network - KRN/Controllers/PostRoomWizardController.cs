@@ -1,5 +1,7 @@
 using Kasi_Room_Network___KRN.Services;
+using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +16,21 @@ namespace Kasi_Room_Network___KRN.Controllers
         private const int MaxWizardPhotoCount = 10;
         private readonly IProfileRepository _profileRepository;
         private readonly IAmenityRepository _amenityRepository;
+        private readonly IPropertyRepository _propertyRepository;
+        private readonly IListingRepository _listingRepository;
         private readonly IPhotoStorageService _photoStorageService;
 
         public PostRoomWizardController(
             IProfileRepository profileRepository,
             IAmenityRepository amenityRepository,
+            IPropertyRepository propertyRepository,
+            IListingRepository listingRepository,
             IPhotoStorageService photoStorageService)
         {
             _profileRepository = profileRepository;
             _amenityRepository = amenityRepository;
+            _propertyRepository = propertyRepository;
+            _listingRepository = listingRepository;
             _photoStorageService = photoStorageService;
         }
 
@@ -536,7 +544,112 @@ namespace Kasi_Room_Network___KRN.Controllers
             wizardState.UpdatedAtUtc = DateTime.UtcNow;
             SaveWizardState(landlordUserId, wizardState);
 
-            return RedirectToAction("ReviewAndSubmit");
+            return RedirectToAction(nameof(ReviewAndSubmit));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ReviewAndSubmit()
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            var redirectResult = EnsureReadyForReview(wizardState);
+            if (redirectResult != null)
+            {
+                return redirectResult;
+            }
+
+            return View(await BuildReviewStepViewModel(wizardState!));
+        }
+
+        [HttpPost]
+        [ActionName(nameof(ReviewAndSubmit))]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReviewAndSubmitPost()
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var wizardState = GetWizardState(landlordUserId);
+            var redirectResult = EnsureReadyForReview(wizardState);
+            if (redirectResult != null)
+            {
+                return redirectResult;
+            }
+
+            try
+            {
+                var propertyModel = new CreatePropertyViewModel
+                {
+                    PropertyType = wizardState!.BasicPropertyInfo.PropertyType,
+                    TotalRooms = wizardState.BasicPropertyInfo.TotalRooms,
+                    PropertyName = wizardState.BasicPropertyInfo.PropertyName,
+                    Street = wizardState.Address.Street,
+                    Province = wizardState.Address.Province,
+                    City = wizardState.Address.City,
+                    Suburb = wizardState.Address.Suburb,
+                    SelectedAmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList()
+                };
+
+                var propertyId = await _propertyRepository.CreateProperty(propertyModel, landlordUserId);
+
+                foreach (var amenityId in propertyModel.SelectedAmenityIds)
+                {
+                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId);
+                }
+
+                var propertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList();
+                for (var index = 0; index < propertyPhotos.Count; index++)
+                {
+                    var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
+                        propertyPhotos[index].TempRelativePath,
+                        "properties");
+
+                    await _propertyRepository.AddPropertyPhoto(propertyId, permanentPhotoPath, index == 0);
+                }
+
+                var listingModel = new CreateListingViewModel
+                {
+                    PropertyId = propertyId,
+                    Title = wizardState.RoomDetails.Title,
+                    Description = wizardState.RoomDetails.Description?.Trim() ?? string.Empty,
+                    Price = wizardState.RoomDetails.Price,
+                    IsAvailable = wizardState.RoomDetails.IsAvailable
+                };
+
+                var listingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
+
+                var listingPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
+                    .Where(photo => photo.UseForRoom)
+                    .ToList();
+
+                for (var index = 0; index < listingPhotos.Count; index++)
+                {
+                    var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
+                        listingPhotos[index].TempRelativePath,
+                        "listings");
+
+                    await _listingRepository.AddListingPhoto(listingId, permanentPhotoPath, index == 0);
+                }
+
+                HttpContext.Session.Remove(GetSessionKey(landlordUserId));
+                _photoStorageService.DeleteTemporaryWizardFolder(landlordUserId);
+
+                TempData["SuccessMessage"] = "Your listing was submitted successfully.";
+                return RedirectToAction("PropertyDetails", "Property", new { propertyId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "We could not submit your listing right now. Your progress and photos are still saved, so please try again.");
+                return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
+            }
         }
 
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
@@ -560,6 +673,72 @@ namespace Kasi_Room_Network___KRN.Controllers
             return wizardState;
         }
 
+
+
+        private async Task<PostRoomReviewStepViewModel> BuildReviewStepViewModel(PostRoomWizardStateViewModel wizardState)
+        {
+            var allAmenities = (await _amenityRepository.GetAllAmenities()).ToList();
+            var selectedAmenityIds = wizardState.SelectedAmenityIds.ToHashSet();
+
+            return new PostRoomReviewStepViewModel
+            {
+                BasicPropertyInfo = wizardState.BasicPropertyInfo,
+                Address = wizardState.Address,
+                SelectedAmenities = allAmenities
+                    .Where(amenity => selectedAmenityIds.Contains(amenity.AmenityId))
+                    .ToList(),
+                RoomDetails = wizardState.RoomDetails,
+                PropertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList(),
+                RoomPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
+                    .Where(photo => photo.UseForRoom)
+                    .ToList()
+            };
+        }
+
+        private IActionResult? EnsureReadyForReview(PostRoomWizardStateViewModel? wizardState)
+        {
+            if (wizardState == null)
+            {
+                return RedirectToAction(nameof(Start));
+            }
+
+            if (!HasCompletedBasicPropertyInfo(wizardState))
+            {
+                return RedirectToAction(nameof(BasicPropertyInfo));
+            }
+
+            if (!HasCompletedAddress(wizardState))
+            {
+                return RedirectToAction(nameof(Address));
+            }
+
+            if (!wizardState.UploadedPhotos.Any())
+            {
+                TempData["PhotoError"] = "Upload at least one photo before reviewing your listing.";
+                return RedirectToAction(nameof(Photos));
+            }
+
+            if (!HasCompletedRoomDetails(wizardState))
+            {
+                return RedirectToAction(nameof(RoomDetails));
+            }
+
+            if (!wizardState.UploadedPhotos.Any(photo => photo.UseForRoom))
+            {
+                TempData["PhotoError"] = "Select at least one room photo before reviewing your listing.";
+                return RedirectToAction(nameof(SelectRoomPhotos));
+            }
+
+            return null;
+        }
+
+        private static IEnumerable<PostRoomUploadedPhotoViewModel> GetUniqueUploadedPhotos(IEnumerable<PostRoomUploadedPhotoViewModel> uploadedPhotos)
+        {
+            return uploadedPhotos
+                .Where(photo => !string.IsNullOrWhiteSpace(photo.TempRelativePath))
+                .GroupBy(photo => photo.TempRelativePath, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First());
+        }
 
         private static SelectRoomPhotosStepViewModel BuildSelectRoomPhotosViewModel(
             PostRoomWizardStateViewModel wizardState,

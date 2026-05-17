@@ -54,6 +54,70 @@ namespace Kasi_Room_Network___KRN.Services
             return $"/uploads/wizard-temp/{safeLandlordUserId}/{fileName}";
         }
 
+
+        public async Task<string> CopyTemporaryPhotoToPermanentAsync(string tempRelativePath, string permanentFolderName)
+        {
+            if (string.IsNullOrWhiteSpace(tempRelativePath))
+            {
+                throw new InvalidOperationException("Photo path is missing.");
+            }
+
+            if (string.IsNullOrWhiteSpace(permanentFolderName))
+            {
+                throw new InvalidOperationException("Permanent photo folder is missing.");
+            }
+
+            var normalizedRelativePath = tempRelativePath.TrimStart('/', '\\')
+                .Replace('/', Path.DirectorySeparatorChar)
+                .Replace('\\', Path.DirectorySeparatorChar);
+            var sourcePath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, normalizedRelativePath));
+            var tempRootPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "wizard-temp"));
+            var tempRootWithSeparator = tempRootPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            if (!sourcePath.StartsWith(tempRootWithSeparator, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Only temporary wizard photos can be submitted.");
+            }
+
+            if (!System.IO.File.Exists(sourcePath))
+            {
+                throw new InvalidOperationException("One of your uploaded photos could not be found. Please upload it again.");
+            }
+
+            var extension = Path.GetExtension(sourcePath).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException("Only JPG and PNG images are allowed.");
+            }
+
+            var safePermanentFolderName = SanitizePathSegment(permanentFolderName);
+            var uploadsFolder = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                "uploads",
+                safePermanentFolderName);
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Guid.NewGuid().ToString() + extension;
+            var destinationPath = Path.Combine(uploadsFolder, fileName);
+
+            await using (var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            await using (var destinationStream = new FileStream(destinationPath, FileMode.CreateNew))
+            {
+                await sourceStream.CopyToAsync(destinationStream);
+            }
+
+            return $"/uploads/{safePermanentFolderName}/{fileName}";
+        }
+
+        public void DeleteTemporaryWizardFolder(string landlordUserId)
+        {
+            DeleteLandlordTemporaryPhotos(landlordUserId);
+        }
+
         public void DeleteTemporaryPhoto(string tempRelativePath)
         {
             if (string.IsNullOrWhiteSpace(tempRelativePath))
