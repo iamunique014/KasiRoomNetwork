@@ -584,6 +584,11 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return redirectResult;
             }
 
+            int? createdPropertyId = null;
+            int? createdListingId = null;
+            var copiedPermanentPropertyPhotoPaths = new List<string>();
+            var copiedPermanentListingPhotoPaths = new List<string>();
+
             try
             {
                 var propertyModel = new CreatePropertyViewModel
@@ -598,11 +603,11 @@ namespace Kasi_Room_Network___KRN.Controllers
                     SelectedAmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList()
                 };
 
-                var propertyId = await _propertyRepository.CreateProperty(propertyModel, landlordUserId);
+                createdPropertyId = await _propertyRepository.CreateProperty(propertyModel, landlordUserId);
 
                 foreach (var amenityId in propertyModel.SelectedAmenityIds)
                 {
-                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId);
+                    await _amenityRepository.AddPropertyAmenity(createdPropertyId.Value, amenityId);
                 }
 
                 var propertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList();
@@ -611,20 +616,21 @@ namespace Kasi_Room_Network___KRN.Controllers
                     var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
                         propertyPhotos[index].TempRelativePath,
                         "properties");
+                    copiedPermanentPropertyPhotoPaths.Add(permanentPhotoPath);
 
-                    await _propertyRepository.AddPropertyPhoto(propertyId, permanentPhotoPath, index == 0);
+                    await _propertyRepository.AddPropertyPhoto(createdPropertyId.Value, permanentPhotoPath, index == 0);
                 }
 
                 var listingModel = new CreateListingViewModel
                 {
-                    PropertyId = propertyId,
+                    PropertyId = createdPropertyId.Value,
                     Title = wizardState.RoomDetails.Title,
                     Description = wizardState.RoomDetails.Description?.Trim() ?? string.Empty,
                     Price = wizardState.RoomDetails.Price,
                     IsAvailable = wizardState.RoomDetails.IsAvailable
                 };
 
-                var listingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
+                createdListingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
 
                 var listingPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
                     .Where(photo => photo.UseForRoom)
@@ -635,20 +641,73 @@ namespace Kasi_Room_Network___KRN.Controllers
                     var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
                         listingPhotos[index].TempRelativePath,
                         "listings");
+                    copiedPermanentListingPhotoPaths.Add(permanentPhotoPath);
 
-                    await _listingRepository.AddListingPhoto(listingId, permanentPhotoPath, index == 0);
+                    await _listingRepository.AddListingPhoto(createdListingId.Value, permanentPhotoPath, index == 0);
                 }
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
                 _photoStorageService.DeleteTemporaryWizardFolder(landlordUserId);
 
                 TempData["SuccessMessage"] = "Your listing was submitted successfully.";
-                return RedirectToAction("PropertyDetails", "Property", new { propertyId });
+                return RedirectToAction("PropertyDetails", "Property", new { propertyId = createdPropertyId.Value });
             }
             catch (Exception)
             {
+                await CleanupFailedSubmitAsync(
+                    createdListingId,
+                    createdPropertyId,
+                    copiedPermanentListingPhotoPaths,
+                    copiedPermanentPropertyPhotoPaths);
+
                 ModelState.AddModelError(string.Empty, "We could not submit your listing right now. Your progress and photos are still saved, so please try again.");
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
+            }
+        }
+
+        private async Task CleanupFailedSubmitAsync(
+            int? createdListingId,
+            int? createdPropertyId,
+            IEnumerable<string> copiedPermanentListingPhotoPaths,
+            IEnumerable<string> copiedPermanentPropertyPhotoPaths)
+        {
+            Exception? cleanupException = null;
+
+            try
+            {
+                if (createdListingId.HasValue)
+                {
+                    try
+                    {
+                        await _listingRepository.DeleteListing(createdListingId.Value);
+                    }
+                    catch (Exception exception)
+                    {
+                        cleanupException ??= exception;
+                    }
+                }
+
+                if (createdPropertyId.HasValue)
+                {
+                    try
+                    {
+                        await _propertyRepository.DeleteProperty(createdPropertyId.Value);
+                    }
+                    catch (Exception exception)
+                    {
+                        cleanupException ??= exception;
+                    }
+                }
+            }
+            finally
+            {
+                _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
+                _photoStorageService.DeletePhotos(copiedPermanentPropertyPhotoPaths);
+            }
+
+            if (cleanupException != null)
+            {
+                throw cleanupException;
             }
         }
 

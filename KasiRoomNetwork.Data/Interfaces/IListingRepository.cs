@@ -12,6 +12,9 @@ namespace KasiRoomNetwork.Data.Interfaces
         // sp_Create_Listing
         Task<int> CreateListing(CreateListingViewModel model,string landlordUserId);
 
+        // sp_Delete_Listing
+        Task DeleteListing(int listingId);
+
         // sp_Add_Listing_Photo
         Task AddListingPhoto(int listingId, string photoPath, bool isPrimary);
 
