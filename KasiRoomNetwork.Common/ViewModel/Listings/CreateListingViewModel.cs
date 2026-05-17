@@ -9,6 +9,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
 {
     public class CreateListingViewModel
     {
+        public bool IsAvailable;
 
         // Listing
         [Required]
