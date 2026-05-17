@@ -33,6 +33,26 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.First();
         }
 
+        // sp_Listing_Delete
+        public async Task DeleteListing(int listingId)
+        {
+            if (listingId <= 0)
+            {
+                return;
+            }
+
+            var listing = await GetListingById(listingId);
+            if (listing == null)
+            {
+                return;
+            }
+
+            await _db.SaveData("sp_Listing_Delete", new
+            {
+                ListingId = listingId
+            });
+        }
+
         // sp_Add_Listing_Photo
         public async Task AddListingPhoto(int listingId, string photoPath, bool isPrimary)
         {

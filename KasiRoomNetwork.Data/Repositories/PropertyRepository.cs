@@ -30,6 +30,27 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.First();
         }
+
+        // sp_Property_Delete
+        public async Task DeleteProperty(int propertyId)
+        {
+            if (propertyId <= 0)
+            {
+                return;
+            }
+
+            var property = await GetPropertyById(propertyId);
+            if (property == null)
+            {
+                return;
+            }
+
+            await _db.SaveData("sp_Property_Delete", new
+            {
+                PropertyId = propertyId
+            });
+        }
+
         // sp_Landlord_Get_Properties_By_User
         public async Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId)
         {

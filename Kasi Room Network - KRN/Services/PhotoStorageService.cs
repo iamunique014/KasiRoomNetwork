@@ -120,12 +120,22 @@ namespace Kasi_Room_Network___KRN.Services
 
         public void DeleteTemporaryPhoto(string tempRelativePath)
         {
-            if (string.IsNullOrWhiteSpace(tempRelativePath))
+            DeletePhoto(tempRelativePath);
+        }
+
+        public void DeleteTemporaryPhotos(IEnumerable<string>? tempRelativePaths)
+        {
+            DeletePhotos(tempRelativePaths);
+        }
+
+        public void DeletePhoto(string relativePath)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
             {
                 return;
             }
 
-            var normalizedRelativePath = tempRelativePath.TrimStart('/', '\\')
+            var normalizedRelativePath = relativePath.TrimStart('/', '\\')
                 .Replace('/', Path.DirectorySeparatorChar)
                 .Replace('\\', Path.DirectorySeparatorChar);
             var fullPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, normalizedRelativePath));
@@ -143,18 +153,18 @@ namespace Kasi_Room_Network___KRN.Services
             }
         }
 
-        public void DeleteTemporaryPhotos(IEnumerable<string>? tempRelativePaths)
+        public void DeletePhotos(IEnumerable<string>? relativePaths)
         {
-            if (tempRelativePaths == null)
+            if (relativePaths == null)
             {
                 return;
             }
 
-            foreach (var path in tempRelativePaths)
+            foreach (var path in relativePaths)
             {
                 try
                 {
-                    DeleteTemporaryPhoto(path);
+                    DeletePhoto(path);
                 }
                 catch
                 {
