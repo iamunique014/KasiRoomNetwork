@@ -620,7 +620,8 @@ namespace Kasi_Room_Network___KRN.Controllers
                     PropertyId = propertyId,
                     Title = wizardState.RoomDetails.Title,
                     Description = wizardState.RoomDetails.Description?.Trim() ?? string.Empty,
-                    Price = wizardState.RoomDetails.Price
+                    Price = wizardState.RoomDetails.Price,
+                    IsAvailable = wizardState.RoomDetails.IsAvailable
                 };
 
                 var listingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
