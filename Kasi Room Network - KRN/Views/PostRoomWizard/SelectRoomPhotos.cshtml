@@ -19,7 +19,7 @@
                 @for (var index = 0; index < Model.Photos.Count; index++)
                 {
                     <div class="col-12 col-sm-6">
-                        <label class="card h-100 shadow-sm room-photo-selection-card" for="Photos_@index__UseForRoom" style="cursor: pointer;">
+                        <label class="card h-100 shadow-sm room-photo-selection-card" for="Photos_@(index)__UseForRoom" style="cursor: pointer;">
                             <img src="@Model.Photos[index].PhotoPath"
                                  alt="@(string.IsNullOrWhiteSpace(Model.Photos[index].OriginalFileName) ? "Uploaded room photo" : Model.Photos[index].OriginalFileName)"
                                  class="card-img-top"
