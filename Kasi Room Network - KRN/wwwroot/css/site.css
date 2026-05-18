@@ -20,3 +20,78 @@ html {
 body {
   margin-bottom: 60px;
 }
+.landlord-dashboard .card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.landlord-dashboard a:focus-visible .card,
+.landlord-dashboard a:hover .card {
+  transform: translateY(-2px);
+  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .08) !important;
+}
+
+.landlord-primary-action {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: #fff;
+}
+
+.landlord-primary-icon,
+.landlord-stat-icon,
+.landlord-message-icon {
+  align-items: center;
+  border-radius: 1rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+}
+
+.landlord-primary-icon {
+  background: rgba(255, 255, 255, .18);
+  font-size: 2.25rem;
+  height: 4.5rem;
+  width: 4.5rem;
+}
+
+.landlord-stat-icon,
+.landlord-message-icon {
+  font-size: 1.5rem;
+  height: 3.25rem;
+  width: 3.25rem;
+}
+
+.landlord-action-card,
+.landlord-secondary-card {
+  min-height: 100%;
+}
+
+.landlord-secondary-card {
+  border: 1px solid rgba(108, 117, 125, .25);
+}
+
+.landlord-empty-state {
+  background: #f8fbff;
+}
+
+.landlord-message-card-active {
+  border-left: .35rem solid #198754 !important;
+  background: #f6fff9;
+}
+
+@media (max-width: 575.98px) {
+  .landlord-dashboard .btn,
+  .landlord-dashboard .card-body {
+    min-height: 48px;
+  }
+
+  .landlord-primary-icon {
+    font-size: 2rem;
+    height: 4rem;
+    width: 4rem;
+  }
+}
+
+@media (min-width: 576px) {
+  .landlord-dashboard .w-sm-auto {
+    width: auto !important;
+  }
+}

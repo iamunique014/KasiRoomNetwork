@@ -1,87 +1,181 @@
 ﻿@{
     ViewData["Title"] = "KRN - Landlord";
     int UnreadMessages = ViewBag.UnreadCount ?? 0;
+    int ActiveListings = ViewBag.ActiveListings ?? 0;
+    int PendingVerification = ViewBag.PendingVerification ?? 0;
+    int VerifiedListings = ViewBag.VerifiedListings ?? 0;
 }
 
-<div class="container mt-5 text-center">
-
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
-
-            <h6 class="fw-bold mb-2">
-                Messages 
-                @if (UnreadMessages > 0)
-                {
-                    <span class="badge bg-success ms-2">
-                        @UnreadMessages
-                    </span>
-                }
-            </h6>
-
-            @if (UnreadMessages > 0)
-            {
-                <p class="mb-2">
-                    You have 
-                    <span class="badge bg-success">
-                        @UnreadMessages
-                    </span>
-                    new message(s)
-                </p>
-
-                <a href="/Messages/Inbox" class="btn btn-primary btn-sm w-100">
-                    View Messages
-                </a>
-            }
-            else
-            {
-                <p class="text-muted mb-2">
-                    No new messages
-                </p>
-
-                <a href="/Messages/Inbox" class="btn btn-outline-secondary btn-sm w-100">
-                    Open Inbox
-                </a>
-            }
-
-        </div>
+<div class="container py-4 landlord-dashboard">
+    <div class="mb-4">
+        <h4 class="fw-bold mb-1">
+            Welcome back, @User.Identity?.Name
+        </h4>
+        <p class="text-muted mb-0">
+            Manage your rooms and property listings
+        </p>
     </div>
 
-    <div class="row g-3">
-
-        <div class="col-6">
-            <a href="/Listing/CreateListing" class="text-decoration-none">
-                <div class="border rounded p-3 h-100">
-                    <p class="mb-0 fw-semibold">POST A ROOM</p>
-                </div>
-            </a>
-            
+    <section class="mb-4" aria-labelledby="listing-status-heading">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-clipboard-data text-primary fs-5" aria-hidden="true"></i>
+            <h5 id="listing-status-heading" class="fw-bold mb-0">Listing Status Summary</h5>
         </div>
 
-        <div class="col-6">
-            <a href="/Landlord/MyRooms" class="text-decoration-none">
-                <div class="border rounded p-3 h-100">
-                    <p class="mb-0 fw-semibold">MY ROOMS</p>
+        <div class="row g-3">
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="landlord-stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-door-open" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <p class="text-muted small mb-1">Active Listings</p>
+                                <p class="fs-3 fw-bold mb-0">@ActiveListings</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </a>
-        </div>
+            </div>
 
-        @* <div class="col-6">
-            <div class="border rounded p-3 h-100">
-                <div class="fs-3"></div>
-                <p class="mb-0 fw-semibold">
-                    Tenants
-                </p>
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="landlord-stat-icon bg-warning-subtle text-warning-emphasis">
+                                <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <p class="text-muted small mb-1">Pending Verification</p>
+                                <p class="fs-3 fw-bold mb-0">@PendingVerification</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="landlord-stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-patch-check" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <p class="text-muted small mb-1">Verified Listings</p>
+                                <p class="fs-3 fw-bold mb-0">@VerifiedListings</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="col-6">
-            <div class="border rounded p-3 h-100">
-                <div class="fs-3"></div>
-                <p class="mb-0 fw-semibold">
-                    Admin Approved Listings
-                </p>
+    @if (ActiveListings == 0)
+    {
+        <section class="card border-0 rounded-4 shadow-sm mb-4 landlord-empty-state">
+            <div class="card-body p-4 p-md-5 text-center">
+                <i class="bi bi-house-add display-5 text-primary mb-3" aria-hidden="true"></i>
+                <h5 class="fw-bold mb-2">You haven't posted any rooms yet.</h5>
+                <p class="text-muted mb-4">Start by creating your first room listing.</p>
+                <a href="/Listing/CreateListing" class="btn btn-primary btn-lg rounded-pill px-4 w-100 w-sm-auto">
+                    <i class="bi bi-door-open me-2" aria-hidden="true"></i>
+                    Post Your First Room
+                </a>
             </div>
-        </div> *@
+        </section>
+    }
 
-    </div>
+    <section class="mb-4" aria-labelledby="dashboard-actions-heading">
+        <h5 id="dashboard-actions-heading" class="fw-bold mb-3">Next steps</h5>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <a href="/Listing/CreateListing" class="text-decoration-none text-reset">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 landlord-primary-action">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+                                <span class="landlord-primary-icon">
+                                    <i class="bi bi-house-add" aria-hidden="true"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <p class="text-uppercase fw-bold mb-1">Post a Room</p>
+                                    <h5 class="fw-bold mb-2">Create and publish a room listing in a few simple steps</h5>
+                                    <p class="mb-0 opacity-75">Start the guided posting flow tenants will see when browsing available rooms.</p>
+                                </div>
+                                <span class="btn btn-light rounded-pill px-4 py-2 mt-2 mt-md-0">
+                                    Start posting
+                                    <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <a href="/Landlord/MyRooms" class="text-decoration-none text-reset">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 landlord-action-card">
+                        <div class="card-body p-4 text-center text-md-start">
+                            <i class="bi bi-door-open fs-1 text-primary mb-3" aria-hidden="true"></i>
+                            <h6 class="fw-bold mb-2">My Rooms</h6>
+                            <p class="text-muted mb-0">Review and manage the room listings you have already created.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <a href="/Property/CreateProperty" class="text-decoration-none text-reset">
+                    <div class="card rounded-4 shadow-sm h-100 landlord-secondary-card">
+                        <div class="card-body p-4 text-center text-md-start">
+                            <i class="bi bi-building fs-1 text-secondary mb-3" aria-hidden="true"></i>
+                            <h6 class="fw-bold mb-2">Add Property</h6>
+                            <p class="text-muted mb-3">Add property details when you need to manage the place behind your rooms.</p>
+                            <span class="btn btn-outline-secondary rounded-pill px-4">
+                                Add property
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="card border-0 rounded-4 shadow-sm @(UnreadMessages > 0 ? "landlord-message-card-active" : "")">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3">
+                <span class="landlord-message-icon @(UnreadMessages > 0 ? "bg-success text-white" : "bg-secondary-subtle text-secondary")">
+                    <i class="bi bi-chat-dots" aria-hidden="true"></i>
+                </span>
+
+                <div class="flex-grow-1">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                        <h5 class="fw-bold mb-0">Messages</h5>
+                        @if (UnreadMessages > 0)
+                        {
+                            <span class="badge bg-success rounded-pill">@UnreadMessages unread</span>
+                        }
+                    </div>
+
+                    @if (UnreadMessages > 0)
+                    {
+                        <p class="mb-0 text-success-emphasis">
+                            You have @UnreadMessages new message(s) waiting for your response.
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No new messages. You can still open your inbox anytime.</p>
+                    }
+                </div>
+
+                <a href="/Messages/Inbox" class="btn @(UnreadMessages > 0 ? "btn-success" : "btn-outline-secondary") rounded-pill px-4 py-2 w-100 w-sm-auto">
+                    @(UnreadMessages > 0 ? "View Messages" : "Open Inbox")
+                </a>
+            </div>
+        </div>
+    </section>
 </div>
