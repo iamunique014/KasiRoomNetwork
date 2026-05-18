@@ -848,13 +848,5 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             return $"PostRoomWizard:{landlordUserId}";
         }
-
-
-        //Cleanup After Final Submit
-        //        _photoStorageService.DeleteLandlordTemporaryPhotos(
-        //    landlordUserId);
-
-        //HttpContext.Session.Remove(
-        //    GetSessionKey(landlordUserId));
     }
 }
