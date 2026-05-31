@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Property Details";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var canEditProperty = User.IsInRole("Landlord") && currentUserId == Model.LandlordUserId;
 }
 
 <div class="container mt-4">
@@ -59,9 +61,23 @@
 
                 <div class="card-body">
 
-                    <h2 class="mb-3">
-                        @Model.PropertyName
-                    </h2>
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+
+                        <h2 class="mb-0">
+                            @Model.PropertyName
+                        </h2>
+
+                        @if (canEditProperty)
+                        {
+                            <a asp-controller="Property"
+                               asp-action="EditProperty"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-outline-primary align-self-md-start">
+                                Edit Property
+                            </a>
+                        }
+
+                    </div>
 
                     <p class="text-muted mb-2">
 
