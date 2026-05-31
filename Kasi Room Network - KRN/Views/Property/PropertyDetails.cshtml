@@ -73,7 +73,7 @@
                                asp-action="EditProperty"
                                asp-route-propertyId="@Model.PropertyId"
                                class="btn btn-outline-primary align-self-md-start">
-                                Edit Property
+                                Edit
                             </a>
                         }
 
@@ -103,11 +103,22 @@
                 <div class="card shadow-sm mb-4">
 
                     <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                            <h4 class="mb-3">
+                                Amenities
+                            </h4>
 
-                        <h4 class="mb-3">
-                            Amenities
-                        </h4>
+                            @if (canEditProperty)
+                            {
+                                <a asp-controller="Property"
+                                   asp-action="EditPropertyAmenities"
+                                   asp-route-propertyId="@Model.PropertyId"
+                                   class="btn btn-outline-primary align-self-md-start">
+                                    Edit 
+                                </a>
+                            }
 
+                        </div>
                         @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
                         {
                             <div class="mb-4">
