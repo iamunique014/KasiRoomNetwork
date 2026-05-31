@@ -1,0 +1,69 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Properties.EditPropertyViewModel;
+
+<div class="container py-4">
+
+    <h2 class="mb-4">Edit Property</h2>
+
+    <form asp-action="EditProperty" method="post">
+
+        <input type="hidden" asp-for="PropertyId" />
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <h5 class="mb-3">Basic Information</h5>
+
+                <div class="mb-3">
+                    <label asp-for="PropertyName" class="form-label"></label>
+                    <input asp-for="PropertyName" class="form-control" />
+                    <span asp-validation-for="PropertyName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PropertyType" class="form-label"></label>
+                    <input asp-for="PropertyType" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TotalRooms" class="form-label"></label>
+                    <input asp-for="TotalRooms" class="form-control" />
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <h5 class="mb-3">Address</h5>
+
+                <div class="mb-3">
+                    <label asp-for="Province" class="form-label"></label>
+                    <input asp-for="Province" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="City" class="form-label"></label>
+                    <input asp-for="City" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Suburb" class="form-label"></label>
+                    <input asp-for="Suburb" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Street" class="form-label"></label>
+                    <input asp-for="Street" class="form-control" />
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">
+            Save Changes
+        </button>
+
+    </form>
+
+</div>

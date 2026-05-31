@@ -31,24 +31,49 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.First();
         }
 
-        // sp_Property_Delete
-        public async Task DeleteProperty(int propertyId)
+        public async Task<EditPropertyViewModel?> GetPropertyForEditAsync(int propertyId, string landlordId)
         {
-            if (propertyId <= 0)
-            {
-                return;
-            }
+            var results = await _db.GetData<EditPropertyViewModel, dynamic>(
+                "sp_Property_Get_For_Edit",
+                new
+                {
+                    PropertyId = propertyId,
+                    LandlordId = landlordId
+                });
 
-            var property = await GetPropertyById(propertyId);
-            if (property == null)
-            {
-                return;
-            }
+            return results.FirstOrDefault();
+        }
 
-            await _db.SaveData("sp_Property_Delete", new
-            {
-                PropertyId = propertyId
-            });
+        public async Task UpdatePropertyAsync(EditPropertyViewModel model, string landlordId)
+        {
+            await _db.SaveData(
+                "sp_Property_Update",
+                new
+                {
+                    model.PropertyId,
+                    LandlordId = landlordId,
+
+                    model.PropertyName,
+                    model.PropertyType,
+                    model.TotalRooms,
+
+                    model.Province,
+                    model.City,
+                    model.Suburb,
+                    model.Street
+                });
+        }
+
+        // sp_Property_Delete
+        public async Task DeletePropertyAsync(int propertyId, string landlordId)
+        {
+            await _db.SaveData(
+                "sp_Property_Delete",
+                new
+                {
+                    PropertyId = propertyId,
+                    LandlordId = landlordId
+                });
         }
 
         // sp_Landlord_Get_Properties_By_User

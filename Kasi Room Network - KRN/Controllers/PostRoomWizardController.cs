@@ -671,6 +671,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             IEnumerable<string> copiedPermanentListingPhotoPaths,
             IEnumerable<string> copiedPermanentPropertyPhotoPaths)
         {
+            var landlordId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Exception? cleanupException = null;
 
             try
@@ -691,7 +692,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 {
                     try
                     {
-                        await _propertyRepository.DeleteProperty(createdPropertyId.Value);
+                        await _propertyRepository.DeletePropertyAsync(createdPropertyId.Value, landlordId);
                     }
                     catch (Exception exception)
                     {

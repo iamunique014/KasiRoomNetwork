@@ -1,6 +1,7 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -198,6 +199,67 @@ namespace Kasi_Room_Network___KRN.Controllers
                 .ToList();
 
             return View(property);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProperty(int propertyId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var property = await _propertyRepository
+                .GetPropertyForEditAsync(propertyId, landlordUserId);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            return View(property);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProperty(EditPropertyViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
+
+            TempData["Success"] = "Property updated successfully.";
+
+            return RedirectToAction(
+                "PropertyDetails",
+                new { propertyId = model.PropertyId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProperty(int propertyId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
+
+            TempData["Success"] = "Property deleted successfully.";
+
+            return RedirectToAction(nameof(MyProperties));
         }
 
         public IActionResult PropertySubmitted(int propertyId)
