@@ -23,4 +23,8 @@
     <ProjectReference Include="..\KasiRoomNetwork.Common\KasiRoomNetwork.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\" />
+  </ItemGroup>
+
 </Project>
