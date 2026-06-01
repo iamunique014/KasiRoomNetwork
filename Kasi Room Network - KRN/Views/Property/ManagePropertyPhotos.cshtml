@@ -81,10 +81,21 @@
                         </div>
 
                         <div class="card-body">
-                            <p class="card-text text-muted small mb-0">
-                                Photo ID: @photo.PhotoId
-                            </p>
-                            @* Note: Delete and Set Primary functionality to be added in later phases *@
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text text-muted small mb-0">
+                                    Photo ID: @photo.PhotoId
+                                </p>
+                                
+                                <form asp-action="DeletePropertyPhoto" asp-controller="Property" method="post" 
+                                      onsubmit="return confirm('Are you sure you want to delete this photo?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="propertyId" value="@Model.PropertyId" />
+                                    <input type="hidden" name="photoId" value="@photo.PhotoId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
