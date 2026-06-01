@@ -129,12 +129,20 @@
 
                         @if (canEditProperty)
                         {
-                            <a asp-controller="Property"
-                               asp-action="EditProperty"
-                               asp-route-propertyId="@Model.PropertyId"
-                               class="btn btn-outline-primary align-self-md-start">
-                                Edit
-                            </a>
+                            <div class="d-flex gap-2 align-self-md-start">
+                                <a asp-controller="Property"
+                                   asp-action="ManagePropertyPhotos"
+                                   asp-route-propertyId="@Model.PropertyId"
+                                   class="btn btn-outline-success">
+                                    Manage Photos
+                                </a>
+                                <a asp-controller="Property"
+                                   asp-action="EditProperty"
+                                   asp-route-propertyId="@Model.PropertyId"
+                                   class="btn btn-outline-primary">
+                                    Edit
+                                </a>
+                            </div>
                         }
 
                     </div>

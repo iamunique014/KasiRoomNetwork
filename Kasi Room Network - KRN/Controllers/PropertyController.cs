@@ -266,6 +266,32 @@ namespace Kasi_Room_Network___KRN.Controllers
             return RedirectToAction(nameof(MyProperties));
         }
 
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public async Task<IActionResult> ManagePropertyPhotos(int propertyId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null || property.LandlordUserId != landlordUserId)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ManagePropertyPhotosViewModel
+            {
+                PropertyId = property.PropertyId,
+                PropertyName = property.PropertyName,
+                Photos = await _propertyRepository.GetPropertyPhotos(propertyId)
+            };
+
+            return View(viewModel);
+        }
+
         public IActionResult PropertySubmitted(int propertyId)
         {
             ViewBag.PropertyId = propertyId;

@@ -1,0 +1,69 @@
+@model KasiRoomNetwork.Common.ViewModel.Properties.ManagePropertyPhotosViewModel
+
+@{
+    ViewData["Title"] = "Manage Property Photos";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Manage Property Photos</h2>
+        <p class="text-muted mb-0">@Model.PropertyName</p>
+    </div>
+
+    <!-- BACK LINK -->
+    <div class="mb-3">
+        <a asp-action="PropertyDetails" asp-controller="Property" asp-route-propertyId="@Model.PropertyId" class="btn btn-outline-secondary">
+            &larr; Back to Property Details
+        </a>
+    </div>
+
+    <!-- PHOTOS SECTION -->
+    @if (Model.Photos != null && Model.Photos.Any())
+    {
+        <div class="row">
+            @foreach (var photo in Model.Photos)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Photo -->
+                        <div class="position-relative overflow-hidden" style="height: 250px;">
+                            <img src="@photo.PhotoPath"
+                                 class="card-img-top w-100 h-100"
+                                 style="object-fit: cover;"
+                                 alt="Property photo" />
+                            
+                            <!-- Primary Badge -->
+                            @if (photo.IsPrimary)
+                            {
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-success">Primary Photo</span>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="card-body">
+                            <p class="card-text text-muted small mb-0">
+                                Photo ID: @photo.PhotoId
+                            </p>
+                            @* Note: Delete and Set Primary functionality to be added in later phases *@
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- EMPTY STATE -->
+        <div class="alert alert-info text-center py-5 shadow-sm">
+            <h5 class="mb-2">No photos uploaded yet.</h5>
+            <p class="mb-3">Start by uploading photos to showcase your property.</p>
+            <a asp-action="AddPropertyPhotos" asp-controller="Property" asp-route-propertyId="@Model.PropertyId" class="btn btn-primary">
+                Upload Photos
+            </a>
+        </div>
+    }
+
+</div>
