@@ -1,9 +1,35 @@
-﻿@model KasiRoomNetwork.Common.ViewModel.Properties.PropertyDetailsViewModel
+@model KasiRoomNetwork.Common.ViewModel.Properties.PropertyDetailsViewModel
+
+@functions {
+    private static string GetPhotoUrl(string? photoPath)
+    {
+        if (string.IsNullOrWhiteSpace(photoPath))
+        {
+            return string.Empty;
+        }
+
+        var trimmedPath = photoPath.Trim().Replace("\\", "/");
+
+        if (trimmedPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || trimmedPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || trimmedPath.StartsWith("/"))
+        {
+            return trimmedPath;
+        }
+
+        return "/" + trimmedPath.TrimStart('~', '/');
+    }
+}
 
 @{
     ViewData["Title"] = "Property Details";
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     var canEditProperty = User.IsInRole("Landlord") && currentUserId == Model.LandlordUserId;
+    var photos = (Model.Photos ?? new List<KasiRoomNetwork.Common.ViewModel.Properties.PropertyPhotoViewModel>())
+        .Where(photo => !string.IsNullOrWhiteSpace(photo.PhotoPath))
+        .OrderByDescending(photo => photo.IsPrimary)
+        .ThenBy(photo => photo.PhotoId)
+        .ToList();
 }
 
 <div class="container mt-4">
@@ -21,7 +47,7 @@
         <div class="col-lg-8">
 
             <!-- Property Photos -->
-            @if (Model.Photos != null && Model.Photos.Any())
+            @if (photos.Any())
             {
                 <div id="propertyCarousel"
                      class="carousel slide mb-4"
@@ -29,38 +55,64 @@
 
                     <div class="carousel-inner">
 
-                        @for (int i = 0; i < Model.Photos.Count; i++)
+                        @for (int i = 0; i < photos.Count; i++)
                         {
+                            var photo = photos[i];
+                            var photoUrl = GetPhotoUrl(photo.PhotoPath);
+
                             <div class="carousel-item @(i == 0 ? "active" : "")">
 
-                                <img src="@Model.Photos[i].PhotoPath"
+                                <img src="@photoUrl"
                                      class="d-block w-100 rounded"
                                      style="height:400px; object-fit:cover;"
-                                     alt="Property Photo" />
+                                     alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
 
                             </div>
                         }
 
                     </div>
 
-                    <button class="carousel-control-prev"
-                            type="button"
-                            data-bs-target="#propertyCarousel"
-                            data-bs-slide="prev">
+                    @if (photos.Count > 1)
+                    {
+                        <button class="carousel-control-prev"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="prev"
+                                aria-label="Previous property photo">
 
-                        <span class="carousel-control-prev-icon"></span>
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
 
-                    </button>
+                        </button>
 
-                    <button class="carousel-control-next"
-                            type="button"
-                            data-bs-target="#propertyCarousel"
-                            data-bs-slide="next">
+                        <button class="carousel-control-next"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="next"
+                                aria-label="Next property photo">
 
-                        <span class="carousel-control-next-icon"></span>
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
 
-                    </button>
+                        </button>
+                    }
 
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center py-5">
+                        <p class="text-muted mb-3">No property photos uploaded yet.</p>
+
+                        @if (canEditProperty)
+                        {
+                            <a asp-controller="Property"
+                               asp-action="AddPropertyPhotos"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-outline-primary">
+                                Upload Photos
+                            </a>
+                        }
+                    </div>
                 </div>
             }
 
