@@ -395,5 +395,37 @@ namespace Kasi_Room_Network___KRN.Controllers
             return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
         }
 
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPrimaryPropertyPhoto(int propertyId, int photoId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            // Ownership Verification
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null || property.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to modify photos for this property.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+
+            try
+            {
+                await _propertyRepository.SetPrimaryPropertyPhoto(propertyId, photoId);
+                TempData["SuccessMessage"] = "Primary photo updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating the primary photo.";
+            }
+
+            return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+        }
+
     }
 }
