@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Properties;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 
@@ -125,7 +125,10 @@ namespace KasiRoomNetwork.Data.Repositories
                 "sp_Property_Get_Photos",
                 new { propertyId });
 
-            return result.ToList();
+            return result
+                .OrderByDescending(photo => photo.IsPrimary)
+                .ThenBy(photo => photo.PhotoId)
+                .ToList();
         }
     }
 }

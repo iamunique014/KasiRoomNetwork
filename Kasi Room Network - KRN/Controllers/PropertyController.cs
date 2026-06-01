@@ -1,4 +1,4 @@
-﻿using KasiRoomNetwork.Common.ViewModel.Properties;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -193,7 +193,8 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return NotFound();
             }
 
-            // Load amenities
+            property.Photos = await _propertyRepository.GetPropertyPhotos(propertyId);
+
             property.Amenities = (await _amenityRepository
                 .GetAmenitiesByPropertyId(propertyId))
                 .ToList();
