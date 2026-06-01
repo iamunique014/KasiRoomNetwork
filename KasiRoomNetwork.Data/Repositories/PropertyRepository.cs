@@ -130,5 +130,14 @@ namespace KasiRoomNetwork.Data.Repositories
                 .ThenBy(photo => photo.PhotoId)
                 .ToList();
         }
+
+        public async Task DeletePropertyPhoto(int photoId, int propertyId)
+        {
+            await _db.SaveData("sp_PropertyPhoto_Delete", new
+            {
+                PhotoId = photoId,
+                PropertyId = propertyId
+            });
+        }
     }
 }
