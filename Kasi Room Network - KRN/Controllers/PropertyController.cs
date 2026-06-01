@@ -201,6 +201,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(property);
         }
 
+        [Authorize(Roles = "Landlord")]
         [HttpGet]
         public async Task<IActionResult> EditProperty(int propertyId)
         {
@@ -221,6 +222,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(property);
         }
 
+        [Authorize(Roles = "Landlord")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProperty(EditPropertyViewModel model)
@@ -245,6 +247,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 new { propertyId = model.PropertyId });
         }
 
+        [Authorize(Roles = "Landlord")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProperty(int propertyId)

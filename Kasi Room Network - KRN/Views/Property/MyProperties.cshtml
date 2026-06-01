@@ -1,4 +1,4 @@
-@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Landlord.PropertyCardViewModel>
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Landlord.PropertyCardViewModel>
 
 @{
     ViewData["Title"] = "My Properties";
@@ -33,7 +33,7 @@
                 </p>
 
                 <a asp-controller="Property"
-                   asp-action="Create"
+                   asp-action="CreateProperty"
                    class="btn btn-success">
                     Create Property
                 </a>
@@ -115,7 +115,7 @@
                                     View Property
                                 </a>
 
-                                <form asp-action="Delete" method="post">
+                                <form asp-controller="Property" asp-action="DeleteProperty" method="post">
                                     <input type="hidden" name="propertyId" value="@property.PropertyId" />
 
                                     <button type="submit"

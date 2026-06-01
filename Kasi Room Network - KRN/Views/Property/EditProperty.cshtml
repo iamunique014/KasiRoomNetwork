@@ -1,12 +1,18 @@
-﻿@model KasiRoomNetwork.Common.ViewModel.Properties.EditPropertyViewModel;
+@model KasiRoomNetwork.Common.ViewModel.Properties.EditPropertyViewModel
+
+@{
+    ViewData["Title"] = "Edit Property";
+}
 
 <div class="container py-4">
 
     <h2 class="mb-4">Edit Property</h2>
 
     <form asp-action="EditProperty" method="post">
-
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="PropertyId" />
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
 
         <div class="card mb-4">
             <div class="card-body">
@@ -22,11 +28,13 @@
                 <div class="mb-3">
                     <label asp-for="PropertyType" class="form-label"></label>
                     <input asp-for="PropertyType" class="form-control" />
+                    <span asp-validation-for="PropertyType" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="TotalRooms" class="form-label"></label>
-                    <input asp-for="TotalRooms" class="form-control" />
+                    <input asp-for="TotalRooms" class="form-control" min="1" />
+                    <span asp-validation-for="TotalRooms" class="text-danger"></span>
                 </div>
 
             </div>
@@ -40,30 +48,45 @@
                 <div class="mb-3">
                     <label asp-for="Province" class="form-label"></label>
                     <input asp-for="Province" class="form-control" />
+                    <span asp-validation-for="Province" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="City" class="form-label"></label>
                     <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Suburb" class="form-label"></label>
                     <input asp-for="Suburb" class="form-control" />
+                    <span asp-validation-for="Suburb" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Street" class="form-label"></label>
                     <input asp-for="Street" class="form-control" />
+                    <span asp-validation-for="Street" class="text-danger"></span>
                 </div>
 
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success w-100">
-            Save Changes
-        </button>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a asp-action="PropertyDetails"
+               asp-route-propertyId="@Model.PropertyId"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-success">
+                Save Changes
+            </button>
+        </div>
 
     </form>
 
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

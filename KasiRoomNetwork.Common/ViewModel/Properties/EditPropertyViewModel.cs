@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace KasiRoomNetwork.Common.ViewModel.Properties
 {
@@ -11,14 +7,33 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
         public int PropertyId { get; set; }
 
         // Property
-        public string PropertyName { get; set; }
-        public string PropertyType { get; set; }
+        [Required]
+        [StringLength(150)]
+        [Display(Name = "Property Name")]
+        public string PropertyName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Property Type")]
+        public string PropertyType { get; set; } = string.Empty;
+
+        [Range(1, int.MaxValue, ErrorMessage = "Total rooms must be at least 1.")]
+        [Display(Name = "Total Rooms")]
         public int? TotalRooms { get; set; }
 
         // Address
-        public string Province { get; set; }
-        public string City { get; set; }
-        public string Suburb { get; set; }
-        public string Street { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Province { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
+        public string City { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        public string? Suburb { get; set; }
+
+        [StringLength(150)]
+        public string? Street { get; set; }
     }
 }
