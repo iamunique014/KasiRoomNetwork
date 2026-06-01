@@ -292,6 +292,71 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(viewModel);
         }
 
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPropertyPhoto(int propertyId, IFormFile photo, bool isPrimary)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null || property.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to upload photos for this property.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+
+            if (photo == null || photo.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Please select a photo to upload.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(photo.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                TempData["ErrorMessage"] = "Only JPG and PNG images are allowed.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+
+            if (photo.Length > 2 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "Image size cannot exceed 2MB.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/uploads/properties"
+            );
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Guid.NewGuid().ToString() + extension;
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            var dbPath = "/uploads/properties/" + fileName;
+
+            await _propertyRepository.AddPropertyPhoto(propertyId, dbPath, isPrimary);
+            TempData["SuccessMessage"] = "Photo uploaded successfully.";
+
+            return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+        }
+
         public IActionResult PropertySubmitted(int propertyId)
         {
             ViewBag.PropertyId = propertyId;
