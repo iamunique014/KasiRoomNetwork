@@ -86,15 +86,29 @@
                                     Photo ID: @photo.PhotoId
                                 </p>
                                 
-                                <form asp-action="DeletePropertyPhoto" asp-controller="Property" method="post" 
-                                      onsubmit="return confirm('Are you sure you want to delete this photo?');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="propertyId" value="@Model.PropertyId" />
-                                    <input type="hidden" name="photoId" value="@photo.PhotoId" />
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        Delete
-                                    </button>
-                                </form>
+                                <div class="d-flex gap-2">
+                                    @if (!photo.IsPrimary)
+                                    {
+                                        <form asp-action="SetPrimaryPropertyPhoto" asp-controller="Property" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="propertyId" value="@Model.PropertyId" />
+                                            <input type="hidden" name="photoId" value="@photo.PhotoId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                Make Primary
+                                            </button>
+                                        </form>
+                                    }
+                                    
+                                    <form asp-action="DeletePropertyPhoto" asp-controller="Property" method="post" 
+                                          onsubmit="return confirm('Are you sure you want to delete this photo?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="propertyId" value="@Model.PropertyId" />
+                                        <input type="hidden" name="photoId" value="@photo.PhotoId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

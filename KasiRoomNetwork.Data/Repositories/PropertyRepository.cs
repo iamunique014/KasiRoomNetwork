@@ -139,5 +139,14 @@ namespace KasiRoomNetwork.Data.Repositories
                 PropertyId = propertyId
             });
         }
+
+        public async Task SetPrimaryPropertyPhoto(int propertyId, int photoId)
+        {
+            await _db.SaveData("sp_PropertyPhoto_Set_Primary", new
+            {
+                PropertyId = propertyId,
+                PhotoId = photoId
+            });
+        }
     }
 }

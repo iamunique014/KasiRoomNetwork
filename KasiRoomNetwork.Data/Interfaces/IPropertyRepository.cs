@@ -22,6 +22,7 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<int> GetPropertyPhotoCount(int propertyId);
 
         Task DeletePropertyPhoto(int photoId, int propertyId);
+        Task SetPrimaryPropertyPhoto(int propertyId, int photoId);
 
     }
 }
