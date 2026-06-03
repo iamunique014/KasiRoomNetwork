@@ -241,7 +241,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
 
-            TempData["Success"] = "Property updated successfully.";
+            TempData["SuccessMessage"] = "Property updated successfully.";
 
             return RedirectToAction(
                 "PropertyDetails",
@@ -261,7 +261,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
 
-            TempData["Success"] = "Property deleted successfully.";
+            TempData["SuccessMessage"] = "Property deleted successfully.";
 
             return RedirectToAction(nameof(MyProperties));
         }

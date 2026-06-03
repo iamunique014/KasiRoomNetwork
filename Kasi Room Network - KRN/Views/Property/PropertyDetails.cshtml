@@ -34,10 +34,10 @@
 
 <div class="container mt-4">
 
-    @if (TempData["Success"] != null)
+    @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
+            @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
