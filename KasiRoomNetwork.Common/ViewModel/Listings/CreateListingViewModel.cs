@@ -9,7 +9,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
 {
     public class CreateListingViewModel
     {
-        public bool IsAvailable;
+        public string? PropertyName { get; set; }
+        public string? City { get; set; }
+        public string? Suburb { get; set; }
 
         // Listing
         [Required]
@@ -25,5 +27,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         [Required]
         [Range(0, 100000)]
         public decimal Price { get; set; }
+
+        public bool IsAvailable { get; set; } = true;
     }
 }

@@ -46,6 +46,13 @@
 
         <div class="col-lg-8">
 
+            <a asp-controller="Listing"
+               asp-action="CreateListing"
+               asp-route-propertyId="@Model.PropertyId"
+               class="btn btn-success w-50 mb-3">
+                Add Listing
+            </a>
+
             <!-- Property Photos -->
             @if (photos.Any())
             {

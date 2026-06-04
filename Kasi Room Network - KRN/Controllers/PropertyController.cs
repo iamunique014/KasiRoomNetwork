@@ -171,8 +171,10 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [Authorize(Roles = "Landlord")]
         [HttpGet]
-        public async Task<IActionResult> MyProperties()
+        public async Task<IActionResult> MyProperties(string? mode = null)
         {
+            ViewBag.Mode = mode;
+
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {

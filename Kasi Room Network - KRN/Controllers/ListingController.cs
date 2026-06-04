@@ -1,5 +1,6 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Data.Interfaces;
+using KasiRoomNetwork.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,11 +12,13 @@ namespace Kasi_Room_Network___KRN.Controllers
     {
         private readonly IListingRepository _listingRepository;
         private readonly IProfileRepository _profileRepository;
+        private readonly IPropertyRepository _propertyRepository;
 
-        public ListingController(IListingRepository listingRepository, IProfileRepository profileRepository)
+        public ListingController(IListingRepository listingRepository, IProfileRepository profileRepository, IPropertyRepository propertyRepository)
         {
             _listingRepository = listingRepository;
             _profileRepository = profileRepository;
+            _propertyRepository = propertyRepository;
         }
 
         // =========================
@@ -39,9 +42,14 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
             }
 
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+
             var model = new CreateListingViewModel
             {
-                PropertyId = propertyId
+                PropertyId = propertyId,
+                PropertyName = property.PropertyName,
+                Suburb = property.Suburb,
+                City = property.City
             };
 
             return View(model);
@@ -53,7 +61,15 @@ namespace Kasi_Room_Network___KRN.Controllers
         public async Task<IActionResult> CreateListing(CreateListingViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+
+                model.PropertyName = property.PropertyName;
+                model.Suburb = property.Suburb;
+                model.City = property.City;
+
                 return View(model);
+            }
 
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
