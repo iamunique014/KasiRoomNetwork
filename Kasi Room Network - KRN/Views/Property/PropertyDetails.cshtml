@@ -176,7 +176,12 @@
                                 Amenities
                             </h4>
 
-                            @* TODO: Restore an Edit Amenities link when the amenities editor action and view are implemented. *@
+                            <a asp-controller="Property"
+                               asp-action="EditPropertyAmenities"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-outline-primary">
+                                Edit
+                            </a>
 
                         </div>
                         @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))

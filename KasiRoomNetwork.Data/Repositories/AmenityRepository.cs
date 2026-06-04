@@ -1,4 +1,5 @@
 ﻿using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 using System;
@@ -55,6 +56,51 @@ namespace KasiRoomNetwork.Data.Repositories
                 {
                     PropertyId = propertyId
                 });
+        }
+
+        public async Task<EditPropertyAmenitiesViewModel?>GetPropertyAmenitiesForEditAsync(
+            int propertyId,
+            string landlordId)
+        {
+            var amenities = await _db.GetData<AmenitySelectionViewModel, dynamic>(
+                "sp_PropertyAmenities_Get_For_Edit",
+                new
+                {
+                    PropertyId = propertyId,
+                    LandlordId = landlordId
+                });
+
+            return new EditPropertyAmenitiesViewModel
+            {
+                PropertyId = propertyId,
+                Amenities = amenities.ToList()
+            };
+        }
+
+        public async Task UpdatePropertyAmenitiesAsync(
+            int propertyId,
+            List<int> amenityIds,
+            string landlordId)
+        {
+            await _db.SaveData(
+                "sp_PropertyAmenities_Clear",
+                new
+                {
+                    PropertyId = propertyId,
+                    LandlordId = landlordId
+                });
+
+            foreach (var amenityId in amenityIds)
+            {
+                await _db.SaveData(
+                    "sp_PropertyAmenity_Add",
+                    new
+                    {
+                        PropertyId = propertyId,
+                        AmenityId = amenityId,
+                        LandlordId = landlordId
+                    });
+            }
         }
     }
 }

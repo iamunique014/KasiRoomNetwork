@@ -426,6 +426,54 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
         }
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public async Task<IActionResult> EditPropertyAmenities(int propertyId)
+        {
+            var landlordId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(landlordId))
+            {
+                return Challenge();
+            }
+
+            var model = await _amenityRepository.GetPropertyAmenitiesForEditAsync(propertyId,landlordId);
+
+            if (model == null)
+                return NotFound();
+
+            return View(model);
+        }
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPropertyAmenities( EditPropertyAmenitiesViewModel model)
+        {
+            var landlordId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(landlordId))
+            {
+                return Challenge();
+            }
+
+            var selectedAmenityIds = model.Amenities
+                .Where(a => a.IsSelected)
+                .Select(a => a.AmenityId)
+                .ToList();
+
+            await _amenityRepository
+                .UpdatePropertyAmenitiesAsync(
+                    model.PropertyId,
+                    selectedAmenityIds,
+                    landlordId);
+
+            TempData["Success"] = "Amenities updated successfully.";
+
+            return RedirectToAction(
+                nameof(PropertyDetails),
+                new { propertyId = model.PropertyId });
+        }
     }
 }
