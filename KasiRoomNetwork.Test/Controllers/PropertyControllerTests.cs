@@ -6,6 +6,7 @@ using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Test.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
@@ -738,6 +739,445 @@ namespace KasiRoomNetwork.Test.Controllers
             var redirect = (RedirectToActionResult)result;
 
             redirect.ActionName.Should().Be("AddPropertyPhotos");
+            redirect.RouteValues!["propertyId"].Should().Be(1);
+        }
+        [Fact]
+        public async Task DeletePropertyPhoto_Should_Return_Challenge_When_User_Is_Missing()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupAnonymousController(controller);
+
+            // Act
+
+            var result = await controller.DeletePropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<ChallengeResult>();
+        }
+       
+        [Fact]
+        public async Task DeletePropertyPhoto_Should_Redirect_When_User_Does_Not_Own_Property()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(1))
+                .ReturnsAsync(new PropertyDetailsViewModel
+                {
+                    PropertyId = 1,
+                    LandlordUserId = "different-user"
+                });
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.DeletePropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            propertyRepoMock.Verify(
+                x => x.DeletePropertyPhoto(
+                    It.IsAny<int>(),
+                    It.IsAny<int>()),
+                Times.Never);
+        }
+        [Fact]
+        public async Task DeletePropertyPhoto_Should_Handle_Repository_Exception()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(1))
+                .ReturnsAsync(new PropertyDetailsViewModel
+                {
+                    PropertyId = 1,
+                    LandlordUserId = "user-123"
+                });
+
+            propertyRepoMock
+                .Setup(x => x.DeletePropertyPhoto(10, 1))
+                .ThrowsAsync(new Exception("DB Error"));
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.DeletePropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<RedirectToActionResult>();
+        }
+        [Fact]
+        public async Task SetPrimaryPropertyPhoto_Should_Return_Challenge_When_User_Is_Missing()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupAnonymousController(controller);
+
+            // Act
+
+            var result = await controller.SetPrimaryPropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<ChallengeResult>();
+        }
+        [Fact]
+        public async Task SetPrimaryPropertyPhoto_Should_Redirect_When_User_Does_Not_Own_Property()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(1))
+                .ReturnsAsync(new PropertyDetailsViewModel
+                {
+                    PropertyId = 1,
+                    LandlordUserId = "different-user"
+                });
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.SetPrimaryPropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            propertyRepoMock.Verify(
+                x => x.SetPrimaryPropertyPhoto(
+                    It.IsAny<int>(),
+                    It.IsAny<int>()),
+                Times.Never);
+        }
+        [Fact]
+        public async Task SetPrimaryPropertyPhoto_Should_Update_Primary_Photo_And_Redirect()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(1))
+                .ReturnsAsync(new PropertyDetailsViewModel
+                {
+                    PropertyId = 1,
+                    LandlordUserId = "user-123"
+                });
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.SetPrimaryPropertyPhoto(1, 10);
+
+            // Assert
+
+            propertyRepoMock.Verify(
+                x => x.SetPrimaryPropertyPhoto(1, 10),
+                Times.Once);
+
+            result.Should().BeOfType<RedirectToActionResult>();
+        }
+        [Fact]
+        public async Task SetPrimaryPropertyPhoto_Should_Handle_Repository_Exception()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(1))
+                .ReturnsAsync(new PropertyDetailsViewModel
+                {
+                    PropertyId = 1,
+                    LandlordUserId = "user-123"
+                });
+
+            propertyRepoMock
+                .Setup(x => x.SetPrimaryPropertyPhoto(1, 10))
+                .ThrowsAsync(new Exception("DB Error"));
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.SetPrimaryPropertyPhoto(1, 10);
+
+            // Assert
+
+            result.Should().BeOfType<RedirectToActionResult>();
+        }
+        [Fact]
+        public async Task EditPropertyAmenities_Get_Should_Return_Challenge_When_User_Is_Missing()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupAnonymousController(controller);
+
+            // Act
+
+            var result = await controller.EditPropertyAmenities(1);
+
+            // Assert
+
+            result.Should().BeOfType<ChallengeResult>();
+        }
+
+        [Fact]
+        public async Task EditPropertyAmenities_Get_Should_Return_NotFound_When_Property_Is_Not_Found()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            amenityRepoMock
+                .Setup(x => x.GetPropertyAmenitiesForEditAsync(1, "user-123"))
+                .ReturnsAsync((EditPropertyAmenitiesViewModel?)null);
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.EditPropertyAmenities(1);
+
+            // Assert
+
+            result.Should().BeOfType<NotFoundResult>();
+        }
+        [Fact]
+        public async Task EditPropertyAmenities_Get_Should_Return_View_When_Property_Exists()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var model = new EditPropertyAmenitiesViewModel
+            {
+                PropertyId = 1
+            };
+
+            amenityRepoMock
+                .Setup(x => x.GetPropertyAmenitiesForEditAsync(1, "user-123"))
+                .ReturnsAsync(model);
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            // Act
+
+            var result = await controller.EditPropertyAmenities(1);
+
+            // Assert
+
+            result.Should().BeOfType<ViewResult>();
+
+            var viewResult = (ViewResult)result;
+
+            viewResult.Model.Should().Be(model);
+        }
+        [Fact]
+        public async Task EditPropertyAmenities_Post_Should_Return_Challenge_When_User_Is_Missing()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupAnonymousController(controller);
+
+            var model = new EditPropertyAmenitiesViewModel
+            {
+                PropertyId = 1,
+                Amenities = new List<AmenitySelectionViewModel>()
+            };
+
+            // Act
+
+            var result = await controller.EditPropertyAmenities(model);
+
+            // Assert
+
+            result.Should().BeOfType<ChallengeResult>();
+        }
+        [Fact]
+        public async Task EditPropertyAmenities_Post_Should_Update_Amenities_And_Redirect()
+        {
+            // Arrange
+
+            var propertyRepoMock = new Mock<IPropertyRepository>();
+            var profileRepoMock = new Mock<IProfileRepository>();
+            var landlordRepoMock = new Mock<ILandlordRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
+
+            var controller = new PropertyController(
+                propertyRepoMock.Object,
+                profileRepoMock.Object,
+                landlordRepoMock.Object,
+                amenityRepoMock.Object);
+
+            ControllerTestHelper.SetupController(controller);
+
+            var model = new EditPropertyAmenitiesViewModel
+            {
+                PropertyId = 1,
+                Amenities = new List<AmenitySelectionViewModel>
+                {
+                    new()
+                    {
+                        AmenityId = 1,
+                        IsSelected = true
+                    },
+                    new()
+                    {
+                        AmenityId = 2,
+                        IsSelected = false
+                    },
+                    new()
+                    {
+                        AmenityId = 3,
+                        IsSelected = true
+                    }
+                }
+            };
+
+            // Act
+
+            var result = await controller.EditPropertyAmenities(model);
+
+            // Assert
+
+            amenityRepoMock.Verify(
+                x => x.UpdatePropertyAmenitiesAsync(
+                    1,
+                    It.Is<List<int>>(ids =>
+                        ids.Count == 2 &&
+                        ids.Contains(1) &&
+                        ids.Contains(3)),
+                    "user-123"),
+                Times.Once);
+
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            var redirect = (RedirectToActionResult)result;
+
+            redirect.ActionName.Should().Be("PropertyDetails");
             redirect.RouteValues!["propertyId"].Should().Be(1);
         }
     }
