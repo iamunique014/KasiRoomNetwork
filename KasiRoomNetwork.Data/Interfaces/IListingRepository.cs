@@ -32,5 +32,7 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<EditListingViewModel?> GetListingForEdit(int listingId, string landlordUserId);
 
         Task UpdateListing(EditListingViewModel model, string landlordUserId);
+        Task DeleteListingPhoto(int photoId, int listingId);
+        Task SetPrimaryListingPhoto(int listingId, int photoId);
     }
 }

@@ -254,13 +254,180 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            await _listingRepository.UpdateListing(model, landlordUserId);
+            // Ownership Verification
+            var listing = await _listingRepository.GetListingById(model.ListingId);
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to edit this listing.";
+                return RedirectToAction(nameof(EditListing), new { listingId = model.ListingId });
+            }
 
-            TempData["SuccessMessage"] = "Listing updated successfully.";
+            try
+            {
+                await _listingRepository.UpdateListing(model, landlordUserId);
+                TempData["SuccessMessage"] = "Listing updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating the listing.";
+            }
 
             return RedirectToAction(
                 "ListingDetails",
                 new { listingId = model.ListingId });
+        }
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public async Task<IActionResult> ManageListingPhotos(int listingId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ManageListingPhotosViewModel
+            {
+                ListingId = listing.ListingId,
+                Title = listing.Title,
+                Photos = await _listingRepository.GetListingPhotos(listingId)
+            };
+
+            return View(viewModel);
+        }
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadListingPhoto(int listingId, IFormFile photo, bool isPrimary)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to upload photos for this listing.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            if (photo == null || photo.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Please select a photo to upload.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(photo.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                TempData["ErrorMessage"] = "Only JPG and PNG images are allowed.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            if (photo.Length > 2 * 1024 * 1024)
+            {
+                TempData["ErrorMessage"] = "Image size cannot exceed 2MB.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/uploads/listings"
+            );
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Guid.NewGuid().ToString() + extension;
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            var dbPath = "/uploads/listings/" + fileName;
+
+            await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary);
+            TempData["SuccessMessage"] = "Photo uploaded successfully.";
+
+            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+        }
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteListingPhoto(int listingId, int photoId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            // Ownership Verification
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to delete photos for this listing.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            try
+            {
+                await _listingRepository.DeleteListingPhoto(photoId, listingId);
+                TempData["SuccessMessage"] = "Photo deleted successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while deleting the photo.";
+            }
+
+            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+        }
+        
+
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPrimaryListingPhoto(int listingId, int photoId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            // Ownership Verification
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                TempData["ErrorMessage"] = "You do not have permission to modify photos for this listing.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+
+            try
+            {
+                await _listingRepository.SetPrimaryListingPhoto(listingId, photoId);
+                TempData["SuccessMessage"] = "Primary photo updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating the primary photo.";
+            }
+
+            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
         }
     }
 }

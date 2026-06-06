@@ -139,5 +139,21 @@ namespace KasiRoomNetwork.Data.Repositories
                     model.IsAvailable
                 });
         }
+        public async Task DeleteListingPhoto(int photoId, int listingId)
+        {
+            await _db.SaveData("sp_ListingPhoto_Delete", new
+            {
+                PhotoId = photoId,
+                ListingId = listingId
+            });
+        }
+        public async Task SetPrimaryListingPhoto(int listingId, int photoId)
+        {
+            await _db.SaveData("sp_ListingPhoto_Set_Primary", new
+            {
+                ListingId = listingId,
+                PhotoId = photoId
+            });
+        }
     }
 }

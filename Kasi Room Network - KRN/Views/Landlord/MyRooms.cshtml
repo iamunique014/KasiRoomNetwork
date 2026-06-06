@@ -42,8 +42,13 @@
                         <div class="card-footer bg-white">
                             <a asp-controller="Listing" asp-action="ListingDetails"
                                asp-route-listingId="@listing.ListingId"
-                               class="btn btn-outline-primary w-100">
+                               class="btn btn-outline-primary w-100 mb-2">
                                 View Details
+                            </a>
+                            <a asp-controller="Listing" asp-action="EditListing"
+                               asp-route-listingId="@listing.ListingId"
+                               class="btn btn-success w-100">
+                                Edit Listing
                             </a>
                         </div>
 
