@@ -29,5 +29,8 @@ namespace KasiRoomNetwork.Data.Interfaces
 
         // sp_Search_Listings
         Task<List<ListingSearchResultViewModel>> SearchListings(ListingSearchViewModel searchModel);
+        Task<EditListingViewModel?> GetListingForEdit(int listingId, string landlordUserId);
+
+        Task UpdateListing(EditListingViewModel model, string landlordUserId);
     }
 }

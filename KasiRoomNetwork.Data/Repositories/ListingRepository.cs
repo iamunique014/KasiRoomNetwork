@@ -1,6 +1,8 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Listings;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,6 +109,35 @@ namespace KasiRoomNetwork.Data.Repositories
             });
 
             return result.FirstOrDefault();
+        }
+
+        public async Task<EditListingViewModel?> GetListingForEdit(int listingId, string landlordUserId)
+        {
+            var results = await _db.GetData<EditListingViewModel, dynamic>(
+               "sp_Listing_Get_For_Edit",
+               new
+               {
+                   ListingId = listingId,
+                   LandlordUserId = landlordUserId
+               });
+
+            return results.FirstOrDefault();
+        }
+
+
+        public async Task UpdateListing(EditListingViewModel model, string landlordUserId)
+        {
+            await _db.SaveData(
+                "sp_Listing_Update",
+                new
+                {
+                    model.ListingId,
+                    LandlordUserId = landlordUserId,
+                    model.Title,
+                    model.Price,
+                    model.Description,
+                    model.IsAvailable
+                });
         }
     }
 }

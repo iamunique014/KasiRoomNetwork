@@ -40,8 +40,8 @@
                         </div>
 
                         <div class="card-footer bg-white">
-                            <a asp-action="ReviewListingDetails"
-                               asp-route-id="@listing.ListingId"
+                            <a asp-controller="Listing" asp-action="ListingDetails"
+                               asp-route-listingId="@listing.ListingId"
                                class="btn btn-outline-primary w-100">
                                 View Details
                             </a>

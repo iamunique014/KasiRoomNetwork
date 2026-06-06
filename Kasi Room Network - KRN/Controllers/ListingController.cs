@@ -1,4 +1,5 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Listings;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -172,13 +173,13 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> ListingDetails(int id)
+        public async Task<IActionResult> ListingDetails(int listingId)
         {
-            var listing = await _listingRepository.GetListingById(id);
+            var listing = await _listingRepository.GetListingById(listingId);
             if (listing == null)
                 return NotFound();
 
-            listing.Photos = await _listingRepository.GetListingPhotos(id);
+            listing.Photos = await _listingRepository.GetListingPhotos(listingId);
 
             return View(listing);
         }
@@ -214,6 +215,52 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             ViewBag.ListingId = id;
             return View();
+        }
+
+        [Authorize(Roles = "Landlord")]
+        [HttpGet]
+        public async Task<IActionResult> EditListing(int listingId)
+        {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var listing = await _listingRepository
+                .GetListingForEdit(listingId, landlordUserId);
+
+            if (listing == null)
+            {
+                return NotFound();
+            }
+
+            return View(listing);
+        }
+
+        [Authorize(Roles = "Landlord")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditListing(EditListingViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            await _listingRepository.UpdateListing(model, landlordUserId);
+
+            TempData["SuccessMessage"] = "Listing updated successfully.";
+
+            return RedirectToAction(
+                "ListingDetails",
+                new { listingId = model.ListingId });
         }
     }
 }
