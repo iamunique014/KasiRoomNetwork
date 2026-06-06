@@ -643,7 +643,11 @@ namespace Kasi_Room_Network___KRN.Controllers
                         "listings");
                     copiedPermanentListingPhotoPaths.Add(permanentPhotoPath);
 
-                    await _listingRepository.AddListingPhoto(createdListingId.Value, permanentPhotoPath, index == 0);
+                    var listingPhotoAdded = await _listingRepository.AddListingPhoto(createdListingId.Value, permanentPhotoPath, index == 0, landlordUserId);
+                    if (!listingPhotoAdded)
+                    {
+                        throw new InvalidOperationException("Listing photo could not be added for the current landlord.");
+                    }
                 }
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));

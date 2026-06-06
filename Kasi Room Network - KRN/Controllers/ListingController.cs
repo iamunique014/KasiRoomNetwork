@@ -22,6 +22,63 @@ namespace Kasi_Room_Network___KRN.Controllers
             _propertyRepository = propertyRepository;
         }
 
+
+        private async Task<ListingDetailsViewModel?> GetOwnedListingOrNull(int listingId, string landlordUserId)
+        {
+            var listing = await _listingRepository.GetListingById(listingId);
+
+            if (listing == null || listing.LandlordUserId != landlordUserId)
+            {
+                return null;
+            }
+
+            return listing;
+        }
+
+        private static bool IsPubliclyVisible(ListingDetailsViewModel listing)
+        {
+            return listing.IsAvailable && listing.IsVerified && listing.PropertyVerified;
+        }
+
+        private async Task<string> SaveListingPhoto(IFormFile photo, string extension)
+        {
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/uploads/listings"
+            );
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Guid.NewGuid().ToString() + extension;
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            return "/uploads/listings/" + fileName;
+        }
+
+        private void DeleteSavedListingPhoto(string dbPath)
+        {
+            if (string.IsNullOrWhiteSpace(dbPath))
+            {
+                return;
+            }
+
+            var relativePath = dbPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath.StartsWith("wwwroot") ? relativePath[8..] : relativePath);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+
         // =========================
         // CREATE LISTING
         // =========================
@@ -98,6 +155,23 @@ namespace Kasi_Room_Network___KRN.Controllers
         [HttpGet]
         public async Task<IActionResult> AddListingPhotos(int listingId)
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null)
+            {
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
             ViewBag.ListingId = listingId;
             ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
             return View();
@@ -108,60 +182,57 @@ namespace Kasi_Room_Network___KRN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddListingPhotos(int listingId, IFormFile photo, bool isPrimary)
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var listing = await _listingRepository.GetListingById(listingId);
+            if (listing == null)
+            {
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
+            ViewBag.ListingId = listingId;
+            ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
+
             if (photo == null || photo.Length == 0)
             {
                 ModelState.AddModelError("", "Please upload a photo.");
-                ViewBag.ListingId = listingId;
-                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
-            // Validate file type
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            var extension = Path.GetExtension(photo.FileName).ToLower();
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
             if (!allowedExtensions.Contains(extension))
             {
                 ModelState.AddModelError("", "Only JPG and PNG images are allowed.");
-                ViewBag.ListingId = listingId;
-                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
-            // Validate file size (max 2MB)
             if (photo.Length > 2 * 1024 * 1024)
             {
                 ModelState.AddModelError("", "Image size cannot exceed 2MB.");
-                ViewBag.ListingId = listingId;
-                ViewBag.PhotoCount = await _listingRepository.GetListingPhotoCount(listingId);
                 return View();
             }
 
-            // Create uploads path
-            var uploadsFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads/listings"
-            );
+            var dbPath = await SaveListingPhoto(photo, extension);
+            var added = await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary, landlordUserId);
 
-            if (!Directory.Exists(uploadsFolder))
+            if (!added)
             {
-                Directory.CreateDirectory(uploadsFolder);
+                DeleteSavedListingPhoto(dbPath);
+                ModelState.AddModelError("", "Photo could not be uploaded because the listing was not found or you no longer have access.");
+                return View();
             }
 
-            // Generate safe file name
-            var fileName = Guid.NewGuid().ToString() + extension;
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
-
-            // Store relative path in DB
-            var dbPath = "/uploads/listings/" + fileName;
-
-            await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary);
             TempData["PhotoUploaded"] = "Photo uploaded successfully";
 
             return RedirectToAction(nameof(AddListingPhotos), new { listingId });
@@ -178,6 +249,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             var listing = await _listingRepository.GetListingById(listingId);
             if (listing == null)
                 return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isOwner = User.Identity?.IsAuthenticated == true && listing.LandlordUserId == currentUserId;
+
+            if (!isOwner && !IsPubliclyVisible(listing))
+            {
+                return NotFound();
+            }
 
             listing.Photos = await _listingRepository.GetListingPhotos(listingId);
 
@@ -254,22 +333,34 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            // Ownership Verification
             var listing = await _listingRepository.GetListingById(model.ListingId);
-            if (listing == null || listing.LandlordUserId != landlordUserId)
+            if (listing == null)
             {
-                TempData["ErrorMessage"] = "You do not have permission to edit this listing.";
-                return RedirectToAction(nameof(EditListing), new { listingId = model.ListingId });
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             try
             {
-                await _listingRepository.UpdateListing(model, landlordUserId);
-                TempData["SuccessMessage"] = "Listing updated successfully.";
+                var updated = await _listingRepository.UpdateListing(model, landlordUserId);
+                if (!updated)
+                {
+                    ModelState.AddModelError("", "Listing could not be updated. It may have been removed or you may no longer have access.");
+                    TempData["ErrorMessage"] = "Listing could not be updated.";
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] = "Listing updated successfully. Verification has been reset and the listing must be approved before it appears publicly again.";
             }
             catch (Exception)
             {
+                ModelState.AddModelError("", "An error occurred while updating the listing.");
                 TempData["ErrorMessage"] = "An error occurred while updating the listing.";
+                return View(model);
             }
 
             return RedirectToAction(
@@ -287,9 +378,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var listing = await _listingRepository.GetListingById(listingId);
-            if (listing == null || listing.LandlordUserId != landlordUserId)
+            if (listing == null)
             {
                 return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             var viewModel = new ManageListingPhotosViewModel
@@ -313,10 +409,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var listing = await _listingRepository.GetListingById(listingId);
-            if (listing == null || listing.LandlordUserId != landlordUserId)
+            if (listing == null)
             {
-                TempData["ErrorMessage"] = "You do not have permission to upload photos for this listing.";
-                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             if (photo == null || photo.Length == 0)
@@ -326,7 +426,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            var extension = Path.GetExtension(photo.FileName).ToLower();
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
             if (!allowedExtensions.Contains(extension))
             {
@@ -340,27 +440,16 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
 
-            var uploadsFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads/listings"
-            );
+            var dbPath = await SaveListingPhoto(photo, extension);
+            var added = await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary, landlordUserId);
 
-            if (!Directory.Exists(uploadsFolder))
+            if (!added)
             {
-                Directory.CreateDirectory(uploadsFolder);
+                DeleteSavedListingPhoto(dbPath);
+                TempData["ErrorMessage"] = "Photo could not be uploaded because the listing was not found or you no longer have access.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
 
-            var fileName = Guid.NewGuid().ToString() + extension;
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
-
-            var dbPath = "/uploads/listings/" + fileName;
-
-            await _listingRepository.AddListingPhoto(listingId, dbPath, isPrimary);
             TempData["SuccessMessage"] = "Photo uploaded successfully.";
 
             return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
@@ -376,18 +465,23 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            // Ownership Verification
             var listing = await _listingRepository.GetListingById(listingId);
-            if (listing == null || listing.LandlordUserId != landlordUserId)
+            if (listing == null)
             {
-                TempData["ErrorMessage"] = "You do not have permission to delete photos for this listing.";
-                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             try
             {
-                await _listingRepository.DeleteListingPhoto(photoId, listingId);
-                TempData["SuccessMessage"] = "Photo deleted successfully.";
+                var deleted = await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
+                TempData[deleted ? "SuccessMessage" : "ErrorMessage"] = deleted
+                    ? "Photo deleted successfully."
+                    : "Photo could not be deleted because it was not found for this listing.";
             }
             catch (Exception)
             {
@@ -409,18 +503,23 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            // Ownership Verification
             var listing = await _listingRepository.GetListingById(listingId);
-            if (listing == null || listing.LandlordUserId != landlordUserId)
+            if (listing == null)
             {
-                TempData["ErrorMessage"] = "You do not have permission to modify photos for this listing.";
-                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                return NotFound();
+            }
+
+            if (listing.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
             }
 
             try
             {
-                await _listingRepository.SetPrimaryListingPhoto(listingId, photoId);
-                TempData["SuccessMessage"] = "Primary photo updated successfully.";
+                var updated = await _listingRepository.SetPrimaryListingPhoto(listingId, photoId, landlordUserId);
+                TempData[updated ? "SuccessMessage" : "ErrorMessage"] = updated
+                    ? "Primary photo updated successfully."
+                    : "Primary photo could not be updated because the photo was not found for this listing.";
             }
             catch (Exception)
             {

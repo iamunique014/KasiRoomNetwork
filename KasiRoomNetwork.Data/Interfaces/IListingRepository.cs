@@ -16,7 +16,7 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task DeleteListing(int listingId);
 
         // sp_Add_Listing_Photo
-        Task AddListingPhoto(int listingId, string photoPath, bool isPrimary);
+        Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId);
 
         // sp_Get_Listing_By_Id
         Task<ListingDetailsViewModel?> GetListingById(int listingId);
@@ -31,8 +31,8 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<List<ListingSearchResultViewModel>> SearchListings(ListingSearchViewModel searchModel);
         Task<EditListingViewModel?> GetListingForEdit(int listingId, string landlordUserId);
 
-        Task UpdateListing(EditListingViewModel model, string landlordUserId);
-        Task DeleteListingPhoto(int photoId, int listingId);
-        Task SetPrimaryListingPhoto(int listingId, int photoId);
+        Task<bool> UpdateListing(EditListingViewModel model, string landlordUserId);
+        Task<bool> DeleteListingPhoto(int photoId, int listingId, string landlordUserId);
+        Task<bool> SetPrimaryListingPhoto(int listingId, int photoId, string landlordUserId);
     }
 }

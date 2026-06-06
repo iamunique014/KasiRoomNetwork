@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    var isOwner = User.Identity?.IsAuthenticated == true &&
+        User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.LandlordUserId;
 }
 
 <div class="container mt-4">
@@ -10,6 +12,13 @@
     {
         <div class="alert alert-success rounded-4 shadow-sm">
             @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-4 shadow-sm">
+            @TempData["ErrorMessage"]
         </div>
     }
 
@@ -27,6 +36,18 @@
             </small>
         </div>
     </div>
+
+    @if (isOwner)
+    {
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
+                @(Model.IsVerified ? "Verified" : "Pending Verification")
+            </span>
+            <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
+                @(Model.IsAvailable ? "Available" : "Unavailable")
+            </span>
+        </div>
+    }
 
     <!-- PHOTOS -->
     @if (Model.Photos != null && Model.Photos.Any())
@@ -102,20 +123,27 @@
                 </small>
             </p>
 
-            <a asp-action="ContactLandlord" asp-controller="Messages" asp-route-listingId="@Model.ListingId" asp-route-landlordId="@Model.LandlordUserId" class="btn btn-success btn-lg w-100">
-                Contact Landlord
-            </a>
+            @if (!isOwner)
+            {
+                <a asp-action="ContactLandlord" asp-controller="Messages" asp-route-listingId="@Model.ListingId" asp-route-landlordId="@Model.LandlordUserId" class="btn btn-success btn-lg w-100">
+                    Contact Landlord
+                </a>
 
-            <p class="text-muted small mt-2 text-center">
-                Chat safely without sharing your phone number
-            </p>
+                <p class="text-muted small mt-2 text-center">
+                    Chat safely without sharing your phone number
+                </p>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    You are viewing your own listing. Tenant contact actions are hidden.
+                </div>
+            }
 
         </div>
     </div>
 
-    @if (User.Identity?.IsAuthenticated == true &&
-        User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-        == Model.LandlordUserId)
+    @if (isOwner)
     {
         <div class="d-flex gap-2 mb-3">
 
