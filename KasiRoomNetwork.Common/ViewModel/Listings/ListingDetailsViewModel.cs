@@ -15,6 +15,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public decimal Price { get; set; }
 
         public bool IsAvailable { get; set; }
+        public bool IsVerified { get; set; }
         public bool PropertyVerified { get; set; }
 
         public DateTime CreatedAt { get; set; }

@@ -12,6 +12,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Landlord
         public string Title { get; set; }
         public decimal Price { get; set; }
         public bool IsVerified { get; set; }
+        public bool IsAvailable { get; set; }
 
         public string Province { get; set; }
         public string City { get; set; }

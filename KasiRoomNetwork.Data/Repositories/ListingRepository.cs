@@ -56,14 +56,17 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         // sp_Add_Listing_Photo
-        public async Task AddListingPhoto(int listingId, string photoPath, bool isPrimary)
+        public async Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId)
         {
-            await _db.SaveData("sp_Listing_Add_Listing_Photo", new
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Add_Listing_Photo", new
             {
                 ListingId = listingId,
+                LandlordUserId = landlordUserId,
                 PhotoPath = photoPath,
                 IsPrimary = isPrimary
             });
+
+            return result.FirstOrDefault() == 1;
         }
 
         // sp_Get_Listing_By_Id
@@ -125,9 +128,9 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
 
-        public async Task UpdateListing(EditListingViewModel model, string landlordUserId)
+        public async Task<bool> UpdateListing(EditListingViewModel model, string landlordUserId)
         {
-            await _db.SaveData(
+            var result = await _db.GetData<int, dynamic>(
                 "sp_Listing_Update",
                 new
                 {
@@ -138,22 +141,30 @@ namespace KasiRoomNetwork.Data.Repositories
                     model.Description,
                     model.IsAvailable
                 });
+
+            return result.FirstOrDefault() == 1;
         }
-        public async Task DeleteListingPhoto(int photoId, int listingId)
+        public async Task<bool> DeleteListingPhoto(int photoId, int listingId, string landlordUserId)
         {
-            await _db.SaveData("sp_ListingPhoto_Delete", new
+            var result = await _db.GetData<int, dynamic>("sp_ListingPhoto_Delete", new
             {
                 PhotoId = photoId,
-                ListingId = listingId
+                ListingId = listingId,
+                LandlordUserId = landlordUserId
             });
+
+            return result.FirstOrDefault() == 1;
         }
-        public async Task SetPrimaryListingPhoto(int listingId, int photoId)
+        public async Task<bool> SetPrimaryListingPhoto(int listingId, int photoId, string landlordUserId)
         {
-            await _db.SaveData("sp_ListingPhoto_Set_Primary", new
+            var result = await _db.GetData<int, dynamic>("sp_ListingPhoto_Set_Primary", new
             {
                 ListingId = listingId,
-                PhotoId = photoId
+                PhotoId = photoId,
+                LandlordUserId = landlordUserId
             });
+
+            return result.FirstOrDefault() == 1;
         }
     }
 }
