@@ -25,12 +25,12 @@
     <!-- NAVBAR -->
     <header>
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
 
             <div class="container">
 
                 <!-- BRAND -->
-                <a class="navbar-brand fw-bold"
+                <a class="navbar-brand fw-bold fs-4"
                    asp-controller="Home"
                    asp-action="Index">
 
@@ -60,7 +60,7 @@
                             <a class="nav-link"
                                asp-controller="Home"
                                asp-action="Index">
-
+                                <i class="bi bi-house-fill me-1"></i>
                                 Home
 
                             </a>
@@ -158,11 +158,7 @@
     <!-- MAIN CONTENT -->
     <main role="main">
 
-        <div class="container py-4">
-
-            @RenderBody()
-
-        </div>
+        @RenderBody()
 
     </main>
 
