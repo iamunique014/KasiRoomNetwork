@@ -1,3 +1,4 @@
+using Kasi_Room_Network___KRN.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace Kasi_Room_Network___KRN.Services
@@ -14,5 +15,7 @@ namespace Kasi_Room_Network___KRN.Services
         Task<string> CopyTemporaryPhotoToPermanentAsync(string tempRelativePath, string permanentFolderName);
         void DeleteTemporaryWizardFolder(string landlordUserId);
         void DeleteLandlordTemporaryPhotos(string landlordUserId);
+
+        Task<string> SaveOptimizedImageAsync(IFormFile photo, ImageCategory category);
     }
 }

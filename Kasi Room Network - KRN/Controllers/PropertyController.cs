@@ -1,7 +1,8 @@
+using Kasi_Room_Network___KRN.Constants;
+using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -13,16 +14,19 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IProfileRepository _profileRepository;
         private readonly ILandlordRepository _landlordRepository;
         private readonly IAmenityRepository _amenityRepository;
+        private readonly IPhotoStorageService _photoStorageService;
 
         public PropertyController(IPropertyRepository propertyRepository,
             IProfileRepository profileRepository, 
             ILandlordRepository landlordRepository, 
-            IAmenityRepository amenityRepository)
+            IAmenityRepository amenityRepository,
+            IPhotoStorageService photoStorageService)
         {
             _propertyRepository = propertyRepository;
             _profileRepository = profileRepository;
             _landlordRepository = landlordRepository;
             _amenityRepository = amenityRepository;
+            _photoStorageService = photoStorageService;
         }
 
         [Authorize(Roles = "Landlord")]
@@ -100,6 +104,23 @@ namespace Kasi_Room_Network___KRN.Controllers
         [HttpGet]
         public async Task<IActionResult> AddPropertyPhotos(int propertyId)
         {
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
+            {
+                return Challenge();
+            }
+
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
             ViewBag.PropertyId = propertyId;
             ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
             return View(); 
@@ -110,60 +131,59 @@ namespace Kasi_Room_Network___KRN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPropertyPhotos(int propertyId, IFormFile photo, bool isPrimary)
         {
-            if (photo == null || photo.Length == 0)
+            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(landlordUserId))
             {
-                ModelState.AddModelError("", "Please upload a photo.");
-                ViewBag.PropertyId = propertyId;
-                ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
+                return Challenge();
+            }
+
+            var property = await _propertyRepository.GetPropertyById(propertyId);
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            if (property.LandlordUserId != landlordUserId)
+            {
+                return Forbid();
+            }
+
+            ViewBag.PropertyId = propertyId;
+            ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
+
+            string? dbPath = null;
+
+            try
+            {
+                dbPath = await _photoStorageService
+                    .SaveOptimizedImageAsync(
+                        photo,
+                        ImageCategory.Listing);
+
+                var added = await _propertyRepository.
+                    AddPropertyPhoto(
+                    propertyId,
+                    dbPath,
+                    isPrimary,
+                    landlordUserId);
+
+                if (!added)
+                {
+                    _photoStorageService.DeletePhoto(dbPath);
+
+                    ModelState.AddModelError(
+                        "",
+                        "Photo could not be uploaded because the listing was not found or you no longer have access.");
+
+                    return View();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
                 return View();
             }
-
-            // Validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            var extension = Path.GetExtension(photo.FileName).ToLower();
-
-            if (!allowedExtensions.Contains(extension))
-            {
-                ModelState.AddModelError("", "Only JPG and PNG images are allowed.");
-                ViewBag.PropertyId = propertyId;
-                ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
-                return View();
-            }
-
-            // Validate file size (max 2MB)
-            if (photo.Length > 2 * 1024 * 1024)
-            {
-                ModelState.AddModelError("", "Image size cannot exceed 2MB.");
-                ViewBag.PropertyId = propertyId;
-                ViewBag.PhotoCount = await _propertyRepository.GetPropertyPhotoCount(propertyId);
-                return View();
-            }
-
-            // Create uploads path
-            var uploadsFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads/properties"
-            );
-
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            // Generate safe file name
-            var fileName = Guid.NewGuid().ToString() + extension;
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
-
-            // Store relative path in DB
-            var dbPath = "/uploads/properties/" + fileName;
-
-            await _propertyRepository.AddPropertyPhoto(propertyId, dbPath, isPrimary);
+           
             TempData["PhotoUploaded"] = "Photo uploaded successfully";
 
             return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
@@ -312,48 +332,39 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
             }
 
-            if (photo == null || photo.Length == 0)
+            string? dbPath = null;
+
+            try
             {
-                TempData["ErrorMessage"] = "Please select a photo to upload.";
-                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+                dbPath = await _photoStorageService
+                    .SaveOptimizedImageAsync(
+                        photo,
+                        ImageCategory.Listing);
+
+                var added = await _propertyRepository.
+                    AddPropertyPhoto(
+                    propertyId,
+                    dbPath,
+                    isPrimary,
+                    landlordUserId);
+
+                if (!added)
+                {
+                    _photoStorageService.DeletePhoto(dbPath);
+
+                    ModelState.AddModelError(
+                        "",
+                        "Photo could not be uploaded because the listing was not found or you no longer have access.");
+
+                    return View();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
             }
 
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            var extension = Path.GetExtension(photo.FileName).ToLower();
-
-            if (!allowedExtensions.Contains(extension))
-            {
-                TempData["ErrorMessage"] = "Only JPG and PNG images are allowed.";
-                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
-            }
-
-            if (photo.Length > 2 * 1024 * 1024)
-            {
-                TempData["ErrorMessage"] = "Image size cannot exceed 2MB.";
-                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
-            }
-
-            var uploadsFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads/properties"
-            );
-
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var fileName = Guid.NewGuid().ToString() + extension;
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
-
-            var dbPath = "/uploads/properties/" + fileName;
-
-            await _propertyRepository.AddPropertyPhoto(propertyId, dbPath, isPrimary);
             TempData["SuccessMessage"] = "Photo uploaded successfully.";
 
             return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });

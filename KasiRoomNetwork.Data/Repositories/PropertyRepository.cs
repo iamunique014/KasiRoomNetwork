@@ -88,14 +88,16 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         // sp_Add_Property_Photo
-        public async Task AddPropertyPhoto(int propertyId, string photoPath, bool isPrimary)
+        public async Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId)
         {
-            await _db.SaveData("sp_Property_Add_Photo", new
+            var result = await _db.GetData<int, dynamic>("sp_Property_Add_Photo", new
             {
                 propertyId,
-                PhotoPath = photoPath,
-                IsPrimary = isPrimary
+                PhotoPath = dbPath,
+                IsPrimary = isPrimary,
+                LandlordUserId = landlordUserId
             });
+            return result.FirstOrDefault() == 1;
         }
 
         // sp_Get_Property_By_Id

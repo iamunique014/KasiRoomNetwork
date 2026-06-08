@@ -1,10 +1,14 @@
+using Kasi_Room_Network___KRN.Constants;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 
 namespace Kasi_Room_Network___KRN.Services
 {
     public class PhotoStorageService : IPhotoStorageService
     {
-        private const long MaxPhotoSizeBytes = 2 * 1024 * 1024;
+        private const long MaxPhotoSizeBytes = 5 * 1024 * 1024;
         private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png"];
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -15,22 +19,10 @@ namespace Kasi_Room_Network___KRN.Services
 
         public async Task<string> SaveTemporaryPhotoAsync(IFormFile? photo, string landlordUserId)
         {
-            if (photo == null || photo.Length == 0)
-            {
-                throw new InvalidOperationException("Please upload a photo.");
-            }
+            ValidatePhoto(photo);
 
             var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-            if (!AllowedExtensions.Contains(extension))
-            {
-                throw new InvalidOperationException("Only JPG and PNG images are allowed.");
-            }
-
-            if (photo.Length > MaxPhotoSizeBytes)
-            {
-                throw new InvalidOperationException("Image size cannot exceed 2MB.");
-            }
-
+            
             var safeLandlordUserId = SanitizePathSegment(landlordUserId);
             var uploadsFolder = Path.Combine(
                 _webHostEnvironment.WebRootPath,
@@ -87,7 +79,7 @@ namespace Kasi_Room_Network___KRN.Services
             var extension = Path.GetExtension(sourcePath).ToLowerInvariant();
             if (!AllowedExtensions.Contains(extension))
             {
-                throw new InvalidOperationException("Only JPG and PNG images are allowed.");
+                throw new InvalidOperationException("Only JPG, JPEG and PNG images are allowed.");
             }
 
             var safePermanentFolderName = SanitizePathSegment(permanentFolderName);
@@ -232,6 +224,75 @@ namespace Kasi_Room_Network___KRN.Services
                 {
                     // Ignore cleanup failures
                 }
+            }
+        }
+        public async Task<string> SaveOptimizedImageAsync(IFormFile photo,ImageCategory category)
+        {
+            ValidatePhoto(photo);
+
+            var folderName = category switch
+            {
+                ImageCategory.Listing => "listings",
+                ImageCategory.Property => "properties",
+                _ => throw new InvalidOperationException(
+                    "Unsupported image category.")
+            };
+
+            var uploadsFolder = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                "uploads",
+                folderName);
+
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}.jpg";
+
+            var filePath = Path.Combine(
+                uploadsFolder,
+                fileName);
+
+            using var image = await Image.LoadAsync(
+                photo.OpenReadStream());
+
+            image.Mutate(x =>
+                x.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(1200, 1200)
+                }));
+
+            await image.SaveAsJpegAsync(
+                filePath,
+                new JpegEncoder
+                {
+                    Quality = 80
+                });
+
+            return $"/uploads/{folderName}/{fileName}";
+        }
+
+        private void ValidatePhoto(IFormFile? photo)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Please upload a photo.");
+            }
+
+            var extension = Path
+                .GetExtension(photo.FileName)
+                .ToLowerInvariant();
+
+            if (!AllowedExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException(
+                    "Only JPG, JPEG and PNG images are allowed.");
+            }
+
+            if (photo.Length > MaxPhotoSizeBytes)
+            {
+                throw new InvalidOperationException(
+                    "Image size cannot exceed 5MB.");
             }
         }
     }

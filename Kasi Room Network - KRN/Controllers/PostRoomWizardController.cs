@@ -618,7 +618,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                         "properties");
                     copiedPermanentPropertyPhotoPaths.Add(permanentPhotoPath);
 
-                    await _propertyRepository.AddPropertyPhoto(createdPropertyId.Value, permanentPhotoPath, index == 0);
+                    await _propertyRepository.AddPropertyPhoto(createdPropertyId.Value, permanentPhotoPath, index == 0, landlordUserId);
                 }
 
                 var listingModel = new CreateListingViewModel
