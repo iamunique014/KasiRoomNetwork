@@ -158,7 +158,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
-                        ImageCategory.Listing);
+                        ImageCategory.Property);
 
                 var added = await _propertyRepository.
                     AddPropertyPhoto(
@@ -339,7 +339,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
-                        ImageCategory.Listing);
+                        ImageCategory.Property);
 
                 var added = await _propertyRepository.
                     AddPropertyPhoto(

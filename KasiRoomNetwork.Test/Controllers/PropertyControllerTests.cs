@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
+using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Controllers;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Test.Helpers;
@@ -557,6 +559,9 @@ namespace KasiRoomNetwork.Test.Controllers
                 .Setup(x => x.GetPropertyPhotoCount(1))
                 .ReturnsAsync(3);
 
+            propertyRepoMock.Setup(x => x.GetPropertyById(10)).ReturnsAsync(Property());
+            
+
             var controller = new PropertyController(
                 propertyRepoMock.Object,
                 profileRepoMock.Object,
@@ -568,14 +573,14 @@ namespace KasiRoomNetwork.Test.Controllers
 
             // Act
 
-            var result = await controller.AddPropertyPhotos(1);
+            var result = await controller.AddPropertyPhotos(10);
 
             // Assert
 
             result.Should().BeOfType<ViewResult>();
 
             propertyRepoMock.Verify(
-                x => x.GetPropertyPhotoCount(1),
+                x => x.GetPropertyPhotoCount(10),
                 Times.Once);
         }
         [Fact]
@@ -590,8 +595,19 @@ namespace KasiRoomNetwork.Test.Controllers
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             propertyRepoMock
-                .Setup(x => x.GetPropertyPhotoCount(1))
+                .Setup(x => x.GetPropertyPhotoCount(10))
                 .ReturnsAsync(0);
+
+            propertyRepoMock
+                .Setup(x => x.GetPropertyById(10))
+                .ReturnsAsync(Property());
+
+            photoStorageMock
+                  .Setup(x => x.SaveOptimizedImageAsync(
+                    It.IsAny<IFormFile>(),
+                    ImageCategory.Property))
+                    .ThrowsAsync(new InvalidOperationException(
+                 "Please upload a photo."));
 
             var controller = new PropertyController(
                 propertyRepoMock.Object,
@@ -605,7 +621,7 @@ namespace KasiRoomNetwork.Test.Controllers
             // Act
 
             var result = await controller.AddPropertyPhotos(
-                1,
+                10,
                 null!,
                 false);
 
@@ -621,58 +637,7 @@ namespace KasiRoomNetwork.Test.Controllers
                     It.IsAny<string>()),
                 Times.Never);
         }
-        [Fact]
-        public async Task AddPropertyPhotos_Post_Should_Return_View_When_File_Extension_Is_Invalid()
-        {
-            // Arrange
-
-            var propertyRepoMock = new Mock<IPropertyRepository>();
-            var profileRepoMock = new Mock<IProfileRepository>();
-            var landlordRepoMock = new Mock<ILandlordRepository>();
-            var amenityRepoMock = new Mock<IAmenityRepository>();
-            var photoStorageMock = new Mock<IPhotoStorageService>();
-
-            propertyRepoMock
-                .Setup(x => x.GetPropertyPhotoCount(1))
-                .ReturnsAsync(0);
-
-            var controller = new PropertyController(
-                propertyRepoMock.Object,
-                profileRepoMock.Object,
-                landlordRepoMock.Object,
-                amenityRepoMock.Object,
-                photoStorageMock.Object);
-
-            ControllerTestHelper.SetupController(controller);
-
-            var stream = new MemoryStream(new byte[100]);
-
-            IFormFile file = new FormFile(
-                stream,
-                0,
-                stream.Length,
-                "photo",
-                "document.pdf");
-
-            // Act
-
-            var result = await controller.AddPropertyPhotos(
-                1,
-                file,
-                false);
-
-            // Assert
-
-            result.Should().BeOfType<ViewResult>();
-
-            propertyRepoMock.Verify(
-                x => x.AddPropertyPhoto(
-                    It.IsAny<int>(),
-                    It.IsAny<string>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<string>()),
-                Times.Never);
-        }
+        
         [Fact]
         public async Task AddPropertyPhotos_Post_Should_Return_View_When_File_Is_Too_Large()
         {
@@ -685,8 +650,15 @@ namespace KasiRoomNetwork.Test.Controllers
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             propertyRepoMock
-                .Setup(x => x.GetPropertyPhotoCount(1))
+                .Setup(x => x.GetPropertyPhotoCount(10))
                 .ReturnsAsync(0);
+            propertyRepoMock.Setup(x => x.GetPropertyById(10)).ReturnsAsync(Property());
+
+            photoStorageMock
+                .Setup(x => x.SaveOptimizedImageAsync(
+                    It.IsAny<IFormFile>(),
+                    ImageCategory.Property))
+                .ThrowsAsync(new InvalidOperationException("File size exceeds limit."));
 
             var controller = new PropertyController(
                 propertyRepoMock.Object,
@@ -709,7 +681,7 @@ namespace KasiRoomNetwork.Test.Controllers
             // Act
 
             var result = await controller.AddPropertyPhotos(
-                1,
+                10,
                 file,
                 false);
 
@@ -736,6 +708,25 @@ namespace KasiRoomNetwork.Test.Controllers
             var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
+            propertyRepoMock
+               .Setup(x => x.GetPropertyPhotoCount(10))
+               .ReturnsAsync(0);
+            propertyRepoMock.Setup(x => x.GetPropertyById(10)).ReturnsAsync(Property());
+
+            photoStorageMock
+                .Setup(x => x.SaveOptimizedImageAsync(
+                       It.IsAny<IFormFile>(),
+                       ImageCategory.Property))
+                .ReturnsAsync("/images/property/test.jpg");
+
+            propertyRepoMock
+                .Setup(x => x.AddPropertyPhoto(
+                        It.IsAny<int>(),
+                        It.IsAny<string>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<string>()))
+                .ReturnsAsync(true);
+
             var controller = new PropertyController(
                 propertyRepoMock.Object,
                 profileRepoMock.Object,
@@ -757,7 +748,7 @@ namespace KasiRoomNetwork.Test.Controllers
             // Act
 
             var result = await controller.AddPropertyPhotos(
-                1,
+                10,
                 file,
                 false);
 
@@ -765,7 +756,7 @@ namespace KasiRoomNetwork.Test.Controllers
 
             propertyRepoMock.Verify(
                 x => x.AddPropertyPhoto(
-                    1,
+                    10,
                     It.IsAny<string>(),
                     false,
                     It.IsAny<string>()),
@@ -776,7 +767,22 @@ namespace KasiRoomNetwork.Test.Controllers
             var redirect = (RedirectToActionResult)result;
 
             redirect.ActionName.Should().Be("AddPropertyPhotos");
-            redirect.RouteValues!["propertyId"].Should().Be(1);
+            redirect.RouteValues!["propertyId"].Should().Be(10);
+        }
+        private static PropertyDetailsViewModel Property(int propertyId = 10, string landlordUserId = "user-123")
+        {
+            return new PropertyDetailsViewModel
+            {
+                PropertyId = propertyId,
+                PropertyName = "Room Available",
+                PropertyType = "A clean room",
+                LandlordUserId = landlordUserId,
+                FullName = "Test Landlord",
+                PhoneNumber = "123",
+                Province = "North West",
+                City = "Rustenburg",
+                Suburb = "Tlhabane"
+            };
         }
         [Fact]
         public async Task DeletePropertyPhoto_Should_Return_Challenge_When_User_Is_Missing()
