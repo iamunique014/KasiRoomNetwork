@@ -12,18 +12,36 @@ namespace KasiRoomNetwork.Data.Interfaces
     {
         // ===== Listings Verification =====
 
-        Task<IEnumerable<UnverifiedListingViewModel>> GetUnverifiedListingsAsync();
+        Task<IEnumerable<UnverifiedListingViewModel>>
+            GetUnverifiedListingsAsync();
 
-        Task<AdminListingReviewViewModel> GetListingForVerificationAsync(int listingId);
+        Task<AdminListingReviewViewModel>
+            GetListingForVerificationAsync(int listingId);
 
-        Task<IEnumerable<ListingPhotoViewModel>> GetListingPhotosAsync(int listingId);
+        Task<IEnumerable<ListingPhotoViewModel>>
+            GetListingPhotosAsync(int listingId);
 
-        Task VerifyListingAsync(int listingId, string adminUserId, bool isApproved, string notes );
+        Task VerifyListingAsync(
+            int listingId, 
+            string adminUserId,
+            bool isApproved,
+            string notes );
+
+        // ===== Property Verification =====
+
+        Task<IEnumerable<UnverifiedPropertyViewModel>> 
+            GetUnverifiedPropertiesAsync();
+
+        // ===== Landlord Verification =====
+        Task<IEnumerable<UnverifiedLandlordViewModel>>
+            GetUnverifiedLandlordsAsync();
 
         // ===== Audit Logs =====
-        Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync();
+        Task<IEnumerable<AdminVerificationLogViewModel>> 
+            GetVerificationLogsAsync();
 
         // ===== User Management =====
-        Task<IEnumerable<ManageUsersViewModel>> GetUsersAsync();
+        Task<IEnumerable<ManageUsersViewModel>> 
+            GetUsersAsync();
     }
 }

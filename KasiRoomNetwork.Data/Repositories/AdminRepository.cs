@@ -20,9 +20,10 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         // ===============================
-        // Unverified Listings
+        // Unverified 
         // ===============================
-        public async Task<IEnumerable<UnverifiedListingViewModel>> GetUnverifiedListingsAsync()
+        public async Task<IEnumerable<UnverifiedListingViewModel>> 
+            GetUnverifiedListingsAsync()
         {
             return await _db.GetData<UnverifiedListingViewModel, dynamic>(
                 "sp_Admin_Get_Unverified_Listings",
@@ -30,15 +31,35 @@ namespace KasiRoomNetwork.Data.Repositories
             );
         }
 
+        public async Task<IEnumerable<UnverifiedPropertyViewModel>> 
+            GetUnverifiedPropertiesAsync()
+        {
+            return await _db.GetData<UnverifiedPropertyViewModel, dynamic>(
+                "sp_Admin_Get_Unverified_Properties",
+                new { }
+            );
+        }
+
+        public async Task<IEnumerable<UnverifiedLandlordViewModel>>
+            GetUnverifiedLandlordsAsync()
+        {
+            return await _db.GetData<UnverifiedLandlordViewModel, dynamic>(
+                "sp_Admin_Get_Unverified_Landlords",
+                new { }
+            );
+        }
+
         // ===============================
         // Listing Details for Verification
         // ===============================
-        public async Task<AdminListingReviewViewModel> GetListingForVerificationAsync(int listingId)
+        public async Task<AdminListingReviewViewModel> 
+            GetListingForVerificationAsync(int listingId)
         {
-            var result = await _db.GetData<AdminListingReviewViewModel, dynamic>(
-                "sp_Admin_Get_Listing_For_Verification",
-                new { ListingId = listingId }
-            );
+            var result = await _db
+                .GetData<AdminListingReviewViewModel, dynamic>(
+                    "sp_Admin_Get_Listing_For_Verification",
+                    new { ListingId = listingId }
+                );
 
             return result.FirstOrDefault();
         }
@@ -46,7 +67,8 @@ namespace KasiRoomNetwork.Data.Repositories
         // ===============================
         // Listing Photos
         // ===============================
-        public async Task<IEnumerable<ListingPhotoViewModel>> GetListingPhotosAsync(int listingId)
+        public async Task<IEnumerable<ListingPhotoViewModel>> 
+            GetListingPhotosAsync(int listingId)
         {
             return await _db.GetData<ListingPhotoViewModel, dynamic>(
                 "sp_Admin_Get_Listing_Photos",
@@ -79,7 +101,8 @@ namespace KasiRoomNetwork.Data.Repositories
         // ===============================
         // Verification Logs
         // ===============================
-        public async Task<IEnumerable<AdminVerificationLogViewModel>> GetVerificationLogsAsync()
+        public async Task<IEnumerable<AdminVerificationLogViewModel>> 
+            GetVerificationLogsAsync()
         {
             return await _db.GetData<AdminVerificationLogViewModel, dynamic>(
                 "sp_Admin_Get_Verification_Logs",
@@ -92,7 +115,8 @@ namespace KasiRoomNetwork.Data.Repositories
         // User Management - Get All
         // ===============================
 
-        public async Task<IEnumerable<ManageUsersViewModel>> GetUsersAsync()
+        public async Task<IEnumerable<ManageUsersViewModel>> 
+            GetUsersAsync()
         {
             return await _db.GetData<ManageUsersViewModel, dynamic>(
                  "sp_Admin_Get_Users",

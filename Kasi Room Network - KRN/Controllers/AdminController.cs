@@ -13,7 +13,11 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IAdminRepository _adminRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminController(IAdminRepository adminRepository, UserManager<ApplicationUser> userManager)
+        public AdminController(
+            IAdminRepository 
+            adminRepository, 
+            UserManager<ApplicationUser> 
+            userManager)
         {
             _adminRepository = adminRepository;
             _userManager = userManager;
@@ -36,7 +40,16 @@ namespace Kasi_Room_Network___KRN.Controllers
             var listings = await _adminRepository.GetUnverifiedListingsAsync();
             return View(listings);
         }
-
+        public async Task<IActionResult> UnverifiedProperties()
+        {
+            var properties = await _adminRepository.GetUnverifiedPropertiesAsync();
+            return View(properties);
+        }
+        public async Task<IActionResult> UnverifiedLandlords()
+        {
+            var landlords = await _adminRepository.GetUnverifiedLandlordsAsync();
+            return View(landlords);
+        }
         // ===============================
         // Review Listing
         // ===============================
