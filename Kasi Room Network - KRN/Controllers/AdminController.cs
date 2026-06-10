@@ -65,7 +65,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             return View(listing);
         }
-        public async Task<IActionResult> ReviewLandlord(string id)
+        public async Task<IActionResult> ReviewLandlord(string id, int landlordId)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -74,7 +74,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             var landlord =
                 await _adminRepository
-                .GetLandlordForVerificationAsync(id);
+                .GetLandlordForVerificationAsync(id, landlordId);
 
             if (landlord == null)
             {
@@ -168,6 +168,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             await _adminRepository.VerifyLandlordAsync(
                 model.LandlordUserId,
+                model.LandlordProfileId,
                 adminUserId,
                 model.IsApproved,
                 model.Notes);

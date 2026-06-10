@@ -64,14 +64,15 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         public async Task<AdminLandlordReviewViewModel>
-            GetLandlordForVerificationAsync(string landlordUserId)
+            GetLandlordForVerificationAsync(string landlordUserId, int landlordProfileId)
         {
             var result =
                 await _db.GetData<AdminLandlordReviewViewModel, dynamic>(
                     "sp_Admin_Get_Landlord_For_Verification",
                     new
                     {
-                        LandlordUserId = landlordUserId
+                        LandlordUserId = landlordUserId,
+                        LandlordProfileId = landlordProfileId
                     });
 
             return result.FirstOrDefault();
@@ -117,7 +118,7 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         // ===============================
-        // Approve / Reject Listing
+        // Approve / Reject
         // ===============================
         public async Task VerifyListingAsync(
             int listingId,
@@ -140,6 +141,7 @@ namespace KasiRoomNetwork.Data.Repositories
 
         public async Task VerifyLandlordAsync(
             string landlordUserId,
+            int landlordProfileId,
             string adminUserId,
             bool isApproved,
             string notes)
@@ -149,6 +151,7 @@ namespace KasiRoomNetwork.Data.Repositories
                 new
                 {
                     LandlordUserId = landlordUserId,
+                    LandlordProfileId = landlordProfileId,
                     AdminUserId = adminUserId,
                     IsApproved = isApproved,
                     Notes = notes

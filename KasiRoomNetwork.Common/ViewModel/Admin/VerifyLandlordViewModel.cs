@@ -10,6 +10,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
     public class VerifyLandlordViewModel
     {
         public string LandlordUserId { get; set; }
+        public int LandlordProfileId { get; set; }
 
         [Required]
         public bool IsApproved { get; set; }

@@ -47,10 +47,12 @@ namespace KasiRoomNetwork.Data.Interfaces
         // ===== Landlord Verification =====
         Task<IEnumerable<UnverifiedLandlordViewModel>>
             GetUnverifiedLandlordsAsync();
-        Task<AdminLandlordReviewViewModel>
-            GetLandlordForVerificationAsync(string landlordUserId);
+        Task<AdminLandlordReviewViewModel>GetLandlordForVerificationAsync(
+            string landlordUserId, 
+            int landlordProfileId);
         Task VerifyLandlordAsync(
             string landlordUserId,
+            int landlordProfileId,
             string adminUserId,
             bool isApproved,
             string notes );
