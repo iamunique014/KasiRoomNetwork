@@ -226,5 +226,111 @@ namespace Kasi_Room_Network___KRN.Controllers
             var users = await _adminRepository.GetUsersAsync();
             return View(users);
         }
+
+        public async Task<IActionResult> UserDetails(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var user =
+                await _adminRepository
+                    .GetUserDetailsAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BlockUser(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var currentAdminId = _userManager.GetUserId(User);
+
+            if (currentAdminId == id)
+            {
+                TempData["Error"] =
+                    "You cannot block your own account.";
+
+                return RedirectToAction(
+                    nameof(UserDetails),
+                    new { id });
+            }
+
+            var user =
+                await _userManager.FindByIdAsync(id);
+
+
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.SetLockoutEnabledAsync(
+                user,
+                true);
+
+            await _userManager.SetLockoutEndDateAsync(
+                user,
+                DateTimeOffset.MaxValue);
+
+            TempData["Success"] =
+                "User blocked successfully.";
+
+            return RedirectToAction(
+                nameof(UserDetails),
+                new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnblockUser(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var user =
+                await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.SetLockoutEndDateAsync(
+                user,
+                null);
+
+            TempData["Success"] =
+                "User unblocked successfully.";
+
+            return RedirectToAction(
+                nameof(UserDetails),
+                new { id });
+        }
+
+        //public async Task<IActionResult> ManageUsers()
+        //{ }
+        //public async Task<IActionResult> UserDetails(string id)
+        //{ }
+        //[HttpPost]
+        //public async Task<IActionResult> BlockUser(string id)
+        //{ }
+        //[HttpPost]
+        //public async Task<IActionResult> UnblockUser(string id)
+        //{ }
     }
 }

@@ -62,5 +62,8 @@ namespace KasiRoomNetwork.Data.Interfaces
         // ===== User Management =====
         Task<IEnumerable<ManageUsersViewModel>> 
             GetUsersAsync();
+
+        Task<AdminUserDetailsViewModel>
+            GetUserDetailsAsync(string userId);
     }
 }

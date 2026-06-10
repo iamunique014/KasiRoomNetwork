@@ -200,5 +200,18 @@ namespace KasiRoomNetwork.Data.Repositories
                  { }
             );
         }
+        public async Task<AdminUserDetailsViewModel>
+            GetUserDetailsAsync(string userId)
+        {
+            var result =
+                await _db.GetData<AdminUserDetailsViewModel, dynamic>(
+                    "sp_Admin_Get_User_Details",
+                    new
+                    {
+                        UserId = userId
+                    });
+
+            return result.FirstOrDefault();
+        }
     }
 }
