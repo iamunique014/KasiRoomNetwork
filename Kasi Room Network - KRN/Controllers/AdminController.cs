@@ -209,7 +209,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
 
         // ===============================
-        // Verification Logs (Optional View)
+        // Verification Logs 
         // ===============================
         public async Task<IActionResult> VerificationLogs(int listingId)
         {
@@ -321,16 +321,5 @@ namespace Kasi_Room_Network___KRN.Controllers
                 nameof(UserDetails),
                 new { id });
         }
-
-        //public async Task<IActionResult> ManageUsers()
-        //{ }
-        //public async Task<IActionResult> UserDetails(string id)
-        //{ }
-        //[HttpPost]
-        //public async Task<IActionResult> BlockUser(string id)
-        //{ }
-        //[HttpPost]
-        //public async Task<IActionResult> UnblockUser(string id)
-        //{ }
     }
 }

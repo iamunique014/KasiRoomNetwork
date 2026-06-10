@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>User Details</h2>
 
-        <a asp-action="ManageUsers"
+        <a asp-action="UserManagement"
            class="btn btn-outline-secondary">
             Back to Users
         </a>
@@ -35,7 +35,7 @@
         <div class="col-lg-6">
             <div class="card shadow-sm h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Account Information</h5>
+                    <h5 class="mb-0">Account Information @Model.FullName</h5>
                 </div>
 
                 <div class="card-body">

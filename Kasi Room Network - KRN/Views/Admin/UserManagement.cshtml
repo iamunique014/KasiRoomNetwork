@@ -27,7 +27,6 @@ else
                     <th>Email</th>
                     <th>Role</th>
                     <th>Name</th>
-                    <th>Surname</th>
                     <th>Cellphone</th>
                     <th>Joined On</th>
                     <th></th>
@@ -41,12 +40,11 @@ else
                         <td>@item.Username</td>
                         <td>@item.Email</td>
                         <td>@item.RoleName</td>
-                        <td>@item.FirstName</td>
-                        <td>@item.LastName</td>
+                        <td>@item.FullName</td>
                         <td>@item.PhoneNumber</td>
                         <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>
-                            <a asp-action="ManageUser"
+                            <a asp-action="UserDetails"
                                asp-route-id="@item.Id"
                                class="btn btn-sm btn-primary">
                                 Review

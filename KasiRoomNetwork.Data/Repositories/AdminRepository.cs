@@ -20,9 +20,7 @@ namespace KasiRoomNetwork.Data.Repositories
             _db = db;
         }
 
-        // ===============================
         // Unverified 
-        // ===============================
         public async Task<IEnumerable<UnverifiedListingViewModel>> 
             GetUnverifiedListingsAsync()
         {
