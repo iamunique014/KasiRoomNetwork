@@ -15,7 +15,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public string Description { get; set; }
         public decimal Price { get; set; }
 
-        public bool? IsVerified { get; set; }
+        public bool IsVerified { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public string LandlordName { get; set; }
@@ -25,6 +25,12 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public string City { get; set; }
         public string Suburb { get; set; }
         public string Street { get; set; }
+
+        // Property
+        public string PropertyName { get; set; }
+        public string PropertyType { get; set; }
+        public int? TotalRooms { get; set; }
+        public bool PropertyVerified { get; set; }
 
         public List<ListingPhotoViewModel> Photos { get; set; } = new();
     }

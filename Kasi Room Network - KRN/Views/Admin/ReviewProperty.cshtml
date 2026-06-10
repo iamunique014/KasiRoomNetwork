@@ -1,0 +1,221 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Admin.AdminPropertyReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Property";
+}
+
+<h2 class="mb-3">Review Property</h2>
+
+@await Html.PartialAsync("_AdminAlerts")
+
+<!-- Photos -->
+<div class="row mb-4">
+
+    @if (!Model.Photos.Any())
+    {
+        <div class="alert alert-warning">
+            No photos uploaded for this property.
+        </div>
+    }
+    else
+    {
+        foreach (var photo in Model.Photos)
+        {
+            <div class="col-md-3 mb-3">
+                <img src="@photo.PhotoPath"
+                     class="img-fluid rounded border"
+                     alt="Property Photo" />
+
+                @if (photo.IsPrimary)
+                {
+                    <span class="badge bg-success mt-2">
+                        Primary Photo
+                    </span>
+                }
+            </div>
+        }
+    }
+
+</div>
+
+<div class="row">
+
+    <!-- Property Information -->
+    <div class="col-md-6">
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Property Details
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    <strong>Property Name:</strong>
+                    @Model.PropertyName
+                </p>
+
+                <p>
+                    <strong>Property Type:</strong>
+                    @Model.PropertyType
+                </p>
+
+                <p>
+                    <strong>Total Rooms:</strong>
+                    @Model.TotalRooms
+                </p>
+
+                <p>
+                    <strong>Created:</strong>
+                    @Model.CreatedAt.ToString("dd MMM yyyy")
+                </p>
+
+                <p>
+                    <strong>Total Photos:</strong>
+                    @Model.TotalPhotos
+                </p>
+
+                <p>
+                    <strong>Total Listings:</strong>
+                    @Model.TotalListings
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Address -->
+    <div class="col-md-6">
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Address
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    <strong>Province:</strong>
+                    @Model.Province
+                </p>
+
+                <p>
+                    <strong>City:</strong>
+                    @Model.City
+                </p>
+
+                <p>
+                    <strong>Suburb:</strong>
+                    @Model.Suburb
+                </p>
+
+                <p>
+                    <strong>Street:</strong>
+                    @Model.Street
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Landlord Information -->
+<div class="card mb-4">
+
+    <div class="card-header">
+        Landlord Details
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            <strong>Name:</strong>
+            @Model.FullName
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            @Model.PhoneNumber
+        </p>
+
+        <p>
+            <strong>Bio:</strong>
+            @Model.Bio
+        </p>
+
+        <p>
+            <strong>Landlord Verified:</strong>
+
+            @if (Model.LandlordVerified)
+            {
+                <span class="badge bg-success">
+                    Verified
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">
+                    Pending
+                </span>
+            }
+        </p>
+
+    </div>
+
+</div>
+
+<!-- Approve / Reject -->
+<div class="card">
+
+    <div class="card-header">
+        Verification Decision
+    </div>
+
+    <div class="card-body">
+
+        <form asp-action="VerifyProperty" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="PropertyId"
+                   value="@Model.PropertyId" />
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Notes
+                </label>
+
+                <textarea name="Notes"
+                          class="form-control"
+                          rows="4"></textarea>
+            </div>
+
+            <button type="submit"
+                    name="IsApproved"
+                    value="true"
+                    class="btn btn-success">
+                Approve Property
+            </button>
+
+            <button type="submit"
+                    name="IsApproved"
+                    value="false"
+                    class="btn btn-danger">
+                Reject Property
+            </button>
+
+            <a asp-action="UnverifiedProperties"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+</div>

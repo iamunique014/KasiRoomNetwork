@@ -1,5 +1,6 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Admin;
 using KasiRoomNetwork.Common.ViewModel.Listings;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,10 +32,28 @@ namespace KasiRoomNetwork.Data.Interfaces
 
         Task<IEnumerable<UnverifiedPropertyViewModel>> 
             GetUnverifiedPropertiesAsync();
+        Task<AdminPropertyReviewViewModel>
+            GetPropertyForVerificationAsync(int propertyId);
+
+        Task<IEnumerable<PropertyPhotoViewModel>>
+            GetPropertyPhotosAsync(int propertyId);
+
+        Task VerifyPropertyAsync(
+            int propertyId,
+            string adminUserId,
+            bool isApproved,
+            string notes);
 
         // ===== Landlord Verification =====
         Task<IEnumerable<UnverifiedLandlordViewModel>>
             GetUnverifiedLandlordsAsync();
+        Task<AdminLandlordReviewViewModel>
+            GetLandlordForVerificationAsync(string landlordUserId);
+        Task VerifyLandlordAsync(
+            string landlordUserId,
+            string adminUserId,
+            bool isApproved,
+            string notes );
 
         // ===== Audit Logs =====
         Task<IEnumerable<AdminVerificationLogViewModel>> 

@@ -1,5 +1,6 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Admin;
 using KasiRoomNetwork.Common.ViewModel.Listings;
+using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 using System;
@@ -50,7 +51,7 @@ namespace KasiRoomNetwork.Data.Repositories
         }
 
         // ===============================
-        // Listing Details for Verification
+        // Details for Verification
         // ===============================
         public async Task<AdminListingReviewViewModel> 
             GetListingForVerificationAsync(int listingId)
@@ -64,8 +65,38 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.FirstOrDefault();
         }
 
+        public async Task<AdminLandlordReviewViewModel>
+            GetLandlordForVerificationAsync(string landlordUserId)
+        {
+            var result =
+                await _db.GetData<AdminLandlordReviewViewModel, dynamic>(
+                    "sp_Admin_Get_Landlord_For_Verification",
+                    new
+                    {
+                        LandlordUserId = landlordUserId
+                    });
+
+            return result.FirstOrDefault();
+        }
+
+        public async Task<AdminPropertyReviewViewModel>
+            GetPropertyForVerificationAsync(int propertyId)
+        {
+            var result =
+                await _db.GetData<AdminPropertyReviewViewModel, dynamic>(
+                    "sp_Admin_Get_Property_For_Verification",
+                    new
+                    {
+                        PropertyId = propertyId
+                    });
+
+            return result.FirstOrDefault();
+        }
+
+        
+
         // ===============================
-        // Listing Photos
+        // Photos
         // ===============================
         public async Task<IEnumerable<ListingPhotoViewModel>> 
             GetListingPhotosAsync(int listingId)
@@ -74,6 +105,17 @@ namespace KasiRoomNetwork.Data.Repositories
                 "sp_Admin_Get_Listing_Photos",
                 new { ListingId = listingId }
             );
+        }
+
+        public async Task<IEnumerable<PropertyPhotoViewModel>>
+            GetPropertyPhotosAsync(int propertyId)
+        {
+            return await _db.GetData<PropertyPhotoViewModel, dynamic>(
+                "sp_Admin_Get_Property_Photos",
+                new
+                {
+                    PropertyId = propertyId
+                });
         }
 
         // ===============================
@@ -96,6 +138,40 @@ namespace KasiRoomNetwork.Data.Repositories
                     Notes = notes
                 }
             );
+        }
+
+        public async Task VerifyLandlordAsync(
+            string landlordUserId,
+            string adminUserId,
+            bool isApproved,
+            string notes)
+        {
+            await _db.SaveData(
+                "sp_Admin_Verify_Landlord",
+                new
+                {
+                    LandlordUserId = landlordUserId,
+                    AdminUserId = adminUserId,
+                    IsApproved = isApproved,
+                    Notes = notes
+                });
+        }
+
+        public async Task VerifyPropertyAsync(
+            int propertyId,
+            string adminUserId,
+            bool isApproved,
+            string notes)
+        {
+            await _db.SaveData(
+                "sp_Admin_Verify_Property",
+                new
+                {
+                    PropertyId = propertyId,
+                    AdminUserId = adminUserId,
+                    IsApproved = isApproved,
+                    Notes = notes
+                });
         }
 
         // ===============================

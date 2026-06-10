@@ -51,7 +51,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(landlords);
         }
         // ===============================
-        // Review Listing
+        // Review
         // ===============================
         public async Task<IActionResult> ReviewListing(int id)
         {
@@ -60,13 +60,50 @@ namespace Kasi_Room_Network___KRN.Controllers
             if (listing == null)
                 return NotFound();
 
-            listing.Photos = (await _adminRepository.GetListingPhotosAsync(id)).ToList();
+            listing.Photos = (await _adminRepository
+                .GetListingPhotosAsync(id)).ToList();
 
             return View(listing);
         }
+        public async Task<IActionResult> ReviewLandlord(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var landlord =
+                await _adminRepository
+                .GetLandlordForVerificationAsync(id);
+
+            if (landlord == null)
+            {
+                return NotFound();
+            }
+
+            return View(landlord);
+        }
+
+        public async Task<IActionResult> ReviewProperty(int id)
+        {
+            var property =
+                await _adminRepository.GetPropertyForVerificationAsync(id);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            property.Photos =
+                (await _adminRepository
+                    .GetPropertyPhotosAsync(id))
+                    .ToList();
+
+            return View(property);
+        }
 
         // ===============================
-        // Approve / Reject Listing
+        // Approve / Reject 
         // ===============================
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -75,6 +112,17 @@ namespace Kasi_Room_Network___KRN.Controllers
             if (!ModelState.IsValid)
             {
                 return RedirectToAction(nameof(ReviewListing), new { id = model.ListingId });
+            }
+
+            if (!model.IsApproved &&
+                string.IsNullOrWhiteSpace(model.Notes))
+            {
+                TempData["Error"] =
+                    "Rejection notes are required.";
+
+                return RedirectToAction(
+                    nameof(ReviewListing),
+                    new { id = model.ListingId });
             }
 
             var adminUserId = _userManager.GetUserId(User);
@@ -92,6 +140,73 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             return RedirectToAction(nameof(UnverifiedListings));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyLandlord(
+            VerifyLandlordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(
+                    nameof(ReviewLandlord),
+                    new { id = model.LandlordUserId });
+            }
+
+            if (!model.IsApproved &&
+                string.IsNullOrWhiteSpace(model.Notes))
+            {
+                TempData["Error"] =
+                    "Rejection notes are required.";
+
+                return RedirectToAction(
+                    nameof(ReviewLandlord),
+                    new { id = model.LandlordUserId });
+            }
+
+            var adminUserId = _userManager.GetUserId(User);
+
+            await _adminRepository.VerifyLandlordAsync(
+                model.LandlordUserId,
+                adminUserId,
+                model.IsApproved,
+                model.Notes);
+
+            TempData["Success"] = model.IsApproved
+                ? "Landlord verified successfully."
+                : "Landlord rejected successfully.";
+
+            return RedirectToAction(nameof(UnverifiedLandlords));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyProperty(
+            VerifyPropertyViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(
+                    nameof(ReviewProperty),
+                    new { id = model.PropertyId });
+            }
+
+            var adminUserId = _userManager.GetUserId(User);
+
+            await _adminRepository.VerifyPropertyAsync(
+                model.PropertyId,
+                adminUserId,
+                model.IsApproved,
+                model.Notes
+            );
+
+            TempData["Success"] = model.IsApproved
+                ? "Property approved successfully."
+                : "Property rejected successfully.";
+
+            return RedirectToAction(nameof(UnverifiedProperties));
+        }
+
 
         // ===============================
         // Verification Logs (Optional View)
