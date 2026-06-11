@@ -87,7 +87,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 foreach (var amenityId in model.SelectedAmenityIds)
                 {
-                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId);
+                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, landlordUserId);
                 }
             }
 

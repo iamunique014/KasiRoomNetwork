@@ -12,7 +12,7 @@ namespace KasiRoomNetwork.Data.Interfaces
     {
         Task<IEnumerable<AmenityModel>> GetAllAmenities();
 
-        Task AddPropertyAmenity(int propertyId, int amenityId);
+        Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId);
 
         Task RemovePropertyAmenity(int propertyId, int amenityId);
 

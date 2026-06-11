@@ -607,7 +607,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 foreach (var amenityId in propertyModel.SelectedAmenityIds)
                 {
-                    await _amenityRepository.AddPropertyAmenity(createdPropertyId.Value, amenityId);
+                    await _amenityRepository.AddPropertyAmenity(createdPropertyId.Value, amenityId, landlordUserId);
                 }
 
                 var propertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList();

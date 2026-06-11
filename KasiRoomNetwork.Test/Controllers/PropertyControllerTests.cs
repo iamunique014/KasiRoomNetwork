@@ -20,6 +20,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace KasiRoomNetwork.Test.Controllers
 {
@@ -272,11 +273,11 @@ namespace KasiRoomNetwork.Test.Controllers
                 Times.Once);
 
             amenityRepoMock.Verify(
-                x => x.AddPropertyAmenity(100, 1),
+                x => x.AddPropertyAmenity(100, 1, "user-123"),
                 Times.Once);
 
             amenityRepoMock.Verify(
-                x => x.AddPropertyAmenity(100, 2),
+                x => x.AddPropertyAmenity(100, 2, "user-123"),
                 Times.Once);
 
             result.Should().BeOfType<RedirectToActionResult>();

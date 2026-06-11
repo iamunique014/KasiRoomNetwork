@@ -26,14 +26,15 @@ namespace KasiRoomNetwork.Data.Repositories
                 new { });
         }
 
-        public async Task AddPropertyAmenity(int propertyId, int amenityId)
+        public async Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId)
         {
             await _db.SaveData(
                 "sp_PropertyAmenity_Add",
                 new
                 {
                     PropertyId = propertyId,
-                    AmenityId = amenityId
+                    AmenityId = amenityId,
+                    LandlordUserId = landlordUserId
                 });
         }
 
