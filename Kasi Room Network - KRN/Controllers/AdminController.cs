@@ -46,7 +46,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(properties);
         }
         public async Task<IActionResult> UnverifiedLandlords()
-        {
+            {
             var landlords = await _adminRepository.GetUnverifiedLandlordsAsync();
             return View(landlords);
         }
@@ -65,7 +65,9 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             return View(listing);
         }
-        public async Task<IActionResult> ReviewLandlord(string id, int landlordId)
+        public async Task<IActionResult> ReviewLandlord(
+            string id, 
+            int landlordId)
         {
             if (string.IsNullOrWhiteSpace(id) && landlordId == 0)
             {
@@ -285,6 +287,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             await _userManager.SetLockoutEndDateAsync(
                 user,
                 DateTimeOffset.MaxValue);
+
+
 
             TempData["Success"] =
                 "User blocked successfully.";
