@@ -1,59 +1,130 @@
 ﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.ManageUsersViewModel>
+
 @{
     ViewData["Title"] = "User Management";
 }
 
 <h2 class="mb-4">User Management</h2>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="mb-0">
+            Total Users: @Model.Count()
+        </h5>
+    </div>
+</div>
 
 @if (!Model.Any())
 {
     <div class="text-center py-5">
-        <h4 class="text-warning">Something is not right!</h4>
+        <h4 class="text-warning">No Users Found</h4>
+
         <p class="text-muted">
-            There's currently no user in the system'
+            There are currently no users in the system.
         </p>
     </div>
 }
-
 else
 {
     <div class="table-responsive">
         <table class="table table-hover align-middle">
+
             <thead class="table-light">
                 <tr>
-                    <th>UserID</th>
-                    <th>Username</th>
+                    <th>User</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Name</th>
-                    <th>Cellphone</th>
-                    <th>Joined On</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Joined</th>
                     <th></th>
                 </tr>
             </thead>
+
             <tbody>
+
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td><strong>@item.Id</strong></td>
-                        <td>@item.Username</td>
-                        <td>@item.Email</td>
-                        <td>@item.RoleName</td>
-                        <td>@item.FullName</td>
-                        <td>@item.PhoneNumber</td>
-                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <td>
+                            <div class="fw-bold">
+                                @item.Username
+                            </div>
+
+                            <small class="text-muted">
+                                @item.Id.Substring(0, 8)...
+                            </small>
+                        </td>
+
+                        <td>
+                            @item.Email
+                        </td>
+
+                        <td>
+
+                            @if (item.RoleName == "Admin")
+                            {
+                                <span class="badge bg-danger">
+                                    Admin
+                                </span>
+                            }
+                            else if (item.RoleName == "Landlord")
+                            {
+                                <span class="badge bg-primary">
+                                    Landlord
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Tenant
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+                            @item.FullName
+                        </td>
+
+                        <td>
+                            @item.PhoneNumber
+                        </td>
+
+                        <td>
+                            @if (item.IsBlocked)
+                            {
+                                <span class="badge bg-danger">
+                                    Blocked
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @item.CreatedAt.ToString("dd MMM yyyy")
+                        </td>
+
                         <td>
                             <a asp-action="UserDetails"
                                asp-route-id="@item.Id"
-                               class="btn btn-sm btn-primary">
+                               class="btn btn-outline-primary btn-sm">
                                 Review
                             </a>
                         </td>
+
                     </tr>
                 }
+
             </tbody>
+
         </table>
     </div>
-   
 }

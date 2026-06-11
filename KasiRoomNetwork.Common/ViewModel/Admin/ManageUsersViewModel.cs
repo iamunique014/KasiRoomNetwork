@@ -15,5 +15,6 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public DateTime CreatedAt { get; set; }
         public string FullName { get; set; }
         public string PhoneNumber { get; set; }
+        public bool IsBlocked { get; set; }
     }
 }

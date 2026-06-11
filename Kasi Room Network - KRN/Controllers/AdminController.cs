@@ -67,7 +67,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
         public async Task<IActionResult> ReviewLandlord(string id, int landlordId)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id) && landlordId == 0)
             {
                 return BadRequest();
             }
@@ -212,7 +212,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         // ===============================
         // Verification Logs 
         // ===============================
-        public async Task<IActionResult> VerificationLogs(int listingId)
+        public async Task<IActionResult> VerificationLogs()
         {
             var logs = await _adminRepository.GetVerificationLogsAsync();
             return View(logs);

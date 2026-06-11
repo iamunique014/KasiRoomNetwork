@@ -4,6 +4,22 @@
     ViewData["Title"] = "Review Landlord";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
@@ -15,10 +31,18 @@
             @Model.LandlordUserId
         </small>
     </div>
-
-    <span class="badge bg-warning">
-        Pending Verification
-    </span>
+    @if (Model.IsVerified)
+    {
+        <span class="badge bg-success">
+            Verification Complete
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-warning">
+            Pending Verification
+        </span>
+    }
 
 </div>
 
