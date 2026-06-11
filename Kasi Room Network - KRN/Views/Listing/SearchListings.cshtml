@@ -6,7 +6,13 @@
 
 <div class="container mt-4">
 
-    <h2 class="mb-4">Find a Room</h2>
+    <h2 class="fw-bold">
+        Find Affordable Rooms Near You
+    </h2>
+
+    <p class="text-muted">
+        Search verified rooms from local landlords.
+    </p>
 
     <!-- SEARCH FORM -->
     <form asp-action="SearchListings" method="get" class="card mb-4">
@@ -50,9 +56,19 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Province</label>
-                                <input name="Province"
-                                       value="@Model.Province"
-                                       class="form-control" />
+
+                                <select name="Province" class="form-select">
+                                    <option value="">All Provinces</option>
+                                    <option value="North West">North West</option>
+                                    <option value="Eastern Cape">Eastern Cape</option>
+                                    <option value="Free State">Free State</option>
+                                    <option value="Gauteng">Gauteng</option>
+                                    <option value="KwaZulu-Natal">Kwazulu Natal</option>
+                                    <option value="Limpopo">Limpopo</option>
+                                    <option value="Mpumalanga">Mpumalanga</option>
+                                    <option value="Northern Cape">Northern Cape</option>                            
+                                    <option value="Western Cape">Western Cape</option>
+                                </select>
                             </div>
 
                             <div class="mb-3">
@@ -87,7 +103,9 @@
     @if (Model.Results != null && Model.Results.Any())
     {
         <div class="row">
-
+            <h5 class="mb-3">
+                @Model.Results.Count room(s) found
+            </h5>
             @foreach (var listing in Model.Results)
             {
                 <div class="col-md-4 mb-4">
@@ -127,8 +145,15 @@
     }
     else if (Context.Request.Query.Any())
     {
-        <div class="alert alert-warning">
-            No Rooms found matching your search.
+        <h5 class="mb-3">
+            @Model.Results.Count room(s) found
+        </h5>
+        <div class="alert alert-light bg-light border text-center p-4">
+            <h5>No rooms found</h5>
+
+            <p class="text-muted mb-0">
+                Try a nearby suburb or increase your budget.
+            </p>
         </div>
     }
 

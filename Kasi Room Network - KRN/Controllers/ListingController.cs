@@ -235,16 +235,16 @@ namespace Kasi_Room_Network___KRN.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchListings(ListingSearchViewModel model)
         {
-            if (Request.Query.Any())
+            bool hasSearch = !string.IsNullOrWhiteSpace(model.City) ||
+             !string.IsNullOrWhiteSpace(model.Suburb) ||
+             !string.IsNullOrWhiteSpace(model.Province) ||
+             model.MinPrice.HasValue ||
+             model.MaxPrice.HasValue;
+
+            if (hasSearch)
             {
-                model.Province = string.IsNullOrWhiteSpace(model.Province) ? null : model.Province;
-                model.City = string.IsNullOrWhiteSpace(model.City) ? null : model.City;
-                model.Suburb = string.IsNullOrWhiteSpace(model.Suburb) ? null : model.Suburb;
-
-                model.MinPrice = model.MinPrice <= 0 ? null : model.MinPrice;
-                model.MaxPrice = model.MaxPrice <= 0 ? null : model.MaxPrice;
-
-                model.Results = await _listingRepository.SearchListings(model);
+                model.Results =
+                    await _listingRepository.SearchListings(model);
             }
 
             return View(model);
