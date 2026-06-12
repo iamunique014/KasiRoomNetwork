@@ -27,7 +27,7 @@ body {
 
 .listing-card {
     border: none;
-    border-radius: 18px;
+    border-radius: 14px;
     overflow: hidden;
     transition: all 0.25s ease;
     background: #fff;
@@ -93,7 +93,7 @@ body {
 
 .listing-btn {
     padding: .55rem;
-    border-radius: 12px;
+    border-radius: 8px;
     font-weight: 600;
 }
 
@@ -116,16 +116,16 @@ body {
 Listing search form atyling*/
 
 .search-card {
-    border-radius: 18px;
+    border-radius: 14px;
 }
 
     .search-card .form-control,
     .search-card .form-select {
-        border-radius: 12px;
+        border-radius: 8px;
     }
 
     .search-card .btn {
-        border-radius: 12px;
+        border-radius: 8px;
     }
 
     .search-card .accordion-button {
