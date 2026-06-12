@@ -8,21 +8,13 @@ using System.Security.Claims;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
-    public class ListingController : Controller
+    public class ListingController(IListingRepository listingRepository, IProfileRepository profileRepository, IPropertyRepository propertyRepository, IAmenityRepository amenityRepository,IPhotoStorageService photoStorageService) : Controller
     {
-        private readonly IListingRepository _listingRepository;
-        private readonly IProfileRepository _profileRepository;
-        private readonly IPropertyRepository _propertyRepository;
-        private readonly IPhotoStorageService _photoStorageService;
-
-        public ListingController(IListingRepository listingRepository, IProfileRepository profileRepository, IPropertyRepository propertyRepository, IPhotoStorageService photoStorageService)
-        {
-            _listingRepository = listingRepository;
-            _profileRepository = profileRepository;
-            _propertyRepository = propertyRepository;
-            _photoStorageService = photoStorageService;
-        }
-
+        private readonly IListingRepository _listingRepository = listingRepository;
+        private readonly IProfileRepository _profileRepository = profileRepository;
+        private readonly IPropertyRepository _propertyRepository = propertyRepository;
+        private readonly IAmenityRepository _amenityRepository = amenityRepository;
+        private readonly IPhotoStorageService _photoStorageService = photoStorageService;
 
         private async Task<ListingDetailsViewModel?> GetOwnedListingOrNull(int listingId, string landlordUserId)
         {
@@ -208,7 +200,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> ListingDetails(int listingId)
+        public async Task<IActionResult> MyListingDetails(int listingId)
         {
             var listing = await _listingRepository.GetListingById(listingId);
             if (listing == null)
@@ -224,6 +216,19 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             listing.Photos = await _listingRepository.GetListingPhotos(listingId);
 
+            return View(listing);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ListingDetails(int listingId)
+        {
+            var listing = await _listingRepository.GetListingDetailsById(listingId);
+            if (listing == null)
+                return NotFound();
+
+            listing.Photos = [.. await _listingRepository.GetListingPhotos(listingId)];
+            listing.Amenities = (await _amenityRepository.GetAmenitiesByPropertyId(listing.PropertyId)).ToList();
             return View(listing);
         }
 

@@ -79,6 +79,16 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.FirstOrDefault();
         }
 
+        // sp_Get_Listing_Details_By_Id
+        public async Task<ListingDetailsViewModel?> GetListingDetailsById(int listingId)
+        {
+            var result = await _db.GetData<ListingDetailsViewModel, dynamic>(
+                "sp_Listing_Get_Listing_Details",
+                new { ListingId = listingId });
+
+            return result.FirstOrDefault();
+        }
+
         // sp_Get_Listing_Photos
         public async Task<List<ListingPhotoViewModel>> GetListingPhotos(int listingId)
         {

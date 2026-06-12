@@ -20,6 +20,7 @@ namespace KasiRoomNetwork.Data.Interfaces
 
         // sp_Get_Listing_By_Id
         Task<ListingDetailsViewModel?> GetListingById(int listingId);
+        Task<ListingDetailsViewModel?> GetListingDetailsById(int RoomId);
 
         // sp_Get_Listing_Photos
         Task<List<ListingPhotoViewModel>> GetListingPhotos(int listingId);

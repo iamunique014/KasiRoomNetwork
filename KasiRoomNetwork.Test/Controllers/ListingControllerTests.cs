@@ -406,7 +406,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 photoStorageMock.Object);
             ControllerTestHelper.SetupAnonymousController(controller);
 
-            var result = await controller.ListingDetails(10);
+            var result = await controller.MyListingDetails(10);
 
             result.Should().BeOfType<NotFoundResult>();
         }
@@ -429,7 +429,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
-            var result = await controller.ListingDetails(10);
+            var result = await controller.MyListingDetails(10);
 
             result.Should().BeOfType<ViewResult>();
         }
