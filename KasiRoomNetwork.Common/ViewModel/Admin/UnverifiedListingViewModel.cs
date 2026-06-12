@@ -12,6 +12,8 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public string Title { get; set; }
         public decimal Price { get; set; }
 
+        public string PropertyName { get; set; }
+
         public string Province { get; set; }
         public string City { get; set; }
         public string Suburb { get; set; }

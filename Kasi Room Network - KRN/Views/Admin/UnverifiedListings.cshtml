@@ -38,6 +38,7 @@ else
                 <tr>
                     <th>Title</th>
                     <th>Location</th>
+                    <th>Property Name</th>
                     <th>Price</th>
                     <th>Submitted</th>
                     <th></th>
@@ -49,6 +50,7 @@ else
                     <tr>
                         <td><strong>@item.Title</strong></td>
                         <td>@item.Suburb, @item.City</td>
+                        <td>@item.PropertyName</td>
                         <td>R @item.Price</td>
                         <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>
