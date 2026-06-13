@@ -18,6 +18,7 @@ else
 
         @foreach (var conversation in Model)
         {
+
             <a asp-controller="Messages"
                asp-action="Conversation"
                asp-route-conversationId="@conversation.ConversationId"
@@ -35,6 +36,9 @@ else
 
                     <small>@conversation.OtherUserName</small>
 
+                    
+                    
+
                     <small>
                         @conversation.LastMessageAt.ToString("g")
                     </small>
@@ -43,7 +47,19 @@ else
 
                 <div class="d-flex justify-content-between">
 
-                    <strong>@conversation.LastMessage</strong>
+                    @{
+                        var preview = conversation.LastMessage;
+
+                        if (!string.IsNullOrWhiteSpace(preview) &&
+                        preview.Length > 20)
+                        {
+                            preview = preview.Substring(0, 20) + "...";
+                        }
+                    }
+
+                    <div class="text-muted">
+                        @preview
+                    </div>
 
                     @if (conversation.UnreadCount > 0)
                     {

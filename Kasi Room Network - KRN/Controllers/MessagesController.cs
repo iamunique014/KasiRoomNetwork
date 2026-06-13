@@ -42,7 +42,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             // if profile exists continue
             return RedirectToAction("StartConversation", new { listingId, landlordId });
-        }      
+        }
 
         public async Task<IActionResult> StartConversation(int listingId, string landlordId)
         {
@@ -53,34 +53,35 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var conversationId = await _messagingRepository.CreateConversation(listingId, userId, landlordId);
-            return RedirectToAction("Conversation", new { conversationId });
-        }
-
-        public async Task<IActionResult> Inbox()
-        {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrWhiteSpace(userId)) 
-            {
-                return Challenge();
-            }
-
-            var inbox = await _messagingRepository.GetInbox(userId);
-
-            return View(inbox);
+            return RedirectToAction("Conversation", new { conversationId});
         }
 
         public async Task<IActionResult> Conversation(int conversationId)
         {
             var userId = _userManager.GetUserId(User);
+
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            await _messagingRepository.MarkConversationRead(conversationId, userId);
+            var hasAccess = await _messagingRepository
+                .UserOwnsConversation(conversationId, userId);
 
-            var messages = await _messagingRepository.GetConversationMessages(conversationId);
+            if (!hasAccess)
+            {
+                return NotFound();
+            }
+
+            var messages = await _messagingRepository
+                .GetConversationMessages(conversationId, userId);
+
+
+            await _messagingRepository
+                .MarkConversationRead(conversationId, userId);
+
             ViewBag.ConversationId = conversationId;
+
             return View(messages);
         }
         [HttpPost]
@@ -97,6 +98,18 @@ namespace Kasi_Room_Network___KRN.Controllers
             await _messagingRepository.SendMessage(model);
 
             return RedirectToAction("Conversation", new { conversationId = model.ConversationId });
+        }
+        public async Task<IActionResult> Inbox()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var inbox = await _messagingRepository.GetInbox(userId);
+
+            return View(inbox);
         }
     }
 }

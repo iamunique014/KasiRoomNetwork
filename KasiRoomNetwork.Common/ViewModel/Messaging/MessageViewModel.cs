@@ -13,6 +13,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Messaging
         public string SenderId { get; set; }
         public string MessageText { get; set; }
         public bool IsRead { get; set; }
+        public bool IsMyMessage { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

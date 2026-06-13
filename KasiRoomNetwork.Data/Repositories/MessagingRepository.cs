@@ -43,11 +43,11 @@ namespace KasiRoomNetwork.Data.Repositories
             });
         }
 
-        public async Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId)
+        public async Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId, string userId)
         {
             return await _db.GetData<MessageViewModel, dynamic>(
                 "sp_Messaging_Get_Conversation_Messages",
-                new { ConversationId = conversationId });
+                new { ConversationId = conversationId, UserId = userId });
         }
 
         public async Task<IEnumerable<ConversationViewModel>> GetInbox(string userId)
@@ -73,6 +73,18 @@ namespace KasiRoomNetwork.Data.Repositories
             );
 
             return result.FirstOrDefault();
+        }
+
+        public async Task<bool> UserOwnsConversation(int conversationId, string userId)
+        {
+            var result = await _db.GetData<int, dynamic>(
+                "sp_Messaging_ValidateConversation",
+                new { 
+                    ConversationId = conversationId,
+                    UserId = userId }
+            );
+
+            return result.FirstOrDefault() == 1;
         }
     }
 }
