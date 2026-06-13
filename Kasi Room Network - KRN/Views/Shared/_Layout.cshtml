@@ -4,6 +4,22 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@* TODO: FIX NAVBAR NOTIFICATIONS *@
+@inject KasiRoomNetwork.Data.Interfaces.IMessagingRepository MessagingRepository
+@{
+    int unreadCount = 0;
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        var userId = UserManager.GetUserId(User);
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            unreadCount = await MessagingRepository.GetUnreadCount(userId);
+        }
+    }
+}
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -40,12 +56,19 @@
                 </a>
 
                 <!-- MOBILE TOGGLE -->
-                <button class="navbar-toggler"
+                <button class="navbar-toggler position-relative"
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#mainNavbar">
 
                     <span class="navbar-toggler-icon"></span>
+
+                    @if (unreadCount > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            @unreadCount
+                        </span>
+                    }
 
                 </button>
 
@@ -141,7 +164,7 @@
                                 </li>
                             }
                         }
-
+                        @await Component.InvokeAsync("MessageNotification")
                     </ul>
 
                     <!-- ACCOUNT -->
