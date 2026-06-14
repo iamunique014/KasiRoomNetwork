@@ -28,12 +28,14 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var controller = new ListingController(
                 listingRepoMock.Object,
                 profileRepoMock.Object,
                 propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
 
             ControllerTestHelper.SetupAnonymousController(controller);
@@ -54,6 +56,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             profileRepoMock
@@ -64,6 +67,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 listingRepoMock.Object,
                 profileRepoMock.Object,
                 propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
 
             ControllerTestHelper.SetupController(controller);
@@ -89,6 +93,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             profileRepoMock
@@ -109,6 +114,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 listingRepoMock.Object,
                 profileRepoMock.Object,
                 propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
 
             ControllerTestHelper.SetupController(controller);
@@ -137,6 +143,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             propertyRepoMock
@@ -153,6 +160,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 listingRepoMock.Object,
                 profileRepoMock.Object,
                 propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
 
             ControllerTestHelper.SetupController(controller);
@@ -186,6 +194,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             profileRepoMock
@@ -202,6 +211,7 @@ namespace KasiRoomNetwork.Test.Controllers
                 listingRepoMock.Object,
                 profileRepoMock.Object,
                 propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
 
             ControllerTestHelper.SetupController(controller);
@@ -262,13 +272,18 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock
                 .Setup(x => x.GetListingForEdit(10, "user-123"))
                 .ReturnsAsync(new EditListingViewModel { ListingId = 10, Title = "Room", Description = "Desc", Price = 1000 });
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                 amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -283,13 +298,18 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock
                 .Setup(x => x.GetListingForEdit(10, "user-123"))
                 .ReturnsAsync((EditListingViewModel?)null);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                 amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -304,6 +324,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var model = new EditListingViewModel { ListingId = 10, PropertyId = 3, Title = "Updated", Description = "Updated description", Price = 1200, IsAvailable = true };
@@ -311,7 +332,11 @@ namespace KasiRoomNetwork.Test.Controllers
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing());
             listingRepoMock.Setup(x => x.UpdateListing(model, "user-123")).ReturnsAsync(true);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                 amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -328,13 +353,18 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var model = new EditListingViewModel { ListingId = 10, PropertyId = 3, Title = "Updated", Description = "Updated description", Price = 1200 };
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing(10, "other-user"));
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                 amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -350,13 +380,18 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var model = new EditListingViewModel { ListingId = 10, PropertyId = 3, Title = "Updated", Description = "Updated description", Price = 1200 };
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync((ListingDetailsViewModel?)null);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                 amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -370,6 +405,7 @@ namespace KasiRoomNetwork.Test.Controllers
         {
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
@@ -378,7 +414,11 @@ namespace KasiRoomNetwork.Test.Controllers
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing());
             listingRepoMock.Setup(x => x.UpdateListing(model, "user-123")).ReturnsAsync(false);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -395,6 +435,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var hidden = Listing();
@@ -402,7 +443,11 @@ namespace KasiRoomNetwork.Test.Controllers
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(hidden);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupAnonymousController(controller);
 
@@ -417,6 +462,7 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             var hidden = Listing();
@@ -425,7 +471,11 @@ namespace KasiRoomNetwork.Test.Controllers
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(hidden);
             listingRepoMock.Setup(x => x.GetListingPhotos(10)).ReturnsAsync([]);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -440,12 +490,17 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing());
             listingRepoMock.Setup(x => x.AddListingPhoto(10, It.IsAny<string>(), true, "user-123")).ReturnsAsync(true);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -461,11 +516,16 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing(10, "other-user"));
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -480,12 +540,17 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing());
             listingRepoMock.Setup(x => x.DeleteListingPhoto(7, 10, "user-123")).ReturnsAsync(true);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -501,11 +566,16 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing(10, "other-user"));
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -520,12 +590,17 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing());
             listingRepoMock.Setup(x => x.SetPrimaryListingPhoto(10, 7, "user-123")).ReturnsAsync(true);
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
@@ -541,11 +616,16 @@ namespace KasiRoomNetwork.Test.Controllers
             var listingRepoMock = new Mock<IListingRepository>();
             var propertyRepoMock = new Mock<IPropertyRepository>();
             var profileRepoMock = new Mock<IProfileRepository>();
+            var amenityRepoMock = new Mock<IAmenityRepository>();
             var photoStorageMock = new Mock<IPhotoStorageService>();
 
             listingRepoMock.Setup(x => x.GetListingById(10)).ReturnsAsync(Listing(10, "other-user"));
 
-            var controller = new ListingController(listingRepoMock.Object, profileRepoMock.Object, propertyRepoMock.Object,
+            var controller = new ListingController(
+                listingRepoMock.Object, 
+                profileRepoMock.Object, 
+                propertyRepoMock.Object,
+                amenityRepoMock.Object,
                 photoStorageMock.Object);
             ControllerTestHelper.SetupController(controller);
 
