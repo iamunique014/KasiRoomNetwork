@@ -3,11 +3,66 @@
 }
 
 <div class="container py-4">
-    <h1 class="fw-bold mb-3">Tenant Dashboard</h1>
-    <p class="text-muted mb-4">Welcome to your dashboard. Start browsing verified rooms now.</p>
 
-    <div class="d-grid gap-2 d-md-flex">
-        <a asp-controller="Listing" asp-action="SearchListings" class="btn btn-success">Find a Room</a>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Home</a>
+    <div class="mb-4">
+        <h1 class="fw-bold">Find Your Next Room</h1>
+        <p class="text-muted">
+            Search verified rooms and connect directly with landlords.
+        </p>
     </div>
+
+    @if (!(ViewBag.ProfileComplete ?? false))
+    {
+        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Complete your profile</strong><br />
+                Add your contact details before messaging landlords.
+            </div>
+
+            <a asp-controller="Profile"
+               asp-action="MyProfile"
+               class="btn btn-warning">
+                Complete Profile
+            </a>
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Find a Room</h5>
+                    <p class="text-muted">
+                        Browse available verified rooms.
+                    </p>
+
+                    <a asp-controller="Listing"
+                       asp-action="SearchListings"
+                       class="btn btn-success">
+                        Search Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Messages</h5>
+                    <p class="text-muted">
+                        View conversations with landlords.
+                    </p>
+
+                    <a asp-controller="Messages"
+                       asp-action="Inbox"
+                       class="btn btn-outline-primary">
+                        Open Inbox
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </div>
