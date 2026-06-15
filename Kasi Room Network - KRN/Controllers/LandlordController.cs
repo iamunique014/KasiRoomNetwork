@@ -61,12 +61,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            var hasCompleteProfile = await _profileRepository.IsComplete(userId);
-            if (!hasCompleteProfile)
-            {
-                TempData["ProfilePrompt"] = "Complete your landlord profile first. It takes under a minute and unlocks room posting.";
-                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("LandlordDashboard", "Landlord") });
-            }
+            ViewBag.ProfileComplete = await _profileRepository.IsComplete(userId);
 
             var profile = await _profileRepository.GetByUserId(userId);
 
