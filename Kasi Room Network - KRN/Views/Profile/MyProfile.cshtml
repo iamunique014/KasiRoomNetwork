@@ -119,6 +119,23 @@
                         </p>
                     }
 
+                    <div class="mb-3">
+                        <label asp-for="LandlordProfile.WhatsAppNumber" class="form-label">
+                            WhatsApp Number
+                        </label>
+
+                        <input asp-for="LandlordProfile.WhatsAppNumber"
+                               class="form-control"
+                               placeholder="0812345678" />
+
+                        <small class="text-muted">
+                            Optional. Tenants can contact you directly through WhatsApp.
+                        </small>
+
+                        <span asp-validation-for="LandlordProfile.WhatsAppNumber"
+                              class="text-danger"></span>
+                    </div>
+
                     <div class="mt-3">
                         <label asp-for="LandlordProfile.Bio" class="form-label">Public bio preview</label>
                         <textarea asp-for="LandlordProfile.Bio" class="form-control" rows="4">@(string.IsNullOrWhiteSpace(landlordProfile.Bio) ? "No bio added yet." : landlordProfile.Bio)</textarea>

@@ -20,6 +20,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
 
         public string LandlordName { get; set; }
         public string PhoneNumber { get; set; }
+        public string? WhatsAppNumber { get; set; }
 
         public string Province { get; set; }
         public string City { get; set; }

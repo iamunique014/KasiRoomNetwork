@@ -16,5 +16,12 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<IEnumerable<ConversationViewModel>> GetInbox(string userId);
         Task MarkConversationRead(int conversationId, string userId);
         Task<int> GetUnreadCount(string userId);
+
+        Task CreateContactLog(int listingId,
+            string userId,
+            string contactMethod,
+            int? conversationId = null);
+
+        Task<bool> HasInAppContactLog(int listingId, string userId);
     }
 }

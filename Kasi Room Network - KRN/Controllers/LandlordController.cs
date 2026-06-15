@@ -67,6 +67,12 @@ namespace Kasi_Room_Network___KRN.Controllers
                 TempData["ProfilePrompt"] = "Complete your landlord profile first. It takes under a minute and unlocks room posting.";
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("LandlordDashboard", "Landlord") });
             }
+
+            var profile = await _profileRepository.GetByUserId(userId);
+
+            ViewBag.ShowWhatsAppPrompt =
+                string.IsNullOrWhiteSpace(profile.LandlordProfile?.WhatsAppNumber);
+
             var properties = await _propertyRepository.GetPropertiesByUser(userId);
 
             ViewBag.HasProperties = properties.Count != 0;

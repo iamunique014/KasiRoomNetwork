@@ -86,5 +86,32 @@ namespace KasiRoomNetwork.Data.Repositories
 
             return result.FirstOrDefault() == 1;
         }
+        public async Task CreateContactLog(
+            int listingId,
+            string userId,
+            string contactMethod,
+            int? conversationId = null)
+        {
+            await _db.SaveData("sp_ListingContactLog_Create", new
+            {
+                ListingId = listingId,
+                UserId = userId,
+                ContactMethod = contactMethod,
+                ConversationId = conversationId
+            });
+        }
+        public async Task<bool> HasInAppContactLog(int listingId, string userId)
+        {
+            var result = await _db.GetData<int, dynamic>(
+                "sp_ListingContactLog_Exists",
+                new
+                {
+                    ListingId = listingId,
+                    UserId = userId,
+                    ContactMethod = "InApp"
+                });
+
+            return result.FirstOrDefault() > 0;
+        }
     }
 }

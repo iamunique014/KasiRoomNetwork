@@ -64,6 +64,7 @@ namespace KasiRoomNetwork.Data.Repositories
                 userId,
                 profile.UserProfile.FullName,
                 profile.UserProfile.PhoneNumber,
+                profile.LandlordProfile.WhatsAppNumber,
                 profile.UserProfile.City,
                 profile.UserProfile.Province,
                 profile.LandlordProfile.Bio

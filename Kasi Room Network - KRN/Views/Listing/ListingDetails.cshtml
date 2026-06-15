@@ -161,17 +161,33 @@
 
                     </div> *@
 
-                    <div class="mt-auto d-grid">
+                    <div class="mt-auto">
 
-                        <a asp-controller="Messages"
-                           asp-action="ContactLandlord"
-                           asp-route-listingId="@Model.ListingId"
-                           asp-route-landlordId="@Model.LandlordUserId"
-                           class="btn btn-success btn-lg">
+                        <div class="d-flex gap-2">
 
-                            Contact Landlord
+                            @if (!string.IsNullOrWhiteSpace(Model.WhatsAppNumber))
+                            {
+                                <a asp-controller="Messages"
+                                   asp-action="WhatsAppContact"
+                                   asp-route-listingId="@Model.ListingId"
+                                   class="btn btn-outline-success btn-lg">
 
-                        </a>
+                                    <i class="bi bi-whatsapp"></i>
+
+                                </a>
+                            }
+
+                            <a asp-controller="Messages"
+                               asp-action="ContactLandlord"
+                               asp-route-listingId="@Model.ListingId"
+                               asp-route-landlordId="@Model.LandlordUserId"
+                               class="btn btn-success btn-lg flex-grow-1">
+
+                                Contact Landlord
+
+                            </a>
+
+                        </div>
 
                     </div>
 

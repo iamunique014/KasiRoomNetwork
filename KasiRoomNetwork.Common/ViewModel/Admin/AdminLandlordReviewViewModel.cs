@@ -27,6 +27,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public string City { get; set; }
 
         public string Bio { get; set; }
+        public string? WhatsAppNumber { get; set; }
 
         public bool IsVerified { get; set; }
         public DateTime? VerifiedAt { get; set; }
