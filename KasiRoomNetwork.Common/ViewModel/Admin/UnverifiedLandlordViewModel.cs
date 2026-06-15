@@ -17,6 +17,8 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public string Bio { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsVerified { get; set; }
+        public bool VerificationStatus { get; set; }
+        public int MyProperty { get; set; }
         public DateTime VerifiedAt { get; set; }
 
     }

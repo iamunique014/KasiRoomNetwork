@@ -6,7 +6,23 @@
 
 <h2 class="mb-4"> Unverified Properties</h2>
 
-@await Html.PartialAsync("_AdminAlerts")
+@* @await Html.PartialAsync("_AdminAlerts") *@
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 @if (!Model.Any())
 {
@@ -47,7 +63,19 @@ else
                         <td>@item.Suburb, @item.City</td>
                         <td>@item.Province</td>
                         <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
-                        <td>@item.IsVerified</td>
+                        <td>@if (!item.IsVerified && item.VerifiedAt != DateTime.MinValue)
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    Pending
+                                </span>
+                            }
+                        </td>
                         <td>@item.VerifiedAt.ToString("dd MMM yyyy")</td>                      
                         <td>
                             <a asp-action="ReviewProperty"

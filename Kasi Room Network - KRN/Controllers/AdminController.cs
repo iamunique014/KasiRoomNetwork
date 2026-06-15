@@ -128,13 +128,24 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var adminUserId = _userManager.GetUserId(User);
+            try
+            {
+                await _adminRepository.VerifyListingAsync(
+                    model.ListingId,
+                    adminUserId,
+                    model.IsApproved,
+                    model.Notes
+                );
 
-            await _adminRepository.VerifyListingAsync(
-                model.ListingId,
-                adminUserId,
-                model.IsApproved,
-                model.Notes
-            );
+            }
+            catch(Exception ex)
+            {
+                ModelState.AddModelError(ex.Message, "Failure");
+                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+            }
+
+            
+            
 
             TempData["Success"] = model.IsApproved
                 ? "Listing approved successfully."
@@ -168,12 +179,20 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             var adminUserId = _userManager.GetUserId(User);
 
-            await _adminRepository.VerifyLandlordAsync(
+            try
+            {
+                await _adminRepository.VerifyLandlordAsync(
                 model.LandlordUserId,
                 model.LandlordProfileId,
                 adminUserId,
                 model.IsApproved,
                 model.Notes);
+            }
+            catch(Exception ex)
+            {
+                ModelState.AddModelError(ex.Message, "Failure");
+                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+            }
 
             TempData["Success"] = model.IsApproved
                 ? "Landlord verified successfully."
@@ -196,12 +215,20 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             var adminUserId = _userManager.GetUserId(User);
 
-            await _adminRepository.VerifyPropertyAsync(
-                model.PropertyId,
-                adminUserId,
-                model.IsApproved,
-                model.Notes
-            );
+            try
+            {
+                await _adminRepository.VerifyPropertyAsync(
+                    model.PropertyId,
+                    adminUserId,
+                    model.IsApproved,
+                    model.Notes
+                );
+            }
+            catch(Exception ex)
+            {
+                ModelState.AddModelError(ex.Message, "Failure");
+                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+            }
 
             TempData["Success"] = model.IsApproved
                 ? "Property approved successfully."
