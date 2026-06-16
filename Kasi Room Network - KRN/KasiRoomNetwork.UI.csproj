@@ -27,6 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\uploads-test\listing-test\" />
+    <Folder Include="wwwroot\uploads-test\properties-test\" />
     <Folder Include="wwwroot\uploads\listings\" />
   </ItemGroup>
 

@@ -11,6 +11,10 @@ namespace Kasi_Room_Network___KRN.Services
         private const long MaxPhotoSizeBytes = 5 * 1024 * 1024;
         private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png"];
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private string UploadRootFolder =>
+            _webHostEnvironment.IsEnvironment("Test")
+        ? "uploads-test"
+        : "uploads";
 
         public PhotoStorageService(IWebHostEnvironment webHostEnvironment)
         {
@@ -26,7 +30,7 @@ namespace Kasi_Room_Network___KRN.Services
             var safeLandlordUserId = SanitizePathSegment(landlordUserId);
             var uploadsFolder = Path.Combine(
                 _webHostEnvironment.WebRootPath,
-                "uploads",
+                UploadRootFolder,
                 "wizard-temp",
                 safeLandlordUserId);
 
@@ -43,7 +47,7 @@ namespace Kasi_Room_Network___KRN.Services
                 await photo.CopyToAsync(stream);
             }
 
-            return $"/uploads/wizard-temp/{safeLandlordUserId}/{fileName}";
+            return $"/{UploadRootFolder}/wizard-temp/{safeLandlordUserId}/{fileName}";
         }
 
 
@@ -63,7 +67,7 @@ namespace Kasi_Room_Network___KRN.Services
                 .Replace('/', Path.DirectorySeparatorChar)
                 .Replace('\\', Path.DirectorySeparatorChar);
             var sourcePath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, normalizedRelativePath));
-            var tempRootPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "wizard-temp"));
+            var tempRootPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, UploadRootFolder, "wizard-temp"));
             var tempRootWithSeparator = tempRootPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
 
             if (!sourcePath.StartsWith(tempRootWithSeparator, StringComparison.OrdinalIgnoreCase))
@@ -85,7 +89,7 @@ namespace Kasi_Room_Network___KRN.Services
             var safePermanentFolderName = SanitizePathSegment(permanentFolderName);
             var uploadsFolder = Path.Combine(
                 _webHostEnvironment.WebRootPath,
-                "uploads",
+                UploadRootFolder,
                 safePermanentFolderName);
 
             if (!Directory.Exists(uploadsFolder))
@@ -102,7 +106,7 @@ namespace Kasi_Room_Network___KRN.Services
                 await sourceStream.CopyToAsync(destinationStream);
             }
 
-            return $"/uploads/{safePermanentFolderName}/{fileName}";
+            return $"/{UploadRootFolder}/{safePermanentFolderName}/{fileName}";
         }
 
         public void DeleteTemporaryWizardFolder(string landlordUserId)
@@ -171,7 +175,7 @@ namespace Kasi_Room_Network___KRN.Services
 
             var folderPath = Path.Combine(
                 _webHostEnvironment.WebRootPath,
-                "uploads",
+                UploadRootFolder,
                 "wizard-temp",
                 safeLandlordUserId);
 
@@ -199,7 +203,7 @@ namespace Kasi_Room_Network___KRN.Services
         {
             var tempRoot = Path.Combine(
                 _webHostEnvironment.WebRootPath,
-                "uploads",
+                UploadRootFolder,
                 "wizard-temp");
 
             if (!Directory.Exists(tempRoot))
@@ -240,7 +244,7 @@ namespace Kasi_Room_Network___KRN.Services
 
             var uploadsFolder = Path.Combine(
                 _webHostEnvironment.WebRootPath,
-                "uploads",
+                UploadRootFolder,
                 folderName);
 
             Directory.CreateDirectory(uploadsFolder);
@@ -268,7 +272,7 @@ namespace Kasi_Room_Network___KRN.Services
                     Quality = 80
                 });
 
-            return $"/uploads/{folderName}/{fileName}";
+            return $"/{UploadRootFolder}/{folderName}/{fileName}";
         }
 
         private void ValidatePhoto(IFormFile? photo)
