@@ -33,6 +33,22 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.FirstOrDefault();
         }
 
+        public async Task<ConversationViewModel?> GetConversationHeader(
+            int conversationId,
+            string userId)
+        {
+            var result =
+                await _db.GetData<ConversationViewModel, dynamic>(
+                    "sp_Messaging_Get_Conversation_Header",
+                    new
+                    {
+                        ConversationId = conversationId,
+                        UserId = userId
+                    });
+
+            return result.FirstOrDefault();
+        }
+
         public async Task SendMessage(SendMessageViewModel model)
         {
             await _db.SaveData("sp_Messaging_Send_Message", new

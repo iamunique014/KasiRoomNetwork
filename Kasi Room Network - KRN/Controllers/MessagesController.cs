@@ -97,15 +97,25 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return NotFound();
             }
 
-            var messages = await _messagingRepository
-                .GetConversationMessages(conversationId, userId);
+            var header =
+                await _messagingRepository
+                    .GetConversationHeader(
+                        conversationId,
+                        userId
+                    );
 
+            var messages =
+                await _messagingRepository
+                    .GetConversationMessages(
+                        conversationId,
+                        userId);
 
             await _messagingRepository
                 .MarkConversationRead(conversationId, userId);
 
             ViewBag.ConversationId = conversationId;
-
+            ViewBag.ConversationHeader = header;
+            ViewBag.ReturnUrl = Request.Headers["Referer"].ToString();
             return View(messages);
         }
         [HttpPost]

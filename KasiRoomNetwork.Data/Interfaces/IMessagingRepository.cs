@@ -10,6 +10,7 @@ namespace KasiRoomNetwork.Data.Interfaces
     public interface IMessagingRepository
     {
         Task<int> CreateConversation(int listingId, string tenantId, string landlordId);
+        Task<ConversationViewModel?> GetConversationHeader(int conversationId, string userId);
         Task<bool> UserOwnsConversation(int conversationId, string userId);
         Task SendMessage(SendMessageViewModel model);
         Task<IEnumerable<MessageViewModel>> GetConversationMessages(int conversationId, string userId);
