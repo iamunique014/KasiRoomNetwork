@@ -280,8 +280,8 @@ Users are responsible for conducting their own due diligence before entering int
 
 **Kasi Room Network (KRN)**
 
-Email: [Insert Support Email]
+Email: alungilemvenyeza@gmail.com
 
-Website: [Insert Website URL]
+Website: NONE
 
 Location: South Africa
