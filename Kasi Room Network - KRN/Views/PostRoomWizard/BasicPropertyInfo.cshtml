@@ -1,0 +1,48 @@
+@model KasiRoomNetwork.Common.ViewModel.PostRoomWizard.PostRoomBasicPropertyInfoStepViewModel
+
+@{
+    ViewData["Title"] = "Post Room - Basic Property Info";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 640px;">
+        <p class="text-muted mb-2">Step 1 of 7</p>
+
+        <h2 class="fw-bold">Basic Property Info</h2>
+        <p class="text-muted">Tell us a little about the property where the room is located.</p>
+
+        <form asp-action="BasicPropertyInfo" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="PropertyType" class="form-label">Property Type</label>
+                        <input asp-for="PropertyType" class="form-control" placeholder="e.g. Apartment, House, Commune" />
+                        <span asp-validation-for="PropertyType" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PropertyName" class="form-label">Property Name</label>
+                        <input asp-for="PropertyName" class="form-control" placeholder="Optional property name" />
+                        <span asp-validation-for="PropertyName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TotalRooms" class="form-label">Total Rooms</label>
+                        <input asp-for="TotalRooms" class="form-control" min="0" />
+                        <small class="text-muted">Optional</small>
+                        <span asp-validation-for="TotalRooms" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">Continue</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

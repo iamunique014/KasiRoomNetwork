@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Post Room - Start";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 640px;">
+        <p class="text-muted mb-2">Step 0 of 7</p>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h3 fw-bold mb-3">Post your room</h1>
+                <p class="text-muted mb-4">
+                    You’re about to post your room in a few guided steps. We’ll help you add the key details tenants need before your listing is reviewed.
+                </p>
+
+                <div class="mb-4">
+                    <h2 class="h6 fw-bold text-uppercase text-muted mb-3">What you’ll complete</h2>
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item">Property Info</li>
+                        <li class="list-group-item">Address</li>
+                        <li class="list-group-item">Amenities</li>
+                        <li class="list-group-item">Photos</li>
+                        <li class="list-group-item">Room Details</li>
+                        <li class="list-group-item">Select Room Photos</li>
+                        <li class="list-group-item">Review &amp; Submit</li>
+                    </ol>
+                </div>
+
+                <form asp-action="Start" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success btn-lg w-100">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,6 +2,22 @@
     ViewData["Title"] = "KRN - Admin";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="container mt-5 text-center">
     <div class="row g-3">
 
@@ -31,6 +47,25 @@
                 </div>
             </a>
         </div>    
+
+        <div class="col-6">
+            <a href="/Admin/UnverifiedProperties" class="text-decoration-none">
+                <div class="border rounded p-3 h-100">
+                    <p class="mb-0 fw-semibold">
+                        Unverified Properties
+                    </p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6">
+            <a href="/Admin/UnverifiedLandlords" class="text-decoration-none">
+                <div class="border rounded p-3 h-100">
+                    <p class="mb-0 fw-semibold">
+                        Unverified Landlords
+                    </p>
+                </div>
+            </a>
+        </div>
 
     </div>
 </div>

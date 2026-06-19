@@ -1,0 +1,94 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.UnverifiedPropertyViewModel>
+
+@{
+    ViewData["Title"] = "Unverified Properties";
+}
+
+<h2 class="mb-4"> Unverified Properties</h2>
+
+@* @await Html.PartialAsync("_AdminAlerts") *@
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4 class="text-success"> All caught up!</h4>
+        <p class="text-muted">
+            There are no properties waiting for verification right now.
+        </p>
+    </div>
+}
+
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>PropertID</th>
+                    <th>Propety Name</th>
+                    <th>Property Type</th>
+                    <th>Total Rooms</th>
+                    <th>Area</th>
+                    <th>Province</th>
+                    <th>CreatedAt</th>
+                    <th>IsVerified</th>
+                    <th>VerifiedAt</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.PropertyId</strong></td>
+                        <td>@item.PropertyName</td>
+                        <td>@item.PropertyType</td>
+                        <td>@item.TotalRooms</td> 
+                        <td>@item.Suburb, @item.City</td>
+                        <td>@item.Province</td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>@if (!item.IsVerified && item.VerifiedAt != DateTime.MinValue)
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    Pending
+                                </span>
+                            }
+                        </td>
+                        <td>@item.VerifiedAt.ToString("dd MMM yyyy")</td>                      
+                        <td>
+                            <a asp-action="ReviewProperty"
+                               asp-route-id="@item.PropertyId"
+                               class="btn btn-primary">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+

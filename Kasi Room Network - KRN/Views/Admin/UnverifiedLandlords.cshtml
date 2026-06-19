@@ -1,0 +1,89 @@
+﻿@model IEnumerable<KasiRoomNetwork.Common.ViewModel.Admin.UnverifiedLandlordViewModel>
+
+@{
+    ViewData["Title"] = "Unverified Landlords";
+}
+
+<h2 class="mb-4"> Unverified Landlords</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4 class="text-success"> All caught up!</h4>
+        <p class="text-muted">
+            There are no Landlords waiting for verification right now.
+        </p>
+    </div>
+}
+
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>LandlordID</th>
+                    <th>UserID</th>
+                    <th>Full Name</th>
+                    <th>Phone</th>
+                    <th>Area</th>
+                    <th>IsVerified</th>
+                    <th>VerifiedAt</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.LandlordProfileId</td>
+                        <td><strong>@item.LandlordUserId</strong></td>
+                        <td>@item.FullName</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.City, @item.Province</td>
+                        <td>@if (!item.IsVerified && item.VerificationStatus)
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    Pending
+                                </span>
+                            }
+                        </td>
+                        <td>@item.VerifiedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="ReviewLandlord"
+                               asp-route-id="@item.LandlordUserId"
+                               class="btn btn-sm btn-primary">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
+

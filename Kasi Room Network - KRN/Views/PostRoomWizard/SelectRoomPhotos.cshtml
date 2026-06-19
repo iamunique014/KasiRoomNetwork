@@ -1,0 +1,53 @@
+@model KasiRoomNetwork.Common.ViewModel.PostRoomWizard.SelectRoomPhotosStepViewModel
+
+@{
+    ViewData["Title"] = "Post Room - Select Room Photos";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 760px;">
+        <p class="text-muted mb-2">Step 6 of 7</p>
+
+        <h2 class="fw-bold">Select Room Photos</h2>
+        <p class="text-muted">All uploaded photos will appear on the property. Select which photos specifically show this room.</p>
+
+        <form asp-action="SelectRoomPhotos" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+            <div class="row g-3 mb-4">
+                @for (var index = 0; index < Model.Photos.Count; index++)
+                {
+                    <div class="col-12 col-sm-6">
+                        <label class="card h-100 shadow-sm room-photo-selection-card" for="Photos_@(index)__UseForRoom" style="cursor: pointer;">
+                            <img src="@Model.Photos[index].PhotoPath"
+                                 alt="@(string.IsNullOrWhiteSpace(Model.Photos[index].OriginalFileName) ? "Uploaded room photo" : Model.Photos[index].OriginalFileName)"
+                                 class="card-img-top"
+                                 style="height: 220px; object-fit: cover;" />
+                            <span class="card-body d-grid gap-2">
+                                @if (!string.IsNullOrWhiteSpace(Model.Photos[index].OriginalFileName))
+                                {
+                                    <span class="small text-muted text-truncate">@Model.Photos[index].OriginalFileName</span>
+                                }
+
+                                <span class="form-check form-switch d-flex align-items-center gap-3 border rounded p-3 mb-0">
+                                    <input asp-for="Photos[index].UseForRoom" class="form-check-input fs-4 m-0" type="checkbox" role="switch" />
+                                    <span class="form-check-label fw-semibold">Use for this room</span>
+                                </span>
+
+                                <input asp-for="Photos[index].TempPhotoId" type="hidden" />
+                                <input asp-for="Photos[index].PhotoPath" type="hidden" />
+                                <input asp-for="Photos[index].OriginalFileName" type="hidden" />
+                            </span>
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-success btn-lg">Continue</button>
+                <a asp-action="RoomDetails" class="btn btn-outline-secondary btn-lg">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

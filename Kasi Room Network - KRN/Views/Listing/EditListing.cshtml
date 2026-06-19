@@ -1,0 +1,107 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Listings.EditListingViewModel
+
+@{
+    ViewData["Title"] = "Edit Listing";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Listing</h2>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-4">
+                <h5>@Model.PropertyName</h5>
+                <small class="text-muted">
+                    @Model.Suburb, @Model.City
+                </small>
+            </div>
+
+            <form asp-action="EditListing" method="post">
+
+                <input asp-for="ListingId" type="hidden" />
+                <input asp-for="PropertyId" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description"
+                           class="form-label"></label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="5">
+                    </textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price"
+                           class="form-label"></label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">R</span>
+                        <input asp-for="Price"
+                               class="form-control" />
+                    </div>
+
+                    <span asp-validation-for="Price"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="IsAvailable"
+                           class="form-check-input" />
+
+                    <label asp-for="IsAvailable"
+                           class="form-check-label">
+                        Room available for rent
+                    </label>
+                </div>
+
+                <div class="alert alert-warning">
+                    Editing this listing will reset verification
+                    and remove it from public search until
+                    approved again.
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Save Changes
+                    </button>
+
+                    <a asp-action="ListingDetails"
+                       asp-route-listingId="@Model.ListingId"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

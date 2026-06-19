@@ -11,9 +11,13 @@ namespace KasiRoomNetwork.Common.ViewModel.Profiles
     {
         public string UserId { get; set; } = string.Empty;
 
-        [Required]
         [StringLength(500)]
-        public string Bio { get; set; } = string.Empty;
+        public string? Bio { get; set; } = string.Empty;
+
+        [StringLength(20)]
+        [Display(Name = "WhatsApp Number")]
+        public string? WhatsAppNumber { get; set; }
+
         public bool IsVerified { get; set; }
         public DateTime? VerifiedAt { get; set; }
     }

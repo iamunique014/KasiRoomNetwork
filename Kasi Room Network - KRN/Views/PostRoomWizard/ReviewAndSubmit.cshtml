@@ -1,0 +1,154 @@
+@model KasiRoomNetwork.Common.ViewModel.PostRoomWizard.PostRoomReviewStepViewModel
+
+@{
+    ViewData["Title"] = "Post Room - Review & Submit";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 820px;">
+        <p class="text-muted mb-2">Step 7 of 7</p>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-3">
+            <div>
+                <h2 class="fw-bold mb-1">Review &amp; Submit</h2>
+                <p class="text-muted mb-0">Check everything before your listing goes live.</p>
+            </div>
+            <a asp-action="SelectRoomPhotos" class="btn btn-outline-secondary align-self-sm-start">Back</a>
+        </div>
+
+        <form asp-action="ReviewAndSubmit" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h5 class="fw-bold mb-0">Property Info</h5>
+                        <a asp-action="BasicPropertyInfo" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    <dl class="row mb-0">
+                        <dt class="col-5 col-sm-4 text-muted">Property Name</dt>
+                        <dd class="col-7 col-sm-8">@(string.IsNullOrWhiteSpace(Model.BasicPropertyInfo.PropertyName) ? "Not provided" : Model.BasicPropertyInfo.PropertyName)</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Property Type</dt>
+                        <dd class="col-7 col-sm-8">@Model.BasicPropertyInfo.PropertyType</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Total Rooms</dt>
+                        <dd class="col-7 col-sm-8 mb-0">@(Model.BasicPropertyInfo.TotalRooms?.ToString() ?? "Not provided")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h5 class="fw-bold mb-0">Address</h5>
+                        <a asp-action="Address" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    <dl class="row mb-0">
+                        <dt class="col-5 col-sm-4 text-muted">Province</dt>
+                        <dd class="col-7 col-sm-8">@Model.Address.Province</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">City</dt>
+                        <dd class="col-7 col-sm-8">@Model.Address.City</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Suburb</dt>
+                        <dd class="col-7 col-sm-8">@Model.Address.Suburb</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Street Address</dt>
+                        <dd class="col-7 col-sm-8 mb-0">@Model.Address.Street</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h5 class="fw-bold mb-0">Amenities</h5>
+                        <a asp-action="Amenities" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    @if (Model.SelectedAmenities.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var amenity in Model.SelectedAmenities)
+                            {
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">@amenity.Name</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No amenities selected</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">Property Photos</h5>
+                            <p class="text-muted small mb-0">All uploaded photos become property photos.</p>
+                        </div>
+                        <a asp-action="Photos" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    <div class="row g-2">
+                        @foreach (var photo in Model.PropertyPhotos)
+                        {
+                            <div class="col-6 col-sm-4">
+                                <img src="@photo.TempRelativePath" alt="@(string.IsNullOrWhiteSpace(photo.OriginalFileName) ? "Property photo" : photo.OriginalFileName)" class="img-fluid rounded border" style="height: 130px; width: 100%; object-fit: cover;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h5 class="fw-bold mb-0">Room Details</h5>
+                        <a asp-action="RoomDetails" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    <dl class="row mb-0">
+                        <dt class="col-5 col-sm-4 text-muted">Room Title</dt>
+                        <dd class="col-7 col-sm-8">@Model.RoomDetails.Title</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Price</dt>
+                        <dd class="col-7 col-sm-8">R @Model.RoomDetails.Price.ToString("N2")</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Description</dt>
+                        <dd class="col-7 col-sm-8">@(string.IsNullOrWhiteSpace(Model.RoomDetails.Description) ? "Not provided" : Model.RoomDetails.Description)</dd>
+
+                        <dt class="col-5 col-sm-4 text-muted">Availability</dt>
+                        <dd class="col-7 col-sm-8 mb-0">@(Model.RoomDetails.IsAvailable ? "Available now" : "Not available yet")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">Room Photos</h5>
+                            <p class="text-muted small mb-0">Only photos marked “Use for this room” will be saved here.</p>
+                        </div>
+                        <a asp-action="SelectRoomPhotos" class="btn btn-sm btn-outline-success">Edit</a>
+                    </div>
+                    <div class="row g-2">
+                        @foreach (var photo in Model.RoomPhotos)
+                        {
+                            <div class="col-6 col-sm-4">
+                                <img src="@photo.TempRelativePath" alt="@(string.IsNullOrWhiteSpace(photo.OriginalFileName) ? "Room photo" : photo.OriginalFileName)" class="img-fluid rounded border" style="height: 130px; width: 100%; object-fit: cover;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-success btn-lg">Submit Listing</button>
+                <a asp-action="SelectRoomPhotos" class="btn btn-outline-secondary btn-lg">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

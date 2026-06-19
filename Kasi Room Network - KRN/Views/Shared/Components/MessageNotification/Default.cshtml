@@ -1,0 +1,22 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Messaging.MessageNotificationViewModel
+
+<li class="nav-item">
+
+    <a class="nav-link"
+       asp-controller="Messages"
+       asp-action="Inbox">
+
+        <i class="bi bi-chat-dots me-1"></i>
+
+        Messages
+
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="badge bg-danger ms-1">
+                @Model.UnreadCount
+            </span>
+        }
+
+    </a>
+
+</li>

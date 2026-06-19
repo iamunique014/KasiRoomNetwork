@@ -2,76 +2,139 @@
 @using Kasi_Room_Network___KRN.Constants
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Join KRN";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container px-1">
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <select asp-for="Input.Role" class="form-control">
-                    @foreach (var role in Enum.GetValues(typeof(Roles)).Cast<Roles>().Where(r => r != Roles.Admin))
-                    {
-                        <option value="@role">@role</option>
-                    }
-                </select>
-                <label asp-for="Input.Role">Select Role</label>
-                <span asp-validation-for="Input.Role" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <div class="text-center mb-4">
+                        <h1 class="fw-bold">Join Kasi Room Network</h1>
+                        <p class="text-muted mb-0">
+                            Find rooms. Connect with landlords.
                         </p>
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+                    <form id="registerForm"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label"></label>
+                            <input asp-for="Input.Email"
+                                   class="form-control"
+                                   autocomplete="username" />
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger"></span>
                         </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Role"
+                                   class="form-label">
+                                I want to join as
+                            </label>
+
+                            <select asp-for="Input.Role"
+                                    class="form-select">
+
+                                @foreach (var role in Enum.GetValues(typeof(Roles))
+                                                                .Cast<Roles>()
+                                                                .Where(r => r != Roles.Admin))
+                                {
+                                    <option value="@role">@role</option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="Input.Role"
+                                  class="text-danger"></span>
+                        </div>                       
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Password"
+                                   class="form-label"></label>
+
+                            <input asp-for="Input.Password"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <div class="form-text">
+                                Use at least 8 characters.
+                            </div>
+
+                            <span asp-validation-for="Input.Password"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.ConfirmPassword"
+                                   class="form-label"></label>
+
+                            <input asp-for="Input.ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+
+                            <span asp-validation-for="Input.ConfirmPassword"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info py-2 small">
+                            <strong>Password Requirements</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Minimum 8 characters</li>
+                                <li>At least one uppercase letter (A-Z)</li>
+                                <li>At least one lowercase letter (a-z)</li>
+                                <li>At least one number (0-9)</li>
+                                <li>At least one special character (!@@#$%^&* etc.)</li>
+                            </ul>
+                        </div>
+
+                        <button id="registerSubmit"
+                                type="submit"
+                                class="btn btn-success w-100">
+                            Create Account
+                        </button>
+
                     </form>
-                }
-            }
-        </section>
+
+                    <div class="text-center m-3">
+                        <p class="mb-0">
+                            Already have an account?
+                            <a asp-page="./Login"
+                               asp-route-returnUrl="@Model.ReturnUrl"
+                               class="fw-semibold">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+
+                    <hr />
+
+                    <div class="text-center small text-muted">
+                        By creating an account you can search rooms,
+                        contact landlords and manage listings on KRN.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
 @section Scripts {

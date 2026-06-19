@@ -1,0 +1,205 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Admin.AdminLandlordReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Landlord";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="mb-1">
+            Landlord Review
+        </h2>
+
+        <small class="text-muted">
+            @Model.LandlordUserId
+        </small>
+    </div>
+    @if (Model.IsVerified)
+    {
+        <span class="badge bg-success">
+            Verification Complete
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-warning">
+            Pending Verification
+        </span>
+    }
+
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Identity Information
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            <strong>Name:</strong>
+            @Model.FullName
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            @Model.Email
+        </p>
+
+@*         <p>
+            <strong>Phone:</strong>
+            @Model.AccountPhoneNumber
+        </p> *@
+
+        <p>
+            <strong>Account Created:</strong>
+            @Model.AccountCreatedAt.ToString("dd MMM yyyy")
+        </p>
+
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Profile Information
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            <strong>Full Name:</strong>
+            @Model.FullName
+        </p>
+
+        <p>
+            <strong>Phone Number:</strong>
+            @Model.PhoneNumber
+        </p>
+
+        <p>
+            <strong>WhatsApp Number:</strong>
+            @Model.WhatsAppNumber
+        </p>
+
+        <p>
+            <strong>Province:</strong>
+            @Model.Province
+        </p>
+
+        <p>
+            <strong>City:</strong>
+            @Model.City
+        </p>
+
+        <p>
+            <strong>Bio:</strong>
+        </p>
+
+        <div class="border rounded p-3 bg-light">
+            @Model.Bio
+        </div>
+
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Platform Activity
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 text-center">
+                    <h3>@Model.PropertyCount</h3>
+                    <small>Properties</small>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 text-center">
+                    <h3>@Model.ListingCount</h3>
+                    <small>Listings</small>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 text-center">
+                    <h3>@Model.VerifiedListingCount</h3>
+                    <small>Verified Listings</small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Verification Decision
+    </div>
+
+    <div class="card-body">
+
+        <form asp-action="VerifyLandlord"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="LandlordUserId"
+                   value="@Model.LandlordUserId" />
+            <input type="hidden"
+                   name="LandlordProfileId"
+                   value="@Model.LandlordProfileId" />
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Notes
+                </label>
+
+                <textarea class="form-control"
+                          name="Notes"
+                          rows="4"></textarea>
+
+            </div>
+
+            <button type="submit"
+                    name="IsApproved"
+                    value="true"
+                    class="btn btn-success">
+                Approve Landlord
+            </button>
+
+            <button type="submit"
+                    name="IsApproved"
+                    value="false"
+                    class="btn btn-danger">
+                Reject Landlord
+            </button>
+
+        </form>
+
+    </div>
+</div>

@@ -1,0 +1,243 @@
+﻿@using KasiRoomNetwork.Data.Domain.Models
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Kasi Room Network</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Kasi_Room_Network___KRN.styles.css" asp-append-version="true" />
+
+</head>
+
+<body>
+
+
+    <!-- NAVBAR -->
+    <header>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
+
+            <div class="container">
+
+                <!-- BRAND -->
+                <a class="navbar-brand fw-bold fs-4"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <i class="bi bi-house-door-fill text-success me-1"></i>
+                    KRN
+
+                </a>
+
+                <!-- MOBILE TOGGLE -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
+
+                    <span class="navbar-toggler-icon"></span>
+
+                </button>
+
+                <div class="collapse navbar-collapse"
+                     id="mainNavbar">
+
+                    <!-- LEFT NAV -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                <i class="bi bi-house-fill me-1"></i>
+                                Home
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               asp-controller="Listing"
+                               asp-action="SearchListings">
+
+                                <i class="bi bi-search me-1"></i>
+                                Find Rooms
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               asp-controller="Landlord"
+                               asp-action="LandlordDashboard">
+
+                                <i class="bi bi-house-add-fill me-1"></i>
+                                Post a Room
+
+                            </a>
+
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       asp-controller="Admin"
+                                       asp-action="AdminDashboard">
+
+                                        <i class="bi bi-speedometer2 me-1"></i>
+                                        Dashboard
+
+                                    </a>
+
+                                </li>
+                            }
+                            else if (User.IsInRole("Landlord"))
+                            {
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       asp-controller="Landlord"
+                                       asp-action="LandlordDashboard">
+
+                                        <i class="bi bi-speedometer2 me-1"></i>
+                                        Dashboard
+
+                                    </a>
+
+                                </li>
+                            }
+                            else if (User.IsInRole("Tenant"))
+                            {
+                                <li class="nav-item">
+
+                                    <a class="nav-link"
+                                       asp-controller="Tenant"
+                                       asp-action="TenantDashboard">
+
+                                        <i class="bi bi-speedometer2 me-1"></i>
+                                        Dashboard
+
+                                    </a>
+
+                                </li>
+                            }
+                        }
+
+                    </ul>
+
+                    <!-- ACCOUNT -->
+                    <partial name="_LoginPartial" />
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main role="main">
+
+        @RenderBody()
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-top bg-light mt-5">
+
+        <div class="container py-4">
+
+            <div class="row">
+
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+
+                    <h5 class="fw-bold">
+
+                        <i class="bi bi-house-door-fill text-success me-1"></i>
+                        Kasi Room Network
+
+                    </h5>
+
+                    <p class="text-muted mb-0">
+
+                        Helping tenants find rooms and landlords find tenants.
+
+                    </p>
+
+                </div>
+
+                <div class="col-md-6 text-center text-md-end">
+
+                    <a asp-controller="Home"
+                       asp-action="Privacy"
+                       class="text-decoration-none">
+
+                        Privacy
+
+                    </a>
+
+                    <span class="mx-2">•</span>
+
+                    <a asp-controller="Home"
+                       asp-action="Terms"
+                       class="text-decoration-none">
+
+                        Terms
+
+                    </a>
+
+                    <span class="mx-2">•</span>
+
+                    <a asp-controller="Home"
+                       asp-action="Contact"
+                       class="text-decoration-none">
+
+                        Contact
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <div class="text-center text-muted small">
+
+                © @DateTime.Now.Year Kasi Room Network. All rights reserved.
+
+            </div>
+
+        </div>
+
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

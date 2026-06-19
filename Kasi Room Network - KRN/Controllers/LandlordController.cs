@@ -17,19 +17,22 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IListingRepository _listingRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly IMessagingRepository _messagingRepository;
+        private readonly IPropertyRepository _propertyRepository;
 
         public LandlordController(
             UserManager<ApplicationUser> userManager,
             ILandlordRepository landlordRepository,
             IListingRepository listingRepository,
             IProfileRepository profileRepository,
-            IMessagingRepository messagingRepository)
+            IMessagingRepository messagingRepository,
+            IPropertyRepository propertyRepository)
         {
             _userManager = userManager;
             _landlordRepository = landlordRepository;
             _listingRepository = listingRepository;
             _profileRepository = profileRepository;
             _messagingRepository = messagingRepository;
+            _propertyRepository = propertyRepository;
         }
 
         public async Task<IActionResult> start()
@@ -58,12 +61,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            var hasCompleteProfile = await _profileRepository.IsComplete(userId);
-            if (!hasCompleteProfile)
-            {
-                TempData["ProfilePrompt"] = "Complete your landlord profile first. It takes under a minute and unlocks room posting.";
-                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("LandlordDashboard", "Landlord") });
-            }
+            ViewBag.ProfileComplete = await _profileRepository.IsComplete(userId);
+
+            var profile = await _profileRepository.GetByUserId(userId);
+
+            ViewBag.ShowWhatsAppPrompt =
+                string.IsNullOrWhiteSpace(profile.LandlordProfile?.WhatsAppNumber);
+
+            var properties = await _propertyRepository.GetPropertiesByUser(userId);
+
+            ViewBag.HasProperties = properties.Count != 0;
+
             ViewBag.UnreadCount = await _messagingRepository.GetUnreadCount(userId);
             return View();
         }

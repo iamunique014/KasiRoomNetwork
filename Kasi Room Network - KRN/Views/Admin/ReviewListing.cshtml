@@ -4,86 +4,297 @@
     ViewData["Title"] = "Review Listing";
 }
 
-<h2 class="mb-3">Review Listing</h2>
-@await Html.PartialAsync("_AdminAlerts")
-<!-- Photos -->
-<div class="row mb-4">
-    @if (!Model.Photos.Any())
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
     {
-        <div class="alert alert-warning">
-             This listing has no photos. Verify with caution.
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    else
+
+    @if (TempData["Error"] != null)
     {
-
-
-        @foreach (var photo in Model.Photos)
-        {
-            <div class="col-md-4 mb-3">
-                <img src="@photo.PhotoPath"
-                class="img-fluid rounded shadow-sm"
-                style="object-fit: cover; height: 200px;" />
-            </div>
-        }
-
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
-</div>
 
-<!-- Listing Info -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h4>@Model.Title</h4>
-        <p class="text-muted">@Model.Suburb, @Model.City</p>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h2 class="mb-1">Review Listing</h2>
+            <p class="text-muted mb-0">
+                Listing #@Model.ListingId
+            </p>
+        </div>
 
-        <p><strong>Price:</strong> R @Model.Price</p>
-        <p>@Model.Description</p>
+        <div class="mt-2 mt-md-0">
 
-        <hr />
+            @if (Model.IsVerified)
+            {
+                <span class="badge bg-success fs-6">
+                    Verified
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark fs-6">
+                    Pending Verification
+                </span>
+            }
 
-        <p>
-            <strong>Landlord:</strong> @Model.LandlordName <br />
-            <strong>Phone:</strong> @Model.PhoneNumber
-        </p>
+        </div>
     </div>
-</div>
 
-<!-- Approve / Reject -->
-<div class="card border-danger">
-    <div class="card-body">
-        <form asp-action="VerifyListing" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="ListingId" value="@Model.ListingId" />
+    <!-- PHOTOS -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Listing Photos</h5>
+        </div>
 
-            <div class="mb-3">
-                <label class="form-label">Admin Notes (optional)</label>
-                <textarea name="Notes"
-                          class="form-control"
-                          rows="3"
-                          placeholder="Required if rejecting a listing..."></textarea>
+        <div class="card-body">
 
+            @if (!Model.Photos.Any())
+            {
+                <div class="alert alert-warning mb-0">
+                    No photos uploaded. Verify with caution.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+
+                    @foreach (var photo in Model.Photos)
+                    {
+                        <div class="col-6 col-md-4 col-lg-3 mb-3">
+                            <img src="@photo.PhotoPath"
+                                 class="img-fluid rounded shadow-sm w-100"
+                                 style="height:220px;object-fit:cover;" />
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-8">
+
+            <!-- LISTING -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Listing Details</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <h4>@Model.Title</h4>
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Price</strong>
+                            <div>R @Model.Price.ToString("N0")</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Submitted</strong>
+                            <div>
+                                @Model.CreatedAt.ToString("dd MMM yyyy")
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <strong>Description</strong>
+
+                    <p class="mb-0 mt-2">
+                        @Model.Description
+                    </p>
+
+                </div>
             </div>
 
-            <div class="d-flex gap-2">
-                <button name="IsApproved"
-                        value="true"
-                        type="submit"
-                        class="btn btn-success">
-                     Approve
-                </button>
+            <!-- PROPERTY -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Property Information</h5>
+                </div>
 
-                <button name="IsApproved"
-                        value="false"
-                        type="submit"
-                        class="btn btn-danger">
-                     Reject
-                </button>
+                <div class="card-body">
 
-                <a asp-action="UnverifiedListings"
-                   class="btn btn-outline-secondary ms-auto">
-                    Cancel
-                </a>
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Property Name</strong>
+                            <div>@Model.PropertyName</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Property Type</strong>
+                            <div>@Model.PropertyType</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Total Rooms</strong>
+                            <div>@Model.TotalRooms</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Property Status</strong>
+
+                            <div>
+
+                                @if (Model.PropertyVerified)
+                                {
+                                    <span class="badge bg-success">
+                                        Verified
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+                                }
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
-        </form>
+
+            <!-- ADDRESS -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Location</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="mb-1">@Model.Street</p>
+                    <p class="mb-1">@Model.Suburb</p>
+                    <p class="mb-1">@Model.City</p>
+                    <p class="mb-0">@Model.Province</p>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-4">
+
+            <!-- LANDLORD -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Landlord Information</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <strong>Name</strong>
+                        <div>@Model.LandlordName</div>
+                    </div>
+
+                    <div>
+                        <strong>Phone</strong>
+                        <div>@Model.PhoneNumber</div>
+                    </div>
+
+                    <div>
+                        <strong>WhatsApp</strong>
+                        <div>@Model.WhatsAppNumber</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Review Checklist</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <ul class="mb-0">
+                        <li>Photos look genuine</li>
+                        <li>Description matches photos</li>
+                        <li>Price looks reasonable</li>
+                        <li>Location is complete</li>
+                        <li>No misleading information</li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    Verification Decision
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-action="VerifyListing" method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="ListingId"
+                               value="@Model.ListingId" />
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Notes
+                            </label>
+
+                            <textarea name="Notes"
+                                      rows="4"
+                                      class="form-control"
+                                      placeholder="Required when rejecting..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+
+                            <button type="submit"
+                                    name="IsApproved"
+                                    value="true"
+                                    class="btn btn-success">
+                                Approve Listing
+                            </button>
+
+                            <button type="submit"
+                                    name="IsApproved"
+                                    value="false"
+                                    class="btn btn-danger">
+                                Reject Listing
+                            </button>
+
+                            <a asp-action="UnverifiedListings"
+                               class="btn btn-outline-secondary">
+                                Back to Queue
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
     </div>
+
 </div>

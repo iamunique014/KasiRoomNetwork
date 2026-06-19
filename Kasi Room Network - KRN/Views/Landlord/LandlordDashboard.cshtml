@@ -1,87 +1,271 @@
-﻿@{
+@{
     ViewData["Title"] = "KRN - Landlord";
+
     int UnreadMessages = ViewBag.UnreadCount ?? 0;
+    int ActiveListings = ViewBag.ActiveListings ?? 0;
+    int PendingVerification = ViewBag.PendingVerification ?? 0;
+    int VerifiedListings = ViewBag.VerifiedListings ?? 0;
+
+    bool HasProperties = ViewBag.HasProperties ?? false;
+    bool ProfileComplete = ViewBag.ProfileComplete ?? false;
 }
 
-<div class="container mt-5 text-center">
+<div class="container mt-4 mt-md-5">
 
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success rounded-4 shadow-sm">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
-            <h6 class="fw-bold mb-2">
-                Messages 
-                @if (UnreadMessages > 0)
-                {
-                    <span class="badge bg-success ms-2">
-                        @UnreadMessages
-                    </span>
-                }
+    <!-- Welcome -->
+    <div class="mb-3 text-center">
+        <h5 class="fw-bold mb-1">
+            Landlord Dashboard
+        </h5>
+        <small class="text-muted">
+            Manage your rooms and property listings
+        </small>
+    </div>
+
+    <!-- Dashboard Summary -->
+    <div class="card rounded-4 shadow-sm border-0 mb-2">
+        <div class="card-body py-3">
+
+            <div class="row text-center g-0">
+
+                <div class="col-3 border-end">
+                    <div class="text-primary mb-1">
+                        <i class="bi bi-door-open"></i>
+                    </div>
+                    <div class="fw-bold">@ActiveListings</div>
+                    <small class="text-muted">Active</small>
+                </div>
+
+                <div class="col-3 border-end">
+                    <div class="text-warning mb-1">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="fw-bold">@PendingVerification</div>
+                    <small class="text-muted">Pending</small>
+                </div>
+
+                <div class="col-3 border-end">
+                    <div class="text-success mb-1">
+                        <i class="bi bi-patch-check"></i>
+                    </div>
+                    <div class="fw-bold">@VerifiedListings</div>
+                    <small class="text-muted">Verified</small>
+                </div>
+
+                <div class="col-3">
+                    <div class="@(UnreadMessages > 0 ? "text-success" : "text-secondary") mb-1">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div class="fw-bold">@UnreadMessages</div>
+                    <small class="text-muted">Messages</small>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="/Messages/Inbox" class="small text-decoration-none">
+            View Inbox
+        </a>
+    </div>
+
+    @if (!ProfileComplete)
+    {
+        <div class="card border-warning shadow-sm mb-4">
+            <div class="card-body p-4">
+
+                <div class="text-warning fs-2 mb-3">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+
+                <h5 class="fw-bold mb-2">
+                    COMPLETE YOUR PROFILE
+                </h5>
+
+                <p class="text-muted mb-3">
+                    Add your details to unlock property and room posting.
+                </p>
+
+                <a asp-controller="Profile"
+                   asp-action="MyProfile"
+                   class="btn btn-primary">
+                    Complete Profile
+                </a>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!HasProperties)
+        {
+            <a asp-controller="PostRoomWizard"
+               asp-action="Start"
+               class="text-decoration-none d-block mb-4">
+
+                <div class="card rounded-4 shadow-sm p-4 border-primary border-2">
+
+                    <div class="text-primary fs-2 mb-3">
+                        <i class="bi bi-house-add"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">
+                        POST YOUR FIRST ROOM
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Create your first property and room listing.
+                    </p>
+
+                </div>
+
+            </a>
+        }
+        else
+        {
+            <div class="mb-4">
+
+                <h6 class="text-uppercase text-muted small fw-bold mb-3">
+                    Create
+                </h6>
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-md-6">
+                        <a asp-controller="Property"
+                           asp-action="MyProperties"
+                           asp-route-mode="addlisting"
+                           class="text-decoration-none d-block">
+
+                            <div class="card rounded-4 shadow-sm p-4 border-primary border-2 h-100">
+
+                                <div class="text-primary fs-2 mb-3">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+
+                                <h5 class="fw-bold mb-2">
+                                    ADD ROOM
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Add a room listing to an existing property.
+                                </p>
+
+                            </div>
+
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <a asp-controller="Property"
+                           asp-action="CreateProperty"
+                           class="text-decoration-none d-block">
+
+                            <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
+
+                                <div class="text-primary fs-2 mb-3">
+                                    <i class="bi bi-building-add"></i>
+                                </div>
+
+                                <h5 class="fw-bold mb-2">
+                                    ADD PROPERTY
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Add another property to your portfolio.
+                                </p>
+
+                            </div>
+
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        <div>
+
+            <h6 class="text-uppercase text-muted small fw-bold mb-3">
+                Manage
             </h6>
 
-            @if (UnreadMessages > 0)
+            @if (ViewBag.ShowWhatsAppPrompt == true)
             {
-                <p class="mb-2">
-                    You have 
-                    <span class="badge bg-success">
-                        @UnreadMessages
-                    </span>
-                    new message(s)
-                </p>
+                <div class="card border-warning mb-4">
+                    <div class="card-body">
 
-                <a href="/Messages/Inbox" class="btn btn-primary btn-sm w-100">
-                    View Messages
-                </a>
-            }
-            else
-            {
-                <p class="text-muted mb-2">
-                    No new messages
-                </p>
+                        <h5 class="card-title">
+                            Add WhatsApp Number
+                        </h5>
 
-                <a href="/Messages/Inbox" class="btn btn-outline-secondary btn-sm w-100">
-                    Open Inbox
-                </a>
+                        <p class="text-muted mb-3">
+                            Allow tenants to contact you directly through WhatsApp.
+                        </p>
+
+                        <a asp-controller="Profile"
+                           asp-action="MyProfile"
+                           class="btn btn-success">
+                            Add Now
+                        </a>
+
+                    </div>
+                </div>
             }
 
-        </div>
-    </div>
+            <div class="row g-3">
 
-    <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <a href="/Landlord/MyRooms"
+                       class="text-decoration-none d-block">
 
-        <div class="col-6">
-            <a href="/Listing/CreateListing" class="text-decoration-none">
-                <div class="border rounded p-3 h-100">
-                    <p class="mb-0 fw-semibold">POST A ROOM</p>
+                        <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
+
+                            <div class="text-primary fs-3 mb-2">
+                                <i class="bi bi-door-open"></i>
+                            </div>
+
+                            <p class="mb-0 fw-semibold">
+                                MY ROOMS
+                            </p>
+
+                        </div>
+
+                    </a>
                 </div>
-            </a>
-            
-        </div>
 
-        <div class="col-6">
-            <a href="/Landlord/MyRooms" class="text-decoration-none">
-                <div class="border rounded p-3 h-100">
-                    <p class="mb-0 fw-semibold">MY ROOMS</p>
+                <div class="col-12 col-md-6">
+                    <a href="/Property/MyProperties"
+                       class="text-decoration-none d-block">
+
+                        <div class="card rounded-4 shadow-sm p-4 border-0 h-100">
+
+                            <div class="text-primary fs-3 mb-2">
+                                <i class="bi bi-building"></i>
+                            </div>
+
+                            <p class="mb-0 fw-semibold">
+                                MY PROPERTIES
+                            </p>
+
+                        </div>
+
+                    </a>
                 </div>
-            </a>
-        </div>
 
-        @* <div class="col-6">
-            <div class="border rounded p-3 h-100">
-                <div class="fs-3"></div>
-                <p class="mb-0 fw-semibold">
-                    Tenants
-                </p>
             </div>
+
         </div>
+    }
 
-        <div class="col-6">
-            <div class="border rounded p-3 h-100">
-                <div class="fs-3"></div>
-                <p class="mb-0 fw-semibold">
-                    Admin Approved Listings
-                </p>
-            </div>
-        </div> *@
-
-    </div>
 </div>

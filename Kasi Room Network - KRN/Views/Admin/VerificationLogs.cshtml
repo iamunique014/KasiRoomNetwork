@@ -4,27 +4,62 @@
 }
 
 <div class="continer mt4">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     @if (Model.Any())
     {
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
+                        
                         <th>Inspector</th>
                         <th>Status</th>
                         <th>Notes</th>
+                        <th>EntityType</th>
                         <th>Date</th>
-                        <th></th>
+                        <th>Go To</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach(var item in Model)
                     {
                         <tr>
+                          
                             <td>@item.AdminUser</td>
                             <td>@item.Action</td>
                             <td>@item.Notes</td>
+                            <td>@item.EntityType</td>
                             <td>@item.CreatedOn</td>
+                            <td>
+                                @if(item.EntityType == "Listing")
+                                {
+                                    <a asp-action="ReviewListing" asp-route-id="@item.EntityId" class="btn btn-primary">Listing</a>
+                                }
+                                else if (item.EntityType == "Property")
+                                {
+                                    <a asp-action="ReviewProperty" asp-route-id="@item.EntityId" class="btn btn-outline-primary">Property</a>
+                                }
+                                else if (item.EntityType == "Landlord")
+                                {
+                                    <a asp-action="ReviewLandlord" asp-route-landlordId="@item.EntityId" class="btn btn-outline-primary">Landlord</a>                                   
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>

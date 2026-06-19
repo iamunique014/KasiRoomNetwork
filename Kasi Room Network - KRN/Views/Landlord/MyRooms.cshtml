@@ -30,6 +30,14 @@
                         }
 
                         <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="badge @(listing.IsVerified ? "bg-success" : "bg-warning text-dark")">
+                                    @(listing.IsVerified ? "Verified" : "Pending Verification")
+                                </span>
+                                <span class="badge @(listing.IsAvailable ? "bg-primary" : "bg-secondary")">
+                                    @(listing.IsAvailable ? "Available" : "Unavailable")
+                                </span>
+                            </div>
                             <h5 class="card-title">@listing.Title</h5>
                             <p class="card-text">
                                 @listing.Suburb, @listing.City<br />
@@ -40,10 +48,20 @@
                         </div>
 
                         <div class="card-footer bg-white">
-                            <a asp-action="ReviewListingDetails"
-                               asp-route-id="@listing.ListingId"
-                               class="btn btn-outline-primary w-100">
+                            <a asp-controller="Listing" asp-action="ListingDetails"
+                               asp-route-listingId="@listing.ListingId"
+                               class="btn btn-outline-primary w-100 mb-2">
                                 View Details
+                            </a>
+                            <a asp-controller="Listing" asp-action="EditListing"
+                               asp-route-listingId="@listing.ListingId"
+                               class="btn btn-success w-100 mb-2">
+                                Edit Listing
+                            </a>
+                            <a asp-controller="Listing" asp-action="ManageListingPhotos"
+                               asp-route-listingId="@listing.ListingId"
+                               class="btn btn-outline-secondary w-100">
+                                Manage Photos
                             </a>
                         </div>
 

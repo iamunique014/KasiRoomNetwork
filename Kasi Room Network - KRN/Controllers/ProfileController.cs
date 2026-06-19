@@ -46,13 +46,9 @@ namespace Kasi_Room_Network___KRN.Controllers
         {
             if (!ModelState.IsValid)
             {
-                //var invalidUserId = _userManager.GetUserId(User);
-                //if (!string.IsNullOrEmpty(invalidUserId))
-                //{
-                //    await PopulateLandlordProfileAsync(invalidUserId);
-                //}
-
+                ViewBag.IsLandlord = User.IsInRole("Landlord");
                 ViewBag.ReturnUrl = returnUrl;
+
                 return View(model);
             }
 
@@ -73,14 +69,19 @@ namespace Kasi_Room_Network___KRN.Controllers
                 await _profileRepository.SaveProfile(model, userId);
             }
                 
-            TempData["Success"] = "Profile saved successfully";
+            TempData["SuccessMessage"] = "Profile saved successfully";
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
 
-            return RedirectToAction(nameof(MyProfile));
+            if (User.IsInRole("Landlord"))
+            {
+                return RedirectToAction("LandlordDashboard", "Landlord");
+            }
+
+            return RedirectToAction("TenantDashboard", "Tenant");
         }
 
         //private async Task PopulateLandlordProfileAsync(string userId)

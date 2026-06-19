@@ -16,5 +16,6 @@ namespace KasiRoomNetwork.Common.ViewModel.Messaging
         public string LastMessage { get; set; }
         public DateTime LastMessageAt { get; set; }
         public int UnreadCount { get; set; }
+        public string? PrimaryPhoto { get; set; }
     }
 }

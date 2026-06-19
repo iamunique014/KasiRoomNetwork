@@ -11,6 +11,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Admin
         public int ListingId { get; set; }
         public string Title { get; set; }
         public decimal Price { get; set; }
+        public bool IsVerified { get; set; }
+        public DateTime VerifiedOn { get; set; }
+        public string PropertyName { get; set; }
 
         public string Province { get; set; }
         public string City { get; set; }

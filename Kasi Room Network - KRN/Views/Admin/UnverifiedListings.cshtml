@@ -6,7 +6,21 @@
 
 <h2 class="mb-4"> Unverified Listings</h2>
 
-@await Html.PartialAsync("_AdminAlerts")
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 @if (!Model.Any())
 {
@@ -26,8 +40,11 @@ else
                 <tr>
                     <th>Title</th>
                     <th>Location</th>
+                    <th>Property Name</th>
                     <th>Price</th>
                     <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Verified At</th>
                     <th></th>
                 </tr>
             </thead>
@@ -37,8 +54,24 @@ else
                     <tr>
                         <td><strong>@item.Title</strong></td>
                         <td>@item.Suburb, @item.City</td>
+                        <td>@item.PropertyName</td>
                         <td>R @item.Price</td>
                         <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>@if (!item.IsVerified && item.VerifiedOn != DateTime.MinValue)
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    Pending
+                                </span>
+                            }
+
+                        </td>
+                        <td>@item.VerifiedOn.ToString("dd MMM yyyy")</td>
                         <td>
                             <a asp-action="ReviewListing"
                                asp-route-id="@item.ListingId"

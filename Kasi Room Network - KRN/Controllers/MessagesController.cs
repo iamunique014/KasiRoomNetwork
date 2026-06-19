@@ -12,11 +12,13 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IProfileRepository _profileRepository;
         private readonly IMessagingRepository _messagingRepository;
-        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository, IMessagingRepository messagingRepository)
+        private readonly IListingRepository _listingRepository;
+        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository, IMessagingRepository messagingRepository, IListingRepository listingRepository)
         {
             _userManager = userManager;
             _profileRepository = profileRepository;
             _messagingRepository = messagingRepository;
+            _listingRepository = listingRepository;
         }
 
         [Authorize(Roles = "Tenant")]
@@ -42,45 +44,78 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             // if profile exists continue
             return RedirectToAction("StartConversation", new { listingId, landlordId });
-        }      
+        }
 
         public async Task<IActionResult> StartConversation(int listingId, string landlordId)
         {
             var userId = _userManager.GetUserId(User);
+
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            var conversationId = await _messagingRepository.CreateConversation(listingId, userId, landlordId);
-            return RedirectToAction("Conversation", new { conversationId });
-        }
+            var conversationId =
+                await _messagingRepository.CreateConversation(
+                    listingId,
+                    userId,
+                    landlordId);
 
-        public async Task<IActionResult> Inbox()
-        {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrWhiteSpace(userId)) 
+            var alreadyLogged =
+                await _messagingRepository.HasInAppContactLog(
+                    listingId,
+                    userId);
+
+            if (!alreadyLogged)
             {
-                return Challenge();
+                await _messagingRepository.CreateContactLog(
+                    listingId,
+                    userId,
+                    "InApp",
+                    conversationId);
             }
 
-            var inbox = await _messagingRepository.GetInbox(userId);
-
-            return View(inbox);
+            return RedirectToAction(
+                "Conversation",
+                new { conversationId });
         }
 
         public async Task<IActionResult> Conversation(int conversationId)
         {
             var userId = _userManager.GetUserId(User);
+
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            await _messagingRepository.MarkConversationRead(conversationId, userId);
+            var hasAccess = await _messagingRepository
+                .UserOwnsConversation(conversationId, userId);
 
-            var messages = await _messagingRepository.GetConversationMessages(conversationId);
+            if (!hasAccess)
+            {
+                return NotFound();
+            }
+
+            var header =
+                await _messagingRepository
+                    .GetConversationHeader(
+                        conversationId,
+                        userId
+                    );
+
+            var messages =
+                await _messagingRepository
+                    .GetConversationMessages(
+                        conversationId,
+                        userId);
+
+            await _messagingRepository
+                .MarkConversationRead(conversationId, userId);
+
             ViewBag.ConversationId = conversationId;
+            ViewBag.ConversationHeader = header;
+            ViewBag.ReturnUrl = Request.Headers["Referer"].ToString();
             return View(messages);
         }
         [HttpPost]
@@ -97,6 +132,67 @@ namespace Kasi_Room_Network___KRN.Controllers
             await _messagingRepository.SendMessage(model);
 
             return RedirectToAction("Conversation", new { conversationId = model.ConversationId });
+        }
+        public async Task<IActionResult> Inbox()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var inbox = await _messagingRepository.GetInbox(userId);
+
+            return View(inbox);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> WhatsAppContact(int listingId)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var listing = await _listingRepository.GetListingById(listingId);
+
+            if (listing == null)
+                return NotFound();
+
+            if (string.IsNullOrWhiteSpace(listing.WhatsAppNumber))
+            {
+                return RedirectToAction(
+                    "ListingDetails",
+                    "Listing",
+                    new { listingId });
+            }
+
+            await _messagingRepository.CreateContactLog(
+                listingId,
+                userId,
+                "WhatsApp",
+                null);
+
+            var number = listing.WhatsAppNumber
+                .Replace(" ", "")
+                .Replace("-", "");
+
+            if (number.StartsWith("0"))
+            {
+                number = "27" + number.Substring(1);
+            }
+
+            if (number.StartsWith("+"))
+            {
+                number = number.Substring(1);
+            }
+
+            var message =
+                $"Hi, I'm interested in your listing '{listing.Title}'. Is it still available?";
+
+            var encodedMessage = Uri.EscapeDataString(message);
+
+            var whatsappUrl =
+                $"https://wa.me/{number}?text={encodedMessage}";
+
+            return Redirect(whatsappUrl);
         }
     }
 }

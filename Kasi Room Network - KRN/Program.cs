@@ -3,6 +3,7 @@ using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Domain.Models;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Data.Repositories;
+using Kasi_Room_Network___KRN.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 8;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -29,12 +30,24 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddTransient<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ILandlordRepository, LandlordRepository>();
 builder.Services.AddScoped<IProfileRepository,  ProfileRepository>();
 builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<IPhotoStorageService, PhotoStorageService>();
+builder.Services.AddHostedService<WizardTempCleanupHostedService>();
 
 builder.Services.AddRazorPages();
 
@@ -52,6 +65,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 // Enable authentication and authorization middleware
 app.UseAuthentication();

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Inbox";
 }
 
-<h2>Inbox</h2>
+<h2 class="mb-4">Inbox</h2>
 
 @if (!Model.Any())
 {
@@ -14,43 +14,55 @@
 }
 else
 {
-    <div class="list-group">
+    <div class="list-group shadow-sm">
 
         @foreach (var conversation in Model)
         {
+            var preview = conversation.LastMessage;
+
+            if (!string.IsNullOrWhiteSpace(preview) &&
+                preview.Length > 40)
+            {
+                preview = preview.Substring(0, 40) + "...";
+            }
+
             <a asp-controller="Messages"
                asp-action="Conversation"
                asp-route-conversationId="@conversation.ConversationId"
-               class="list-group-item list-group-item-action">
-                <div class="d-flex justify-content-between">
+               class="list-group-item list-group-item-action @(conversation.UnreadCount > 0 ? "bg-light" : "")">
 
-                    <strong>@conversation.ListingTitle</strong>
+                <div class="d-flex justify-content-between align-items-start">
 
-                    @* <small>
-                        @conversation.LastMessageAt.ToString("g")
-                    </small> *@
+                    <div class="flex-grow-1">
 
-                </div>
-                <div class="d-flex justify-content-between">
+                        <div class="fw-bold">
+                            @conversation.ListingTitle
+                        </div>
 
-                    <small>@conversation.OtherUserName</small>
+                        <div class="small text-dark">
+                            @conversation.OtherUserName
+                        </div>
 
-                    <small>
-                        @conversation.LastMessageAt.ToString("g")
-                    </small>
+                        <div class="@(conversation.UnreadCount > 0 ? "text-success" : "text-muted")">
+                            @preview
+                        </div>
 
-                </div>
+                    </div>
 
-                <div class="d-flex justify-content-between">
+                    <div class="text-end ms-3">
 
-                    <strong>@conversation.LastMessage</strong>
+                        <small class="text-muted d-block">
+                            @conversation.LastMessageAt.ToString("yyyy/MM/dd HH:mm")
+                        </small>
 
-                    @if (conversation.UnreadCount > 0)
-                    {
-                        <span class="badge bg-success">
-                            @conversation.UnreadCount
-                        </span>
-                    }
+                        @if (conversation.UnreadCount > 0)
+                        {
+                            <span class="badge bg-success mt-1">
+                                @conversation.UnreadCount
+                            </span>
+                        }
+
+                    </div>
 
                 </div>
 

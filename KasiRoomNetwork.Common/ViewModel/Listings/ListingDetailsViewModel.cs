@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KasiRoomNetwork.Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +14,16 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public string Title { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-
         public bool IsAvailable { get; set; }
         public bool IsVerified { get; set; }
-
         public DateTime CreatedAt { get; set; }
+
+        //property
+        public int PropertyId { get; set; }
+        public string PropertyName { get; set; }
+        public string PropertyType { get; set; }
+        public int TotalRooms { get; set; }
+        public bool PropertyVerified { get; set; }
 
         // Address
         public string Province { get; set; }
@@ -26,11 +32,17 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public string? Street { get; set; }
 
         // Landlord
+        public string LandlordUserId { get; set; }
         public string FullName { get; set; }
         public string PhoneNumber { get; set; }
-        public string LandlordUserId { get; set; }
+        public string? WhatsAppNumber { get; set; }
+        public string LandlordBio { get; set; }
+        public bool LandlordVerified { get; set; }
 
         // Photos
-        public List<ListingPhotoViewModel> Photos { get; set; } = new();
+        public List<ListingPhotoViewModel> Photos { get; set; } = [];
+
+        //Amenities
+        public List<AmenityModel> Amenities { get; set; } = [];
     }
 }

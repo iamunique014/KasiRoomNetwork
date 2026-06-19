@@ -20,3 +20,120 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* ===================================
+   Listing Search Cards
+=================================== */
+
+.listing-card {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    background: #fff;
+}
+
+    .listing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08) !important;
+    }
+
+.listing-image-wrapper {
+    position: relative;
+}
+
+.listing-card .card-img-top {
+    height: 170px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.verified-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #198754;
+    color: #fff;
+    padding: .4rem .65rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+.listing-price {
+    color: #198754;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.listing-price-period {
+    color: #6c757d;
+    font-size: .9rem;
+}
+
+.listing-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    line-height: 1.4;
+    color: #212529;
+}
+
+.listing-location {
+    color: #6c757d;
+    font-size: .95rem;
+}
+
+    .listing-location i {
+        color: #0d6efd;
+    }
+
+.listing-btn {
+    padding: .55rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+
+    .listing-card .card-img-top {
+        height: 160px;
+    }
+
+    .listing-price {
+        font-size: 1.6rem;
+    }
+
+    .listing-title {
+        min-height: auto;
+    }
+}
+
+/*
+Listing search form atyling*/
+
+.search-card {
+    border-radius: 14px;
+}
+
+    .search-card .form-control,
+    .search-card .form-select {
+        border-radius: 8px;
+    }
+
+    .search-card .btn {
+        border-radius: 8px;
+    }
+
+    .search-card .accordion-button {
+        background: transparent;
+        box-shadow: none;
+        font-weight: 600;
+    }
+
+        .search-card .accordion-button:not(.collapsed) {
+            color: var(--bs-primary);
+        }

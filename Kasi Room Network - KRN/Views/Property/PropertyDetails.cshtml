@@ -1,0 +1,227 @@
+@model KasiRoomNetwork.Common.ViewModel.Properties.PropertyDetailsViewModel
+
+@functions {
+    private static string GetPhotoUrl(string? photoPath)
+    {
+        if (string.IsNullOrWhiteSpace(photoPath))
+        {
+            return string.Empty;
+        }
+
+        var trimmedPath = photoPath.Trim().Replace("\\", "/");
+
+        if (trimmedPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || trimmedPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || trimmedPath.StartsWith("/"))
+        {
+            return trimmedPath;
+        }
+
+        return "/" + trimmedPath.TrimStart('~', '/');
+    }
+}
+
+@{
+    ViewData["Title"] = "Property Details";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var canEditProperty = User.IsInRole("Landlord") && currentUserId == Model.LandlordUserId;
+    var photos = (Model.Photos ?? new List<KasiRoomNetwork.Common.ViewModel.Properties.PropertyPhotoViewModel>())
+        .Where(photo => !string.IsNullOrWhiteSpace(photo.PhotoPath))
+        .OrderByDescending(photo => photo.IsPrimary)
+        .ThenBy(photo => photo.PhotoId)
+        .ToList();
+}
+
+<div class="container mt-4">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <a asp-controller="Listing"
+               asp-action="CreateListing"
+               asp-route-propertyId="@Model.PropertyId"
+               class="btn btn-success w-50 mb-3">
+                Add Listing
+            </a>
+
+            <!-- Property Photos -->
+            @if (photos.Any())
+            {
+                <div id="propertyCarousel"
+                     class="carousel slide mb-4"
+                     data-bs-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        @for (int i = 0; i < photos.Count; i++)
+                        {
+                            var photo = photos[i];
+                            var photoUrl = GetPhotoUrl(photo.PhotoPath);
+
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                                <img src="@photoUrl"
+                                     class="d-block w-100 rounded"
+                                     style="height:400px; object-fit:cover;"
+                                     alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
+
+                            </div>
+                        }
+
+                    </div>
+
+                    @if (photos.Count > 1)
+                    {
+                        <button class="carousel-control-prev"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="prev"
+                                aria-label="Previous property photo">
+
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+
+                        </button>
+
+                        <button class="carousel-control-next"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="next"
+                                aria-label="Next property photo">
+
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+
+                        </button>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center py-5">
+                        <p class="text-muted mb-3">No property photos uploaded yet.</p>
+
+                        @if (canEditProperty)
+                        {
+                            <a asp-controller="Property"
+                               asp-action="AddPropertyPhotos"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-outline-primary">
+                                Upload Photos
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Property Info -->
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-body">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+
+                        <h2 class="mb-0">
+                            @Model.PropertyName
+                        </h2>
+
+                        @if (canEditProperty)
+                        {
+                            <div class="d-flex gap-2 align-self-md-start">
+                                <a asp-controller="Property"
+                                   asp-action="ManagePropertyPhotos"
+                                   asp-route-propertyId="@Model.PropertyId"
+                                   class="btn btn-outline-success">
+                                    Manage Photos
+                                </a>
+                                <a asp-controller="Property"
+                                   asp-action="EditProperty"
+                                   asp-route-propertyId="@Model.PropertyId"
+                                   class="btn btn-outline-primary">
+                                    Edit
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+
+                    <p class="text-muted mb-2">
+
+                        @Model.PropertyType
+
+                    </p>
+
+                    <p class="mb-0">
+
+                        @Model.Suburb,
+                        @Model.City,
+                        @Model.Province
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Amenities -->
+            @if (Model.Amenities != null && Model.Amenities.Any())
+            {
+                <div class="card shadow-sm mb-4">
+
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                            <h4 class="mb-3">
+                                Amenities
+                            </h4>
+
+                            <a asp-controller="Property"
+                               asp-action="EditPropertyAmenities"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-outline-primary">
+                                Edit
+                            </a>
+
+                        </div>
+                        @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
+                        {
+                            <div class="mb-4">
+
+                                <h6 class="fw-bold text-primary">
+                                    @categoryGroup.Key
+                                </h6>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    @foreach (var amenity in categoryGroup)
+                                    {
+                                        <span class="badge bg-light text-dark border p-2">
+
+                                            @amenity.Name
+
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

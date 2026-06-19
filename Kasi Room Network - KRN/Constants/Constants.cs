@@ -10,4 +10,9 @@
     {
 
     }
+    public enum ImageCategory
+    {
+        Property,
+        Listing
+    }
 }

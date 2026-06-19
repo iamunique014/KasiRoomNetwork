@@ -1,0 +1,38 @@
+﻿.listing-photo {
+    border-radius: 14px;
+    height: 400px;
+    object-fit: cover;
+}
+
+.listing-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #198754;
+}
+
+.amenity-pill {
+    background: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    padding: .6rem .9rem;
+    border-radius: 8px;
+}
+
+.card-border {
+    border-radius: 14px;
+}
+
+    .card-border .btn, .description, .verified-pill{
+        border-radius: 8px;
+    }
+
+
+@media (max-width: 768px) {
+    .listing-photo {
+        height: 220px;
+    }
+
+    .listing-price {
+        font-size: 1.6rem;
+    }
+}

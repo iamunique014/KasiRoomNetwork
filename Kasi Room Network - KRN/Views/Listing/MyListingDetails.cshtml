@@ -1,0 +1,170 @@
+﻿@model KasiRoomNetwork.Common.ViewModel.Listings.ListingDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    var isOwner = User.Identity?.IsAuthenticated == true &&
+        User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.LandlordUserId;
+}
+
+<div class="container mt-4">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success rounded-4 shadow-sm">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-4 shadow-sm">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- TITLE + PRICE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2 class="fw-bold">@Model.Title</h2>
+
+        <div class="text-end">
+            <h4 class="text-success fw-bold mb-0">
+                R @Model.Price
+            </h4>
+            <small class="text-muted">
+                per month
+            </small>
+        </div>
+    </div>
+
+    @if (isOwner)
+    {
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
+                @(Model.IsVerified ? "Verified" : "Pending Verification")
+            </span>
+            <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
+                @(Model.IsAvailable ? "Available" : "Unavailable")
+            </span>
+        </div>
+    }
+
+    <!-- PHOTOS -->
+    @if (Model.Photos != null && Model.Photos.Any())
+    {
+        <p class="text-muted small mb-2">
+            Photos (@Model.Photos.Count)
+        </p>
+        <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+
+                @for (int i = 0; i < Model.Photos.Count; i++)
+                {
+                    var photo = Model.Photos[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@photo.PhotoPath"
+                             class="d-block w-100 rounded"
+                             style="max-height: 350px; object-fit: cover;"
+                             alt="Listing photo" />
+                    </div>
+                }
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+
+            <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-secondary mb-4">
+            No photos available for this listing.
+        </div>
+    }
+
+    <!-- DETAILS -->
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <h5>Description</h5>
+            <p class="mb-0">
+                @Model.Description
+            </p>
+
+            <hr />
+
+            <h5>Location</h5>
+            <p>
+                @Model.Suburb, @Model.City<br />
+                @Model.Province
+            </p>
+
+        </div>
+    </div>
+
+    <!-- LANDLORD INFO -->
+    <div class="card mb-4 border-success">
+        <div class="card-body">
+
+            <h5 class="fw-bold mb-2">@Model.FullName</h5>
+
+            <p class="mb-1">
+                Local landlord
+            </p>
+
+            <p>
+                <small class="text-muted">
+                    Listing verified by Kasi Room Network: @(Model.PropertyVerified ? "Yes" : "Pending")
+                </small>
+            </p>
+
+            @if (!isOwner)
+            {
+                <a asp-action="ContactLandlord" asp-controller="Messages" asp-route-listingId="@Model.ListingId" asp-route-landlordId="@Model.LandlordUserId" class="btn btn-success btn-lg w-100">
+                    Contact Landlord
+                </a>
+
+                <p class="text-muted small mt-2 text-center">
+                    Chat safely without sharing your phone number
+                </p>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    You are viewing your own listing. Tenant contact actions are hidden.
+                </div>
+            }
+
+        </div>
+    </div>
+
+    @if (isOwner)
+    {
+        <div class="d-flex gap-2 mb-3">
+
+            <a asp-action="EditListing"
+               asp-route-listingId="@Model.ListingId"
+               class="btn btn-warning">
+                Edit Listing
+            </a>
+
+            <a asp-action="ManageListingPhotos"
+               asp-route-listingId="@Model.ListingId"
+               class="btn btn-outline-primary">
+                Manage Photos
+            </a>
+
+        </div>
+    }
+
+    <a asp-action="SearchListings" class="btn btn-outline-secondary w-100">
+        Back to search results
+    </a>
+
+</div>
+

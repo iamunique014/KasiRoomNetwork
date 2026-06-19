@@ -1,0 +1,56 @@
+@model KasiRoomNetwork.Common.ViewModel.PostRoomWizard.PostRoomAddressStepViewModel
+
+@{
+    ViewData["Title"] = "Post Room - Address";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 640px;">
+        <p class="text-muted mb-2">Step 2 of 7</p>
+
+        <h2 class="fw-bold">Address</h2>
+        <p class="text-muted">Tell tenants where the property is located.</p>
+
+        <form asp-action="Address" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Province" class="form-label">Province</label>
+                        <input asp-for="Province" class="form-control" placeholder="e.g. Gauteng" />
+                        <span asp-validation-for="Province" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="City" class="form-label">City</label>
+                        <input asp-for="City" class="form-control" placeholder="e.g. Johannesburg" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Suburb" class="form-label">Suburb</label>
+                        <input asp-for="Suburb" class="form-control" placeholder="e.g. Soweto" />
+                        <span asp-validation-for="Suburb" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-0">
+                        <label asp-for="Street" class="form-label">Street</label>
+                        <input asp-for="Street" class="form-control" placeholder="Street name and number" />
+                        <span asp-validation-for="Street" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">Continue</button>
+                <a asp-action="BasicPropertyInfo" class="btn btn-outline-secondary btn-lg">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
