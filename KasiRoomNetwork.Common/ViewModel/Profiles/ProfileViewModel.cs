@@ -9,7 +9,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Profiles
         public string FullName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Phone number is required.")]
-        [Phone]
+        [RegularExpression(@"^(?:\+27|0)[6-8][0-9]{8}$", ErrorMessage = "Please enter a valid South African phone number.")]
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; } = string.Empty;
 
