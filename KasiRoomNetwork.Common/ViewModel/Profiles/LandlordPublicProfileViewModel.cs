@@ -13,9 +13,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Profiles
 
         [StringLength(500)]
         public string? Bio { get; set; } = string.Empty;
-
-        [StringLength(20)]
+        
         [Display(Name = "WhatsApp Number")]
+        [RegularExpression(@"^(?:\+27|0)[6-8][0-9]{8}$", ErrorMessage = "Please enter a valid South African phone number.")]
         public string? WhatsAppNumber { get; set; }
 
         public bool IsVerified { get; set; }
