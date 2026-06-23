@@ -32,196 +32,415 @@
         .ToList();
 }
 
-<div class="container mt-4">
+<div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
 
+    @* Success Messages *@
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mx-3 mx-sm-0" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
             @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="row">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-3 mx-sm-0" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-        <div class="col-lg-8">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mx-3 mx-sm-0" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-            <a asp-controller="Listing"
-               asp-action="CreateListing"
-               asp-route-propertyId="@Model.PropertyId"
-               class="btn btn-success w-50 mb-3">
-                Add Listing
-            </a>
+    <!-- Property Header Section -->
+    <div class="mb-4">
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+            <div>
+                <h1 class="h3 mb-1 fw-bold">
+                    @Model.PropertyName
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+                    @Model.Suburb, @Model.City, @Model.Province
+                </p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-building me-1"></i>
+                    @Model.PropertyType
+                </p>
+            </div>
+        </div>
+    </div>
 
-            <!-- Property Photos -->
-            @if (photos.Any())
-            {
-                <div id="propertyCarousel"
-                     class="carousel slide mb-4"
-                     data-bs-ride="carousel">
+    <!-- Property Photos Section -->
+    @if (photos.Any())
+    {
+        <div class="mb-4">
+            <div id="propertyCarousel"
+                 class="carousel slide rounded-3 overflow-hidden shadow-sm"
+                 data-bs-ride="carousel">
 
-                    <div class="carousel-inner">
+                <div class="carousel-inner">
 
-                        @for (int i = 0; i < photos.Count; i++)
-                        {
-                            var photo = photos[i];
-                            var photoUrl = GetPhotoUrl(photo.PhotoPath);
-
-                            <div class="carousel-item @(i == 0 ? "active" : "")">
-
-                                <img src="@photoUrl"
-                                     class="d-block w-100 rounded"
-                                     style="height:400px; object-fit:cover;"
-                                     alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
-
-                            </div>
-                        }
-
-                    </div>
-
-                    @if (photos.Count > 1)
+                    @for (int i = 0; i < photos.Count; i++)
                     {
-                        <button class="carousel-control-prev"
-                                type="button"
-                                data-bs-target="#propertyCarousel"
-                                data-bs-slide="prev"
-                                aria-label="Previous property photo">
+                        var photo = photos[i];
+                        var photoUrl = GetPhotoUrl(photo.PhotoPath);
 
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
 
-                        </button>
+                            <img src="@photoUrl"
+                                 class="d-block w-100"
+                                 style="height: 300px; object-fit: cover;"
+                                 alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
 
-                        <button class="carousel-control-next"
-                                type="button"
-                                data-bs-target="#propertyCarousel"
-                                data-bs-slide="next"
-                                aria-label="Next property photo">
-
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-
-                        </button>
+                        </div>
                     }
 
                 </div>
-            }
-            else
-            {
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body text-center py-5">
-                        <p class="text-muted mb-3">No property photos uploaded yet.</p>
 
-                        @if (canEditProperty)
-                        {
-                            <a asp-controller="Property"
-                               asp-action="AddPropertyPhotos"
-                               asp-route-propertyId="@Model.PropertyId"
-                               class="btn btn-outline-primary">
-                                Upload Photos
-                            </a>
-                        }
+                @if (photos.Count > 1)
+                {
+                    <button class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#propertyCarousel"
+                            data-bs-slide="prev"
+                            aria-label="Previous property photo">
+
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+
+                    </button>
+
+                    <button class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#propertyCarousel"
+                            data-bs-slide="next"
+                            aria-label="Next property photo">
+
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+
+                    </button>
+                }
+
+                @if (canEditProperty)
+                {
+                    <div class="position-absolute bottom-0 start-0 end-0 p-2">
+                        <a asp-controller="Property"
+                           asp-action="ManagePropertyPhotos"
+                           asp-route-propertyId="@Model.PropertyId"
+                           class="btn btn-sm btn-light">
+                            <i class="bi bi-pencil me-1"></i>
+                            Manage Photos
+                        </a>
                     </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 bg-light rounded-3 mb-4 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-image text-muted mb-3" style="font-size: 3rem; display: block;"></i>
+                    <p class="text-muted mb-3">No property photos uploaded yet.</p>
+
+                    @if (canEditProperty)
+                    {
+                        <a asp-controller="Property"
+                           asp-action="AddPropertyPhotos"
+                           asp-route-propertyId="@Model.PropertyId"
+                           class="btn btn-primary">
+                            <i class="bi bi-cloud-upload me-2"></i>
+                            Upload Photos
+                        </a>
+                    }
                 </div>
-            }
+            </div>
+        }
 
-            <!-- Property Info -->
-            <div class="card shadow-sm mb-4">
+    <!-- Landlord Action Hub (Only visible to property owner) -->
+    @if (canEditProperty)
+    {
+        <div class="mb-4">
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-tools me-2 text-primary"></i>
+                Manage This Property
+            </h5>
 
-                <div class="card-body">
+            <div class="row g-3">
 
-                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                <!-- Add Listing Card -->
+                <div class="col-12 col-sm-6">
+                    <a asp-controller="Listing"
+                       asp-action="CreateListing"
+                       asp-route-propertyId="@Model.PropertyId"
+                       class="card h-100 border-0 shadow-sm rounded-3 text-decoration-none text-dark transition-all"
+                       style="cursor: pointer;">
 
-                        <h2 class="mb-0">
-                            @Model.PropertyName
-                        </h2>
-
-                        @if (canEditProperty)
-                        {
-                            <div class="d-flex gap-2 align-self-md-start">
-                                <a asp-controller="Property"
-                                   asp-action="ManagePropertyPhotos"
-                                   asp-route-propertyId="@Model.PropertyId"
-                                   class="btn btn-outline-success">
-                                    Manage Photos
-                                </a>
-                                <a asp-controller="Property"
-                                   asp-action="EditProperty"
-                                   asp-route-propertyId="@Model.PropertyId"
-                                   class="btn btn-outline-primary">
-                                    Edit
-                                </a>
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-plus-circle-fill text-success" style="font-size: 2rem;"></i>
                             </div>
-                        }
+                            <h6 class="card-title fw-bold mb-2">Add Listing</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Create a new room listing for this property
+                            </p>
+                        </div>
 
-                    </div>
+                        <div class="card-footer bg-transparent border-top border-light p-3">
+                            <span class="text-primary small fw-semibold">
+                                Get started <i class="bi bi-arrow-right ms-1"></i>
+                            </span>
+                        </div>
 
-                    <p class="text-muted mb-2">
+                    </a>
+                </div>
 
-                        @Model.PropertyType
+                <!-- Edit Property Info Card -->
+                <div class="col-12 col-sm-6">
+                    <a asp-controller="Property"
+                       asp-action="EditProperty"
+                       asp-route-propertyId="@Model.PropertyId"
+                       class="card h-100 border-0 shadow-sm rounded-3 text-decoration-none text-dark transition-all"
+                       style="cursor: pointer;">
 
-                    </p>
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-pencil-square text-info" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title fw-bold mb-2">Edit Property Info</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Update property name, type, and address
+                            </p>
+                        </div>
 
-                    <p class="mb-0">
+                        <div class="card-footer bg-transparent border-top border-light p-3">
+                            <span class="text-primary small fw-semibold">
+                                Edit now <i class="bi bi-arrow-right ms-1"></i>
+                            </span>
+                        </div>
 
-                        @Model.Suburb,
-                        @Model.City,
-                        @Model.Province
+                    </a>
+                </div>
 
-                    </p>
+                <!-- Manage Photos Card -->
+                <div class="col-12 col-sm-6">
+                    <a asp-controller="Property"
+                       asp-action="ManagePropertyPhotos"
+                       asp-route-propertyId="@Model.PropertyId"
+                       class="card h-100 border-0 shadow-sm rounded-3 text-decoration-none text-dark transition-all"
+                       style="cursor: pointer;">
+
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-images text-warning" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title fw-bold mb-2">Manage Photos</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Upload, delete, or set primary photo
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-top border-light p-3">
+                            <span class="text-primary small fw-semibold">
+                                Manage <i class="bi bi-arrow-right ms-1"></i>
+                            </span>
+                        </div>
+
+                    </a>
+                </div>
+
+                <!-- Edit Amenities Card -->
+                <div class="col-12 col-sm-6">
+                    <a asp-controller="Property"
+                       asp-action="EditPropertyAmenities"
+                       asp-route-propertyId="@Model.PropertyId"
+                       class="card h-100 border-0 shadow-sm rounded-3 text-decoration-none text-dark transition-all"
+                       style="cursor: pointer;">
+
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-star-fill text-danger" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title fw-bold mb-2">Edit Amenities</h6>
+                            <p class="card-text small text-muted mb-0">
+                                Add or remove property amenities
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-top border-light p-3">
+                            <span class="text-primary small fw-semibold">
+                                Edit <i class="bi bi-arrow-right ms-1"></i>
+                            </span>
+                        </div>
+
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    }
+
+    <!-- Amenities Section -->
+    @if (Model.Amenities != null && Model.Amenities.Any())
+    {
+        <div class="mb-4">
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-star-fill me-2 text-warning"></i>
+                Amenities
+            </h5>
+
+            <div class="card border-0 shadow-sm rounded-3">
+
+                <div class="card-body p-4">
+
+                    @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
+                    {
+                        <div class="mb-4">
+
+                            <h6 class="fw-bold text-primary mb-2">
+                                @categoryGroup.Key
+                            </h6>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                @foreach (var amenity in categoryGroup)
+                                {
+                                    <span class="badge bg-light text-dark border border-secondary p-2 rounded-2">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        @amenity.Name
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                    @if (canEditProperty)
+                    {
+                        <div class="border-top pt-3 mt-3">
+                            <a asp-controller="Property"
+                               asp-action="EditPropertyAmenities"
+                               asp-route-propertyId="@Model.PropertyId"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil me-1"></i>
+                                Edit Amenities
+                            </a>
+                        </div>
+                    }
 
                 </div>
 
             </div>
+        </div>
+    }
 
-            <!-- Amenities -->
-            @if (Model.Amenities != null && Model.Amenities.Any())
-            {
-                <div class="card shadow-sm mb-4">
+    <!-- Property Summary Card -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
 
-                    <div class="card-body">
-                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
-                            <h4 class="mb-3">
-                                Amenities
-                            </h4>
+        <div class="card-body p-4">
 
-                            <a asp-controller="Property"
-                               asp-action="EditPropertyAmenities"
-                               asp-route-propertyId="@Model.PropertyId"
-                               class="btn btn-outline-primary">
-                                Edit
-                            </a>
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-info-circle me-2 text-info"></i>
+                Property Information
+            </h5>
 
+            <div class="row g-3">
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-building text-primary me-3 mt-1"></i>
+                        <div>
+                            <p class="small text-muted mb-1">Property Type</p>
+                            <p class="mb-0 fw-semibold">@Model.PropertyType</p>
                         </div>
-                        @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
-                        {
-                            <div class="mb-4">
-
-                                <h6 class="fw-bold text-primary">
-                                    @categoryGroup.Key
-                                </h6>
-
-                                <div class="d-flex flex-wrap gap-2">
-
-                                    @foreach (var amenity in categoryGroup)
-                                    {
-                                        <span class="badge bg-light text-dark border p-2">
-
-                                            @amenity.Name
-
-                                        </span>
-                                    }
-
-                                </div>
-
-                            </div>
-                        }
-
                     </div>
-
                 </div>
-            }
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-door-closed text-primary me-3 mt-1"></i>
+                        <div>
+                            <p class="small text-muted mb-1">Total Rooms</p>
+                            <p class="mb-0 fw-semibold">@Model.TotalRooms</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-geo-alt text-primary me-3 mt-1"></i>
+                        <div>
+                            <p class="small text-muted mb-1">Location</p>
+                            <p class="mb-0 fw-semibold">@Model.Suburb, @Model.City</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-calendar-event text-primary me-3 mt-1"></i>
+                        <div>
+                            <p class="small text-muted mb-1">Created</p>
+                            <p class="mb-0 fw-semibold">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
 </div>
+
+<style>
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .card {
+            border-radius: 1rem !important;
+        }
+
+        h1, h5, h6 {
+            font-size: 1.1rem;
+        }
+
+        .carousel {
+            border-radius: 1rem !important;
+        }
+
+        .carousel-inner img {
+            height: 250px !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .carousel-inner img {
+            height: 280px !important;
+        }
+    }
+</style>
