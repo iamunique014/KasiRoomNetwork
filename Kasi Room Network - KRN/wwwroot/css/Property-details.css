@@ -7,6 +7,33 @@
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Form Styles */
+.form-control:focus {
+    background-color: #fff;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 0.25rem rgba(34, 197, 94, 0.1);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Card Improvements */
+.card-header {
+    background-color: transparent;
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+
 @media (max-width: 576px) {
     .container-fluid {
         padding-left: 0 !important;

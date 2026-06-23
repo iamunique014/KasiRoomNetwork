@@ -4,74 +4,108 @@
     ViewData["Title"] = "Edit Amenities";
 }
 
-<div class="container mt-4">
+@section styles
+{
+    <link rel="stylesheet" href="~/css/Property-details.css"/>
+}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Edit Amenities</h2>
+<div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
+
+    <!-- Header Section -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <a asp-action="PropertyDetails" asp-route-propertyId="@Model.PropertyId" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="h3 mb-0 fw-bold">Edit Amenities</h1>
+        </div>
+        <p class="text-muted mb-0 ms-1">Select the amenities available at your property.</p>
     </div>
 
     <form asp-action="EditPropertyAmenities" method="post">
-
+        @Html.AntiForgeryToken()
         <input asp-for="PropertyId" type="hidden" />
 
-        @foreach (var category in Model.Amenities.GroupBy(a => a.Category).OrderBy(g => g.Key))
-        {
-            <div class="card mb-4">
-
-                <div class="card-header">
-                    <strong>@category.Key</strong>
-                </div>
-
-                <div class="card-body">
-
-                    @foreach (var amenity in category)
-                    {
-                        var index = Model.Amenities.IndexOf(amenity);
-
-                        <div class="form-check mb-2">
-
-                            <input type="hidden"
-                                   asp-for="Amenities[index].AmenityId" />
-
-                            <input type="hidden"
-                                   asp-for="Amenities[index].Name" />
-
-                            <input type="hidden"
-                                   asp-for="Amenities[index].Category" />
-
-                            <input type="hidden"
-                                   asp-for="Amenities[index].Icon" />
-
-                            <input class="form-check-input"
-                                   asp-for="Amenities[index].IsSelected" />
-
-                            <label class="form-check-label">
-                                @amenity.Name
-                            </label>
-
+        <div class="row g-4">
+            @foreach (var category in Model.Amenities.GroupBy(a => a.Category).OrderBy(g => g.Key))
+            {
+                <div class="col-12 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-3 h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="bi bi-tag-fill me-2 small"></i>@category.Key
+                            </h5>
                         </div>
-                    }
 
+                        <div class="card-body p-4">
+                            <div class="row g-2">
+                                @foreach (var amenity in category)
+                                {
+                                    var index = Model.Amenities.IndexOf(amenity);
+                                    
+                                    <div class="col-12">
+                                        <div class="form-check p-0 m-0">
+                                            <input type="hidden" asp-for="Amenities[index].AmenityId" />
+                                            <input type="hidden" asp-for="Amenities[index].Name" />
+                                            <input type="hidden" asp-for="Amenities[index].Category" />
+                                            <input type="hidden" asp-for="Amenities[index].Icon" />
+
+                                            <input class="btn-check" type="checkbox" 
+                                                   asp-for="Amenities[index].IsSelected" 
+                                                   id="amenity_@index" />
+                                            
+                                            <label class="btn btn-outline-light text-dark border-light bg-light w-100 text-start d-flex align-items-center justify-content-between py-2 px-3 rounded-2 transition-all amenity-label" 
+                                                   for="amenity_@index">
+                                                <span class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(amenity.Icon))
+                                                    {
+                                                        <i class="bi @amenity.Icon me-2 text-primary"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-check-circle me-2 text-success opacity-50"></i>
+                                                    }
+                                                    @amenity.Name
+                                                </span>
+                                                <i class="bi bi-check-lg check-icon opacity-0 text-success"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-            </div>
-        }
-
-        <div class="d-flex gap-2">
-
-            <button type="submit"
-                    class="btn btn-primary">
-                Save Changes
-            </button>
-
-            <a asp-action="PropertyDetails"
-               asp-route-propertyId="@Model.PropertyId"
-               class="btn btn-secondary">
-                Cancel
-            </a>
-
+            }
         </div>
 
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 mb-5">
+            <a asp-action="PropertyDetails"
+               asp-route-propertyId="@Model.PropertyId"
+               class="btn btn-outline-secondary px-4 rounded-pill order-2 order-md-1">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-success px-5 rounded-pill order-1 order-md-2 shadow-sm">
+                <i class="bi bi-check-lg me-2"></i>Save Changes
+            </button>
+        </div>
     </form>
-
 </div>
+
+<style>
+    .btn-check:checked + .amenity-label {
+        background-color: #f0fdf4 !important;
+        border-color: #22c55e !important;
+        color: #166534 !important;
+    }
+
+    .btn-check:checked + .amenity-label .check-icon {
+        opacity: 1 !important;
+    }
+
+    .amenity-label:hover {
+        border-color: #cbd5e1 !important;
+        background-color: #f8fafc !important;
+    }
+</style>

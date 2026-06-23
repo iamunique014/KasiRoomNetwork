@@ -1,85 +1,108 @@
 @model KasiRoomNetwork.Common.ViewModel.Properties.EditPropertyViewModel
 
 @{
-    ViewData["Title"] = "Edit Property";
+    ViewData["Title"] = "Edit Property Info";
 }
 
-<div class="container py-4">
+@section styles
+{
+    <link rel="stylesheet" href="~/css/Property-details.css"/>
+}
 
-    <h2 class="mb-4">Edit Property</h2>
+<div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
 
-    <form asp-action="EditProperty" method="post">
+    <!-- Header Section -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <a asp-action="PropertyDetails" asp-route-propertyId="@Model.PropertyId" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="h3 mb-0 fw-bold">Edit Property Info</h1>
+        </div>
+        <p class="text-muted mb-0 ms-1">Update the basic details and location of your property.</p>
+    </div>
+
+    <form asp-action="EditProperty" method="post" class="needs-validation" novalidate>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="PropertyId" />
 
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 shadow-sm"></div>
 
-        <div class="card mb-4">
-            <div class="card-body">
+        <!-- Basic Information Card -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-dark">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>
+                    Basic Information
+                </h5>
 
-                <h5 class="mb-3">Basic Information</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="PropertyName" class="form-label fw-semibold small text-muted">Property Name</label>
+                        <input asp-for="PropertyName" class="form-control rounded-2 border-light bg-light" placeholder="e.g. Sunny Side Apartments" />
+                        <span asp-validation-for="PropertyName" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="PropertyName" class="form-label"></label>
-                    <input asp-for="PropertyName" class="form-control" />
-                    <span asp-validation-for="PropertyName" class="text-danger"></span>
+                    <div class="col-12 col-md-6">
+                        <label asp-for="PropertyType" class="form-label fw-semibold small text-muted">Property Type</label>
+                        <input asp-for="PropertyType" class="form-control rounded-2 border-light bg-light" placeholder="e.g. Apartment, House" />
+                        <span asp-validation-for="PropertyType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="TotalRooms" class="form-label fw-semibold small text-muted">Total Rooms</label>
+                        <input asp-for="TotalRooms" class="form-control rounded-2 border-light bg-light" min="1" />
+                        <span asp-validation-for="TotalRooms" class="text-danger small"></span>
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="PropertyType" class="form-label"></label>
-                    <input asp-for="PropertyType" class="form-control" />
-                    <span asp-validation-for="PropertyType" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="TotalRooms" class="form-label"></label>
-                    <input asp-for="TotalRooms" class="form-control" min="1" />
-                    <span asp-validation-for="TotalRooms" class="text-danger"></span>
-                </div>
-
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
+        <!-- Address Card -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-dark">
+                    <i class="bi bi-geo-alt me-2 text-danger"></i>
+                    Address Details
+                </h5>
 
-                <h5 class="mb-3">Address</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Province" class="form-label fw-semibold small text-muted">Province</label>
+                        <input asp-for="Province" class="form-control rounded-2 border-light bg-light" />
+                        <span asp-validation-for="Province" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="Province" class="form-label"></label>
-                    <input asp-for="Province" class="form-control" />
-                    <span asp-validation-for="Province" class="text-danger"></span>
+                    <div class="col-12 col-md-6">
+                        <label asp-for="City" class="form-label fw-semibold small text-muted">City</label>
+                        <input asp-for="City" class="form-control rounded-2 border-light bg-light" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Suburb" class="form-label fw-semibold small text-muted">Suburb</label>
+                        <input asp-for="Suburb" class="form-control rounded-2 border-light bg-light" />
+                        <span asp-validation-for="Suburb" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Street" class="form-label fw-semibold small text-muted">Street Address</label>
+                        <input asp-for="Street" class="form-control rounded-2 border-light bg-light" />
+                        <span asp-validation-for="Street" class="text-danger small"></span>
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="City" class="form-label"></label>
-                    <input asp-for="City" class="form-control" />
-                    <span asp-validation-for="City" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Suburb" class="form-label"></label>
-                    <input asp-for="Suburb" class="form-control" />
-                    <span asp-validation-for="Suburb" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Street" class="form-label"></label>
-                    <input asp-for="Street" class="form-control" />
-                    <span asp-validation-for="Street" class="text-danger"></span>
-                </div>
-
             </div>
         </div>
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
             <a asp-action="PropertyDetails"
                asp-route-propertyId="@Model.PropertyId"
-               class="btn btn-outline-secondary">
+               class="btn btn-outline-secondary px-4 rounded-pill order-2 order-md-1">
                 Cancel
             </a>
-            <button type="submit" class="btn btn-success">
-                Save Changes
+            <button type="submit" class="btn btn-success px-5 rounded-pill order-1 order-md-2 shadow-sm">
+                <i class="bi bi-check-lg me-2"></i>Save Changes
             </button>
         </div>
 
