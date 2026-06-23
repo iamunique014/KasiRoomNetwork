@@ -1,5 +1,10 @@
 @model KasiRoomNetwork.Common.ViewModel.Properties.PropertyDetailsViewModel
 
+@section styles
+{
+    <link rel="stylesheet" href="~/css/Property-details.css"/>
+}
+
 @functions {
     private static string GetPhotoUrl(string? photoPath)
     {
@@ -31,6 +36,7 @@
         .ThenBy(photo => photo.PhotoId)
         .ToList();
 }
+
 
 <div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
 
@@ -82,7 +88,7 @@
     </div>
 
     <!-- Property Photos Section -->
-    @if (photos.Any())
+    @if(photos.Any())
     {
         <div class="mb-4">
             <div id="propertyCarousel"
@@ -145,6 +151,7 @@
                 }
 
             </div>
+        </div>
         }
         else
         {
@@ -404,43 +411,3 @@
     </div>
 
 </div>
-
-<style>
-    .transition-all {
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-
-    @media (max-width: 576px) {
-        .container-fluid {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
-        .card {
-            border-radius: 1rem !important;
-        }
-
-        h1, h5, h6 {
-            font-size: 1.1rem;
-        }
-
-        .carousel {
-            border-radius: 1rem !important;
-        }
-
-        .carousel-inner img {
-            height: 250px !important;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .carousel-inner img {
-            height: 280px !important;
-        }
-    }
-</style>
