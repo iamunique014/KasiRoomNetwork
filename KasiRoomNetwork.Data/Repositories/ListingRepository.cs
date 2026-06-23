@@ -29,6 +29,7 @@ namespace KasiRoomNetwork.Data.Repositories
                 model.PropertyId,
                 model.Title,
                 model.Description,
+                model.AvailableUnits,
                 model.Price
             });
 
