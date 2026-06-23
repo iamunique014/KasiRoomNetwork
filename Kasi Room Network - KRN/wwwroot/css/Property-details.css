@@ -1,0 +1,37 @@
+﻿.transition-all {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .card {
+        border-radius: 1rem !important;
+    }
+
+    h1, h5, h6 {
+        font-size: 1.1rem;
+    }
+
+    .carousel {
+        border-radius: 1rem !important;
+    }
+
+    .carousel-inner img {
+        height: 250px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-inner img {
+        height: 280px !important;
+    }
+}
