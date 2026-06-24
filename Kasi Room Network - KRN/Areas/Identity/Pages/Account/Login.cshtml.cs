@@ -150,7 +150,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Invalid email or password.");
                     return Page();
                 }
             }
