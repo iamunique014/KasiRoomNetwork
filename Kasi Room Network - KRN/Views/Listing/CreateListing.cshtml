@@ -4,83 +4,131 @@
     ViewData["Title"] = "Post a Room";
 }
 
-<div class="container mt-4">
-    <p class="text-muted mb-2">Step 1 of 2: Add Room Details</p>
+@section styles
+{
+    <link rel="stylesheet" href="~/css/listing.css"/>
+}
 
-    <h2 class="fw-bold">Add Room Listing</h2>
-    <p class="text-muted">Enter the room details below.</p>
+<div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
 
-    <div class="alert alert-info rounded-4 mb-4">
-        <div class="fw-semibold">
-            <i class="bi bi-building me-2"></i>
-            Adding Room To
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <p class="text-muted small mb-1">Step 1 of 2</p>
+                <h1 class="h3 mb-0 fw-bold">Add Room Listing</h1>
+            </div>
         </div>
-
-        <div class="fw-bold fs-5 mt-1">
-            @Model.PropertyName
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.Suburb))
-        {
-            <small class="text-muted">
-                @Model.Suburb
-            </small>
-        }
-        @if (!string.IsNullOrWhiteSpace(Model.City))
-        {
-            <small class="text-muted">
-                @Model.City
-            </small>
-        }
+        <p class="text-muted ms-1">Enter the room details below to create your listing.</p>
     </div>
 
     <form asp-action="CreateListing" method="post">
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
         <input type="hidden" asp-for="PropertyId"/>
-        <!-- BASIC INFO -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Room Details</h5>
 
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Room title</label>
-                    <input asp-for="Title" class="form-control" placeholder="e.g. Single room near mine" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+        <!-- Validation Summary -->
+        @if (ViewData.ModelState.IsValid == false)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mx-3 mx-sm-0 mb-4 rounded-3 shadow-sm" role="alert">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                <strong>Please fix the errors below:</strong>
+                <div asp-validation-summary="ModelOnly" class="mt-2"></div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Property Context Info -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4 bg-light border-start border-primary border-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                        <i class="bi bi-building fs-4 text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted small mb-1 fw-bold text-uppercase tracking-wider">Adding Room To</h6>
+                        <h5 class="fw-bold mb-0 text-dark">@Model.PropertyName</h5>
+                        @if (!string.IsNullOrWhiteSpace(Model.Suburb) || !string.IsNullOrWhiteSpace(Model.City))
+                        {
+                            <p class="text-muted small mb-0 mt-1">
+                                <i class="bi bi-geo-alt me-1"></i>
+                                @(string.Join(", ", new[] { Model.Suburb, Model.City }.Where(s => !string.IsNullOrWhiteSpace(s))))
+                            </p>
+                        }
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Price" class="form-label">Monthly price (R)</label>
-                    <input asp-for="Price" class="form-control" />
-                    <small class="text-muted">Price is per month</small>
-                    <span asp-validation-for="Price" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="AvailableUnits" class="form-label">Available Units</label>
-                    <input asp-for="AvailableUnits" class="form-control" />
-                    <span asp-validation-for="Price" class="text-danger"></span>
-                </div>
-
-                <div class="mb-2">
-                    <label asp-for="Description" class="form-label">Description</label>
-
-                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the room, rules, bathroom, electricity, etc."></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success btn-lg w-100">Continue to photos</button>
+        <!-- Room Details Card -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-dark">
+                    <i class="bi bi-info-circle me-2 text-info"></i>
+                    Room Details
+                </h5>
 
-        <p class="text-muted small mt-2 text-center">
-            Your listing will be reviewed before going live
-        </p>
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold small text-muted">Room Title <span class="text-danger">*</span></label>
+                    <input asp-for="Title" 
+                           class="form-control rounded-2 border-light bg-light" 
+                           placeholder="e.g. Single room near mine" />
+                    <span asp-validation-for="Title" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="Price" class="form-label fw-semibold small text-muted">Monthly Price (R) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text border-light bg-light">R</span>
+                            <input asp-for="Price" 
+                                   class="form-control rounded-end-2 border-light bg-light" 
+                                   placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small d-block mt-1"></span>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="AvailableUnits" class="form-label fw-semibold small text-muted">Available Units <span class="text-danger">*</span></label>
+                        <input asp-for="AvailableUnits" 
+                               class="form-control rounded-2 border-light bg-light" 
+                               type="number" min="1" />
+                        <span asp-validation-for="AvailableUnits" class="text-danger small d-block mt-1"></span>
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label asp-for="Description" class="form-label fw-semibold small text-muted">Description <span class="text-danger">*</span></label>
+                    <textarea asp-for="Description" 
+                              class="form-control rounded-2 border-light bg-light" 
+                              rows="5" 
+                              placeholder="Describe the room, rules, bathroom, electricity, etc."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small d-block mt-1"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2 mb-4 d-md-flex gap-md-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-x-lg me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm ms-md-auto">
+                <i class="bi bi-arrow-right-circle me-2"></i>Continue to Photos
+            </button>
+        </div>
+
+        <div class="text-center">
+            <p class="text-muted small">
+                <i class="bi bi-shield-check me-1"></i>
+                Your listing will be reviewed before going live
+            </p>
+        </div>
+
     </form>
 
 </div>
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

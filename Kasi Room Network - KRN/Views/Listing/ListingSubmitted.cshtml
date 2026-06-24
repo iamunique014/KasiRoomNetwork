@@ -1,28 +1,74 @@
-﻿<div class="container mt-5 text-center">
+﻿@{
+    ViewData["Title"] = "Listing Submitted";
+}
 
-    <div class="mb-3">
-        <h2 class="fw-bold text-success">Listing Submitted</h2>
-    </div>
+@section styles
+{
+    <link rel="stylesheet" href="~/css/listing.css"/>
+}
 
-    <p class="text-muted mb-4">
-        Your room has been submitted and is pending review.<br />
-        You will be notified once it's Approved'.
-    </p>
+<div class="container-fluid px-0 px-sm-3 py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 text-center">
+            
+            <!-- Success Animation/Icon -->
+            <div class="mb-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded-circle d-inline-block shadow-sm mb-3" style="width: 100px; height: 100px;">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+                </div>
+                <h1 class="fw-bold text-dark">Listing Submitted!</h1>
+                <p class="text-muted fs-5">Thank you for listing your room with us.</p>
+            </div>
 
-    <div class="card mx-auto" style="max-width: 400px;">
-        <div class="card-body">
+            <!-- Status Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-5 overflow-hidden">
+                <div class="card-body p-4 p-sm-5">
+                    <div class="d-flex align-items-center gap-3 mb-4 text-start bg-light p-3 rounded-3">
+                        <i class="bi bi-shield-lock-fill fs-3 text-primary"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Under Review</h6>
+                            <p class="small text-muted mb-0">Our team will review your listing to ensure it meets our quality standards. This usually takes less than 24 hours.</p>
+                        </div>
+                    </div>
 
-            <p class="mb-3">What would you like to do next?</p>
+                    <p class="text-muted mb-4">Once approved, your listing will be visible to potential tenants in the search results.</p>
 
-            <a href="/Landlord/MyRooms" class="btn btn-primary w-100 mb-2">
-                View My Rooms
-            </a>
+                    <div class="d-grid gap-3">
+                        <a href="/Landlord/MyRooms" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                            <i class="bi bi-list-ul me-2"></i>View My Listings
+                        </a>
+                        <a href="/Landlord/LandlordDashboard" class="btn btn-outline-secondary btn-lg rounded-pill">
+                            <i class="bi bi-speedometer2 me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-primary bg-opacity-10 py-2">
+                    <small class="text-primary fw-semibold">
+                        <i class="bi bi-info-circle me-1"></i>
+                        You can track the status in your dashboard
+                    </small>
+                </div>
+            </div>
 
-            <a href="/Landlord/LandlordDashboard" class="btn btn-outline-secondary w-100">
-                Go Home
-            </a>
+            <!-- Helpful Tips -->
+            <div class="text-start px-3">
+                <h6 class="fw-bold text-dark mb-3">What's next?</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2 d-flex gap-2">
+                        <i class="bi bi-1-circle-fill text-primary"></i>
+                        Check your email for status updates.
+                    </li>
+                    <li class="mb-2 d-flex gap-2">
+                        <i class="bi bi-2-circle-fill text-primary"></i>
+                        Ensure your contact details are up to date.
+                    </li>
+                    <li class="mb-0 d-flex gap-2">
+                        <i class="bi bi-3-circle-fill text-primary"></i>
+                        Respond quickly to tenant inquiries once live.
+                    </li>
+                </ul>
+            </div>
 
         </div>
     </div>
-
 </div>
