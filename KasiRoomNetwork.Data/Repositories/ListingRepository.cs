@@ -149,6 +149,7 @@ namespace KasiRoomNetwork.Data.Repositories
                     LandlordUserId = landlordUserId,
                     model.Title,
                     model.Price,
+                    model.AvailableUnits,
                     model.Description,
                     model.IsAvailable
                 });

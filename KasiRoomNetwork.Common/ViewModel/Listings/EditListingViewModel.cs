@@ -25,6 +25,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         [Required]
         [Range(0, 100000)]
         public decimal Price { get; set; }
+        public int AvailableUnits { get; set; }
 
         public bool IsAvailable { get; set; }
 
