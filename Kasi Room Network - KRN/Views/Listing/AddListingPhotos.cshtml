@@ -3,80 +3,157 @@
     var listingId = ViewBag.ListingId;
 }
 
-<div class="container mt-4">
+@section styles
+{
+    <link rel="stylesheet" href="~/css/Listing-details.css"/>
+}
 
-    <p class="text-muted mb-2">Step 2 of 2: Add photos</p>
+<div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
 
-    <h2 class="mb-2">Add Room Photos</h2>
-    <p class="text-muted mb-4">
-        Photos help people trust your listing and get more views
-    </p>
-
-    <form asp-action="AddListingPhotos" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
-        <input type="hidden" name="listingId" value="@listingId" />
-        @if (TempData["PhotoUploaded"] != null)
-        {
-            <div class="alert alert-success">
-                @TempData["PhotoUploaded"]
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <p class="text-muted small mb-1">Step 2 of 2</p>
+                <h1 class="h3 mb-0 fw-bold">Add Room Photos</h1>
             </div>
-        }
-        <div class="card">
-            <div class="card-body">
+        </div>
+        <p class="text-muted ms-1">Photos help people trust your listing and get more views</p>
+    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Upload Photo</label>
+    <!-- Success Messages -->
+    @if (TempData["PhotoUploaded"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-3 mx-sm-0 mb-4 rounded-3 shadow-sm" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["PhotoUploaded"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Validation Summary -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show mx-3 mx-sm-0 mb-4 rounded-3 shadow-sm" role="alert" >
+        <i class="bi bi-exclamation-circle me-2"></i>
+        <strong>Please fix the errors below:</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-cloud-upload me-2 text-primary"></i>
+                Upload New Photo
+            </h5>
+
+            <form asp-action="AddListingPhotos" method="post" enctype="multipart/form-data" id="photoForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="listingId" value="@listingId" />
+
+                <!-- Photo Count Info -->
+                <div class="alert alert-info alert-dismissible rounded-2 mb-3" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
                     @if ((int)ViewBag.PhotoCount > 0)
                     {
-                        <p class="text-muted">
-                            @ViewBag.PhotoCount photo(s) uploaded
-                        </p>
+                        <strong>@ViewBag.PhotoCount photo(s) uploaded </strong>
+                        <small class="text-muted d-block mt-1">You can upload more photos or proceed to finish.</small>
                     }
                     else
                     {
-                        <p class="text-muted">
-                            No photos uploaded yet.
-                        </p>
+                        <strong>No photos uploaded yet </strong>
+                        <small class="text-muted d-block mt-1">Upload at least one photo to proceed.</small>
                     }
-                    <input type="file" name="photo" class="form-control" accept="image/*" required />
                 </div>
 
-                <div class="form-check mb-3">
-                    <input type="checkbox" name="isPrimary" value="true" class="form-check-input" />
-                    <label class="form-check-label">
-                        Make this the main photo
+                <!-- File Input -->
+                <div class="mb-3">
+                    <label for="photoFile" class="form-label fw-semibold small text-muted">Select Photo <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="file" 
+                               class="form-control rounded-2 border-light bg-light" 
+                               id="photoFile" 
+                               name="photo" 
+                               accept="image/*" 
+                               required />
+                    </div>
+                    <small class="text-muted d-block mt-1">Supported formats: JPG, PNG, GIF (Max 5MB)</small>
+                </div>
+
+                <!-- Primary Photo Checkbox -->
+                <div class="form-check form-switch mb-4 p-3 bg-light rounded-2">
+                    <input class="form-check-input ms-0 me-2"
+                           type="checkbox"
+                           id="isPrimary"
+                           name="isPrimary"
+                           value="true" 
+                           role="switch" />
+                    <label class="form-check-label fw-semibold small" for="isPrimary">
+                        Set as Primary Photo
                     </label>
-                    <small class="text-muted d-block">
-                        This photo will show first when people search
-                    </small>
+                    <small class="text-muted d-block mt-1">This photo will show first when people search</small>
                 </div>
 
-                <button type="submit" class="btn btn-success">
-                    Upload
+                <!-- Upload Button -->
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-upload me-2"></i>Upload Photo
                 </button>
+            </form>
+        </div>
+    </div>
 
-                @if (ViewBag.PhotoCount > 0)
-                {
-                    <a asp-action="ListingSubmitted" asp-route-id="@listingId" class="btn btn-primary ms-2">
-                        Finish & Submit
-                    </a>
-                }
-                else
-                {
-                    <span data-bs-toggle="tooltip"
-                          data-bs-placement="top"
-                          title="Please add a photo to continue.">
-                        <button class="btn btn-secondary ms-2" disabled>
-                            Finish & Submit
-                        </button>
-                    </span>
-                }
-
+    <!-- Photos Status Section (if photos exist) -->
+    @if ((int)ViewBag.PhotoCount > 0)
+    {
+        <div class="mb-4">
+            <div class="alert alert-success border-0 shadow-sm rounded-3 d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 p-2 rounded-circle">
+                    <i class="bi bi-images text-success fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0">Photos Ready</h6>
+                    <p class="small mb-0 text-muted">You have uploaded @ViewBag.PhotoCount photo(s). You can add more or finish your listing.</p>
+                </div>
             </div>
         </div>
-    </form>
+    }
+
+    <!-- Action Buttons -->
+    <div class="d-grid gap-2 mb-4 d-md-flex gap-md-3">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+
+        @if ((int)ViewBag.PhotoCount > 0)
+        {
+            <a asp-action="ListingSubmitted" 
+               asp-route-id="@listingId" 
+               class="btn btn-success rounded-pill px-4 shadow-sm ms-md-auto">
+                <i class="bi bi-check-circle me-2"></i>Finish & Submit
+            </a>
+        }
+        else
+        {
+            <div class="ms-md-auto" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload at least one photo to submit your listing">
+                <button class="btn btn-secondary rounded-pill px-4 w-100" disabled>
+                    <i class="bi bi-check-circle me-2"></i>Finish & Submit
+                </button>
+            </div>
+        }
+    </div>
 
 </div>
 
-
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}
