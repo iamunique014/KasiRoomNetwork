@@ -6,7 +6,7 @@
 
 @section styles
 {
-    <link rel="stylesheet" href="~/css/Listing-details.css"/>
+    <link rel="stylesheet" href="~/css/listing.css"/>
 }
 
 <div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
@@ -73,7 +73,7 @@
                                 </span>
                                 <span class="badge @(listing.IsAvailable ? "bg-info" : "bg-secondary") rounded-pill px-3 py-2 shadow-sm">
                                     <i class="bi @(listing.IsAvailable ? "bi-check-circle-fill" : "bi-dash-circle-fill") me-1"></i>
-                                    @(listing.IsAvailable ? "Available" : "Occupied")
+                                    @(listing.IsAvailable ? @listing.AvailableUnits + " Available" : "Occupied")
                                 </span>
                             </div>
                         </div>

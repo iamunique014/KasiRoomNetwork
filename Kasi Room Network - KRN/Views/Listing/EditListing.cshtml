@@ -83,6 +83,14 @@
                     <span asp-validation-for="Price" class="text-danger small d-block mt-1"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="AvailableUnits" class="form-label fw-semibold small text-muted">Available Units <span class="text-danger">*</span></label>
+                    <input asp-for="AvailableUnits"
+                           class="form-control rounded-2 border-light bg-light"
+                           type="number" min="1" />
+                    <span asp-validation-for="AvailableUnits" class="text-danger small d-block mt-1"></span>
+                </div>
+
                 <div class="mb-4">
                     <label asp-for="Description" class="form-label fw-semibold small text-muted">Description <span class="text-danger">*</span></label>
                     <textarea asp-for="Description" 
