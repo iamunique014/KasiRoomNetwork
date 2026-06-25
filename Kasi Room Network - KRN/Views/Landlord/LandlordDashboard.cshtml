@@ -2,9 +2,9 @@
     ViewData["Title"] = "KRN - Landlord";
 
     int UnreadMessages = ViewBag.UnreadCount ?? 0;
-    int ActiveListings = ViewBag.ActiveListings ?? 0;
-    int PendingVerification = ViewBag.PendingVerification ?? 0;
-    int VerifiedListings = ViewBag.VerifiedListings ?? 0;
+    // int ActiveListings = ViewBag.ActiveListings ?? 0;
+    // int PendingVerification = ViewBag.PendingVerification ?? 0;
+    // int VerifiedListings = ViewBag.VerifiedListings ?? 0;
 
     bool HasProperties = ViewBag.HasProperties ?? false;
     bool ProfileComplete = ViewBag.ProfileComplete ?? false;
@@ -34,49 +34,29 @@
         <div class="card-body py-3">
 
             <div class="row text-center g-0">
-
-                <div class="col-3 border-end">
-                    <div class="text-primary mb-1">
-                        <i class="bi bi-door-open"></i>
-                    </div>
-                    <div class="fw-bold">@ActiveListings</div>
-                    <small class="text-muted">Active</small>
+                <div class="@(UnreadMessages > 0 ? "text-success" : "text-secondary") mb-1">
+                    <i class="bi bi-chat-dots"></i>
                 </div>
+                <div class="fw-bold">@UnreadMessages</div>
+                <small class="text-muted">Messages</small>
+                <h5 class="card-title">Messages</h5>
+                <p class="text-muted">
+                    View conversations with tenants.
+                </p>
 
-                <div class="col-3 border-end">
-                    <div class="text-warning mb-1">
-                        <i class="bi bi-hourglass-split"></i>
-                    </div>
-                    <div class="fw-bold">@PendingVerification</div>
-                    <small class="text-muted">Pending</small>
-                </div>
+                <a asp-controller="Messages"
+                   asp-action="Inbox"
+                   class="btn btn-outline-primary">
+                    Open Inbox
+                </a>
 
-                <div class="col-3 border-end">
-                    <div class="text-success mb-1">
-                        <i class="bi bi-patch-check"></i>
-                    </div>
-                    <div class="fw-bold">@VerifiedListings</div>
-                    <small class="text-muted">Verified</small>
-                </div>
-
-                <div class="col-3">
-                    <div class="@(UnreadMessages > 0 ? "text-success" : "text-secondary") mb-1">
-                        <i class="bi bi-chat-dots"></i>
-                    </div>
-                    <div class="fw-bold">@UnreadMessages</div>
-                    <small class="text-muted">Messages</small>
-                </div>
+          
 
             </div>
 
         </div>
     </div>
 
-    <div class="text-center mb-4">
-        <a href="/Messages/Inbox" class="small text-decoration-none">
-            View Inbox
-        </a>
-    </div>
 
     @if (!ProfileComplete)
     {
