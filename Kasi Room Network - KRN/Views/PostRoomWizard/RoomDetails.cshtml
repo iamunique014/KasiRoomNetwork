@@ -33,6 +33,14 @@
                     </div>
 
                     <div class="mb-3">
+                        <label asp-for="AvailableUnits" class="form-label">Available Units <span class="text-danger">*</span></label>
+                        <input asp-for="AvailableUnits"
+                               class="form-control "
+                               type="number" min="1" />
+                        <span asp-validation-for="AvailableUnits" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    <div class="mb-3">
                         <label asp-for="Description" class="form-label">Description</label>
                         <textarea asp-for="Description" class="form-control" rows="5" maxlength="2000" placeholder="Optional: share helpful details about the room."></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
