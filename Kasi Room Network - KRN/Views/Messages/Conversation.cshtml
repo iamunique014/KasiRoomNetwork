@@ -92,7 +92,7 @@
         <div class="card-footer">
 
             <form asp-action="Send" method="post">
-
+                @Html.AntiForgeryToken()
                 <input type="hidden"
                        name="ConversationId"
                        value="@conversationId" />
