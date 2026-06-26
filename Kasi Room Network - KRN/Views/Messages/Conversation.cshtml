@@ -4,15 +4,24 @@
 @{
     ViewData["Title"] = "Conversation";
     var conversationId = ViewBag.ConversationId;
-    var header =
-        ViewBag.ConversationHeader
-        as ConversationViewModel;
-    
+    var header = ViewBag.ConversationHeader as ConversationViewModel;
 }
 
-@section styles{
-    <link rel="stylesheet" href="~/css/conversation.css"; />
+@section styles {
+    <link rel="stylesheet" href="~/css/conversation.css" />
 }
+
+@if (header == null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-danger">
+            Conversation could not be loaded.
+        </div>
+    </div>
+
+    return;
+}
+
 <div class="container p-0">
 
     <div class="card shadow-sm conversation-card">
@@ -24,23 +33,31 @@
                class="back-btn">
                 <i class="bi bi-arrow-left"></i>
             </a>
-            <a asp-action="ListingDetails" 
-                        asp-controller="Listing" 
-                        asp-route-listingId="@header.ListingId">
-                <img src="@header.PrimaryPhoto"
-                     class="conversation-thumb"
-                     alt="@header.ListingTitle" />
-            </a>
-            
+
             <a asp-action="ListingDetails"
-                         asp-controller="Listing"
-                         asp-route-listingId="@header.ListingId" class="text-decoration-none">
+               asp-controller="Listing"
+               asp-route-listingId="@header.ListingId">
+
+                @if (!string.IsNullOrWhiteSpace(header.PrimaryPhoto))
+                {
+                    <img src="@header.PrimaryPhoto"
+                         class="conversation-thumb"
+                         alt="@header.ListingTitle" />
+                }
+
+            </a>
+
+            <a asp-action="ListingDetails"
+               asp-controller="Listing"
+               asp-route-listingId="@header.ListingId"
+               class="text-decoration-none">
+
                 <div class="conversation-info">
                     <h6>@header.ListingTitle</h6>
                     <small>@header.OtherUserName</small>
                 </div>
+
             </a>
-            
 
         </div>
 
@@ -70,8 +87,8 @@
                     <div class="message-row @(msg.IsMyMessage ? "mine" : "theirs")">
 
                         <div class="message-bubble @(msg.IsMyMessage
-                                                         ? "message-mine"
-                                                         : "message-theirs")">
+                                                                                      ? "message-mine"
+                                                                                      : "message-theirs")">
 
                     @msg.MessageText
 
@@ -79,12 +96,28 @@
 
                         <div class="message-time">
 
-                            @msg.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                    @{
+                                var now = DateTime.Now;
+                                var created = msg.CreatedAt;
+
+                                if (created.Date == now.Date)
+                                {
+                                    @:Today @created.ToString("HH:mm")
+                                }
+                                else if (created.Date == now.Date.AddDays(-1))
+                                {
+                                    @:Yesterday @created.ToString("HH:mm")
+                                }
+                                else
+                                {
+                                    @created.ToString("dd MMM yyyy HH:mm")
+                                }
+                            }
 
                         </div>
 
                     </div>
-                        }
+                }
             }
 
         </div>
@@ -92,7 +125,12 @@
         <div class="card-footer">
 
             <form asp-action="Send" method="post">
+
                 @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-2"></div>
+
                 <input type="hidden"
                        name="ConversationId"
                        value="@conversationId" />
