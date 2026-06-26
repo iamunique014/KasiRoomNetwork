@@ -665,7 +665,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     copiedPermanentListingPhotoPaths,
                     copiedPermanentPropertyPhotoPaths);
 
-                ModelState.AddModelError(string.Empty, "We could not submit your listing right now. Your progress and photos are still saved, so please try again.");
+                ModelState.AddModelError(string.Empty, "Unable to complete your request. Please try again later.");
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
             }
         }

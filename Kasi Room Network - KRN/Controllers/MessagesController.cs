@@ -55,29 +55,35 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            var conversationId =
-                await _messagingRepository.CreateConversation(
-                    listingId,
-                    userId,
-                    landlordId);
-
-            var alreadyLogged =
-                await _messagingRepository.HasInAppContactLog(
-                    listingId,
-                    userId);
-
-            if (!alreadyLogged)
+            try
             {
-                await _messagingRepository.CreateContactLog(
-                    listingId,
-                    userId,
-                    "InApp",
-                    conversationId);
-            }
+                var conversationId =
+                    await _messagingRepository.CreateConversation(
+                        listingId,
+                        userId,
+                        landlordId);
 
-            return RedirectToAction(
-                "Conversation",
-                new { conversationId });
+                var alreadyLogged =
+                    await _messagingRepository.HasInAppContactLog(
+                        listingId,
+                        userId);
+
+                if (!alreadyLogged)
+                {
+                    await _messagingRepository.CreateContactLog(
+                        listingId,
+                        userId,
+                        "InApp",
+                        conversationId);
+                }
+
+                return RedirectToAction("Conversation", new { conversationId });
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Unable to start conversation at this time. Please try again later.";
+                return RedirectToAction("ListingDetails", "Listing", new { listingId });
+            }
         }
 
         public async Task<IActionResult> Conversation(int conversationId)
@@ -154,7 +160,14 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             model.SenderId = userId;
 
-            await _messagingRepository.SendMessage(model);
+            try
+            {
+                await _messagingRepository.SendMessage(model);
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Unable to send message at this time. Please try again later.";
+            }
 
             return RedirectToAction("Conversation", new { conversationId = model.ConversationId });
         }
@@ -189,11 +202,19 @@ namespace Kasi_Room_Network___KRN.Controllers
                     new { listingId });
             }
 
-            await _messagingRepository.CreateContactLog(
-                listingId,
-                userId,
-                "WhatsApp",
-                null);
+            try
+            {
+                await _messagingRepository.CreateContactLog(
+                    listingId,
+                    userId,
+                    "WhatsApp",
+                    null);
+            }
+            catch (Exception)
+            {
+                // We don't want to block the redirect if logging fails, 
+                // but we also don't want to crash.
+            }
 
             var number = listing.WhatsAppNumber
                 .Replace(" ", "")

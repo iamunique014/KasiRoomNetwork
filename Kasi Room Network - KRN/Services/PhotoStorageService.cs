@@ -42,9 +42,16 @@ namespace Kasi_Room_Network___KRN.Services
             var fileName = Guid.NewGuid().ToString() + extension;
             var filePath = Path.Combine(uploadsFolder, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await photo.CopyToAsync(stream);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                throw new InvalidOperationException("Unable to save photo due to a storage error. Please try again later.", ex);
             }
 
             return $"/{UploadRootFolder}/wizard-temp/{safeLandlordUserId}/{fileName}";
@@ -100,10 +107,17 @@ namespace Kasi_Room_Network___KRN.Services
             var fileName = Guid.NewGuid().ToString() + extension;
             var destinationPath = Path.Combine(uploadsFolder, fileName);
 
-            await using (var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            await using (var destinationStream = new FileStream(destinationPath, FileMode.CreateNew))
+            try
             {
-                await sourceStream.CopyToAsync(destinationStream);
+                await using (var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                await using (var destinationStream = new FileStream(destinationPath, FileMode.CreateNew))
+                {
+                    await sourceStream.CopyToAsync(destinationStream);
+                }
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                throw new InvalidOperationException("Unable to copy photo due to a storage error.", ex);
             }
 
             return $"/{UploadRootFolder}/{safePermanentFolderName}/{fileName}";
@@ -255,22 +269,32 @@ namespace Kasi_Room_Network___KRN.Services
                 uploadsFolder,
                 fileName);
 
-            using var image = await Image.LoadAsync(
-                photo.OpenReadStream());
+            try
+            {
+                using var image = await Image.LoadAsync(photo.OpenReadStream());
 
-            image.Mutate(x =>
-                x.Resize(new ResizeOptions
-                {
-                    Mode = ResizeMode.Max,
-                    Size = new Size(1200, 1200)
-                }));
+                image.Mutate(x =>
+                    x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(1200, 1200)
+                    }));
 
-            await image.SaveAsJpegAsync(
-                filePath,
-                new JpegEncoder
-                {
-                    Quality = 80
-                });
+                await image.SaveAsJpegAsync(
+                    filePath,
+                    new JpegEncoder
+                    {
+                        Quality = 80
+                    });
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                throw new InvalidOperationException("Unable to save optimized photo due to a storage error.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("The uploaded photo could not be processed. It may be corrupted.", ex);
+            }
 
             return $"/{UploadRootFolder}/{folderName}/{fileName}";
         }

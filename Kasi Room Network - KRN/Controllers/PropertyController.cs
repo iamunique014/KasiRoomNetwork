@@ -81,19 +81,28 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
 
-            int propertyId = await _propertyRepository.CreateProperty(model, landlordUserId);
-
-            if (model.SelectedAmenityIds != null && model.SelectedAmenityIds.Any())
+            try
             {
-                foreach (var amenityId in model.SelectedAmenityIds)
+                int propertyId = await _propertyRepository.CreateProperty(model, landlordUserId);
+
+                if (model.SelectedAmenityIds != null && model.SelectedAmenityIds.Any())
                 {
-                    await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, landlordUserId);
+                    foreach (var amenityId in model.SelectedAmenityIds)
+                    {
+                        await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, landlordUserId);
+                    }
                 }
+
+                TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
+                return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
             }
-
-            TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
-
-            return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to create property at this time. Please try again later.");
+                var amenities = await _amenityRepository.GetAllAmenities();
+                model.Amenities = amenities.ToList();
+                return View(model);
+            }
         }
 
         // =========================
@@ -261,13 +270,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
-
-            TempData["SuccessMessage"] = "Property updated successfully.";
-
-            return RedirectToAction(
-                "PropertyDetails",
-                new { propertyId = model.PropertyId });
+            try
+            {
+                await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
+                TempData["SuccessMessage"] = "Property updated successfully.";
+                return RedirectToAction("PropertyDetails", new { propertyId = model.PropertyId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to update property at this time. Please try again later.");
+                return View(model);
+            }
         }
 
         [Authorize(Roles = "Landlord")]
@@ -281,10 +294,15 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Challenge();
             }
 
-            await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
-
-            TempData["SuccessMessage"] = "Property deleted successfully.";
-
+            try
+            {
+                await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
+                TempData["SuccessMessage"] = "Property deleted successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+            }
             return RedirectToAction(nameof(MyProperties));
         }
 
@@ -402,7 +420,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "An error occurred while deleting the photo.";
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
             }
 
             return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
@@ -434,7 +452,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "An error occurred while updating the primary photo.";
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
             }
 
             return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
@@ -476,17 +494,17 @@ namespace Kasi_Room_Network___KRN.Controllers
                 .Select(a => a.AmenityId)
                 .ToList();
 
-            await _amenityRepository
-                .UpdatePropertyAmenitiesAsync(
-                    model.PropertyId,
-                    selectedAmenityIds,
-                    landlordId);
+            try
+            {
+                await _amenityRepository.UpdatePropertyAmenitiesAsync(model.PropertyId, selectedAmenityIds, landlordId);
+                TempData["Success"] = "Amenities updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Unable to update amenities at this time. Please try again later.";
+            }
 
-            TempData["Success"] = "Amenities updated successfully.";
-
-            return RedirectToAction(
-                nameof(PropertyDetails),
-                new { propertyId = model.PropertyId });
+            return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
         }
     }
 }

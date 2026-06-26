@@ -96,9 +96,20 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
             }
 
-            int listingId = await _listingRepository.CreateListing(model, landlordUserId);
-
-            return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+            try
+            {
+                int listingId = await _listingRepository.CreateListing(model, landlordUserId);
+                return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to create listing at this time. Please try again later.");
+                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+                model.PropertyName = property.PropertyName;
+                model.Suburb = property.Suburb;
+                model.City = property.City;
+                return View(model);
+            }
         }
 
         // =========================
@@ -327,8 +338,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception)
             {
-                ModelState.AddModelError("", "An error occurred while updating the listing.");
-                TempData["ErrorMessage"] = "An error occurred while updating the listing.";
+                ModelState.AddModelError("", "Unable to update listing at this time. Please try again later.");
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
                 return View(model);
             }
 
@@ -456,7 +467,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "An error occurred while deleting the photo.";
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
             }
 
             return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
@@ -494,7 +505,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "An error occurred while updating the primary photo.";
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
             }
 
             return RedirectToAction(nameof(ManageListingPhotos), new { listingId });

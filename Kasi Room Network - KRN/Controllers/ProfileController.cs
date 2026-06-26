@@ -60,16 +60,26 @@ namespace Kasi_Room_Network___KRN.Controllers
 
 
             var isLandlord = User.IsInRole("Landlord");
-            if (isLandlord) 
+            try
             {
-                await _profileRepository.SaveLandlordProfile(model, userId);
+                if (isLandlord)
+                {
+                    await _profileRepository.SaveLandlordProfile(model, userId);
+                }
+                else
+                {
+                    await _profileRepository.SaveProfile(model, userId);
+                }
+
+                TempData["SuccessMessage"] = "Profile saved successfully";
             }
-            else
+            catch (Exception)
             {
-                await _profileRepository.SaveProfile(model, userId);
+                ModelState.AddModelError("", "Unable to save profile at this time. Please try again later.");
+                ViewBag.IsLandlord = isLandlord;
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
             }
-                
-            TempData["SuccessMessage"] = "Profile saved successfully";
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
