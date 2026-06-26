@@ -627,6 +627,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     Title = wizardState.RoomDetails.Title,
                     Description = wizardState.RoomDetails.Description?.Trim() ?? string.Empty,
                     Price = wizardState.RoomDetails.Price,
+                    AvailableUnits = wizardState.RoomDetails.AvailableUnits,
                     IsAvailable = wizardState.RoomDetails.IsAvailable
                 };
 

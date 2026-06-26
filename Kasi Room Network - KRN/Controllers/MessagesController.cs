@@ -119,6 +119,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return View(messages);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(SendMessageViewModel model)
         {
             var userId = _userManager.GetUserId(User);
@@ -185,7 +186,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var message =
-                $"Hi, I'm interested in your listing '{listing.Title}'. Is it still available?";
+                $"Hi, I'm interested in your listing '{listing.Title}' Listed on KRN - KasiRoomNetwork. Is it still available?";
 
             var encodedMessage = Uri.EscapeDataString(message);
 

@@ -35,7 +35,7 @@
                                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                                class="form-control form-control-lg"
                                @(hasReachedMaxPhotos ? "disabled" : string.Empty) />
-                        <small class="text-muted">JPG or PNG only. Maximum file size is 5MB.</small>
+                        <small class="text-muted">JPG, JPEG or PNG only. Maximum file size is 5MB.</small>
                     </div>
                     <button type="submit" class="btn btn-success btn-lg" @(hasReachedMaxPhotos ? "disabled" : string.Empty)>
                         Upload Photo

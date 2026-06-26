@@ -11,6 +11,9 @@ namespace KasiRoomNetwork.Common.ViewModel.PostRoomWizard
         [Required]
         [Range(typeof(decimal), "1", "999999")]
         public decimal Price { get; set; }
+        [Required]
+        [Range(typeof(int), "1", "99")]
+        public int AvailableUnits { get; set; }
 
         [StringLength(2000)]
         public string? Description { get; set; }
