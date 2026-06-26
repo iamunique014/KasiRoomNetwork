@@ -122,10 +122,34 @@ namespace Kasi_Room_Network___KRN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(SendMessageViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { conversationId = model.ConversationId });
+            }
+
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
+            }
+
+            var hasAccess = await _messagingRepository
+            .UserOwnsConversation(model.ConversationId, userId);
+
+            if (!hasAccess)
+            {
+                return NotFound();
+            }
+
+            model.MessageText = model.MessageText?.Trim();
+
+            if (string.IsNullOrWhiteSpace(model.MessageText))
+            {
+                ModelState.AddModelError(
+                    nameof(model.MessageText),
+                    "Message cannot be empty.");
             }
 
             model.SenderId = userId;

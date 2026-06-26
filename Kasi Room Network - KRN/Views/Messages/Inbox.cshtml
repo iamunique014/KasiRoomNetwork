@@ -20,8 +20,11 @@ else
         {
             var preview = conversation.LastMessage;
 
-            if (!string.IsNullOrWhiteSpace(preview) &&
-                preview.Length > 40)
+            if (string.IsNullOrWhiteSpace(preview))
+            {
+                preview = "No messages yet.";
+            }
+            else if (preview.Length > 40)
             {
                 preview = preview.Substring(0, 40) + "...";
             }
@@ -52,7 +55,23 @@ else
                     <div class="text-end ms-3">
 
                         <small class="text-muted d-block">
-                            @conversation.LastMessageAt.ToString("yyyy/MM/dd HH:mm")
+                            @{
+                                var now = DateTime.Now;
+                                var lastMessageAt = conversation.LastMessageAt;
+
+                                if (lastMessageAt.Date == now.Date)
+                                {
+                                    @:Today @lastMessageAt.ToString("HH:mm")
+                                }
+                                else if (lastMessageAt.Date == now.Date.AddDays(-1))
+                                {
+                                    @:Yesterday @lastMessageAt.ToString("HH:mm")
+                                }
+                                else
+                                {
+                                    @lastMessageAt.ToString("dd MMM yyyy")
+                                }
+                            }
                         </small>
 
                         @if (conversation.UnreadCount > 0)
