@@ -16,9 +16,9 @@
                 <div class="card-body p-4">
 
                     <div class="text-center mb-4">
-                        <h1 class="fw-bold">Join Kasi Room Network</h1>
-                        <p class="text-muted mb-0">
-                            Find rooms. Connect with landlords.
+                        <h1 id="registerTitle" class="fw-bold">Join Kasi Room Network</h1>
+                        <p id="registerSubtitle" class="text-muted mb-0">
+                            Choose how you want to use KRN.
                         </p>
                     </div>
 
@@ -71,10 +71,6 @@
                                    class="form-control"
                                    autocomplete="new-password" />
 
-                            <div class="form-text">
-                                Use at least 8 characters.
-                            </div>
-
                             <span asp-validation-for="Input.Password"
                                   class="text-danger"></span>
                         </div>
@@ -123,9 +119,8 @@
 
                     <hr />
 
-                    <div class="text-center small text-muted">
-                        By creating an account you can search rooms,
-                        contact landlords and manage listings on KRN.
+                    <div id="registerDescription" class="text-center small text-muted">
+                        Create an account to start using KRN.
                     </div>
 
                 </div>
@@ -139,4 +134,26 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        
+        const role = document.getElementById("Input_Role");
+        const subtitle =  document.getElementById("registerSubtitle");
+        const description = document.getElementById("registerDescription");
+
+        function updateContent(){
+            if(role.value == "Landlord"){
+                subtitle.textContent = "List your rooms, manage your properties and Get tenants fast";
+                description.textContent = "Create an account to publish rentals and connect with tenants through secure messaging";
+            }
+            else{
+                subtitle.textContent = "Find budget friendly rooms with ease";
+                description.textContent = "Create an account to contact landlords safely."
+            }
+        }
+
+        role.addEventListener("change", updateContent);
+        updateContent();
+
+    </script>
 }
