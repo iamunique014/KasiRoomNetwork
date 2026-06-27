@@ -8,12 +8,13 @@ using System.Security.Claims;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
-    public class ListingController(IListingRepository listingRepository, IProfileRepository profileRepository, IPropertyRepository propertyRepository, IAmenityRepository amenityRepository,IPhotoStorageService photoStorageService) : Controller
+    public class ListingController(IListingRepository listingRepository, IProfileRepository profileRepository, IPropertyRepository propertyRepository, IAmenityRepository amenityRepository, ILogger<ListingController> logger, IPhotoStorageService photoStorageService) : Controller
     {
         private readonly IListingRepository _listingRepository = listingRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IPropertyRepository _propertyRepository = propertyRepository;
         private readonly IAmenityRepository _amenityRepository = amenityRepository;
+        private readonly ILogger<ListingController> _logger = logger;
         private readonly IPhotoStorageService _photoStorageService = photoStorageService;
 
         private async Task<ListingDetailsViewModel?> GetOwnedListingOrNull(int listingId, string landlordUserId)
@@ -96,9 +97,29 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateListing", "Listing") });
             }
 
-            int listingId = await _listingRepository.CreateListing(model, landlordUserId);
+            try
+            {
+                int listingId = await _listingRepository.CreateListing(model, landlordUserId);
+                _logger.LogInformation("Created Listing for landlord {LandlordUserId}. Moving to Photos.",
+                    landlordUserId
+                );
+                return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An unexpected error occurred while creating listing for landlord {LandlordUserId}.",
+                    landlordUserId
+                );
 
-            return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+                ModelState.AddModelError("", "Unable to create listing at this time. Please try again later.");
+                var property = await _propertyRepository.GetPropertyById(model.PropertyId);
+                model.PropertyName = property.PropertyName;
+                model.Suburb = property.Suburb;
+                model.City = property.City;
+                return View(model);
+            }
         }
 
         // =========================
@@ -160,6 +181,8 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
+                _logger.LogInformation("Uploading ListingPhoto of Listing {listingId}.", listingId);
+
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
@@ -174,24 +197,53 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 if (!added)
                 {
+                    _logger.LogWarning(
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                            listingId
+                    );
+
                     _photoStorageService.DeletePhoto(dbPath);
 
                     ModelState.AddModelError(
                         "",
-                        "Photo could not be uploaded because the listing was not found or you no longer have access.");
+                        "Photo could not be uploaded because the listing was not found or you no longer have access."
+                    );
 
                     return View();
                 }
+
+                _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
+
+                TempData["PhotoUploaded"] = "Photo uploaded successfully";
+                return RedirectToAction(nameof(AddListingPhotos), new { listingId });
             }
             catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(
+                    ex,
+                    "Photo validation failed for listing {listingId}.", listingId);
+
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
+            catch(Exception ex)
+            {
+                if(!string.IsNullOrWhiteSpace(dbPath)){
+                    _photoStorageService.DeletePhoto(dbPath);
+                }
 
-            TempData["PhotoUploaded"] = "Photo uploaded successfully";
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    listingId
+                );
 
-            return RedirectToAction(nameof(AddListingPhotos), new { listingId });
+                ModelState.AddModelError("",
+                    "Something went wrong while uploading your photo please try again."
+                );
+
+                return View();
+            }
         }
 
         // =========================
@@ -248,6 +300,11 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             if (hasSearch)
             {
+                _logger.LogInformation("Listing search. City={City}, Suburb={Suburb}, Province={Province}",
+                    model.City,
+                    model.Suburb, 
+                    model.Province
+                );
                 model.Results =
                     await _listingRepository.SearchListings(model);
             }
@@ -318,24 +375,40 @@ namespace Kasi_Room_Network___KRN.Controllers
                 var updated = await _listingRepository.UpdateListing(model, landlordUserId);
                 if (!updated)
                 {
+                    _logger.LogWarning(
+                        "Landlord {LandlordUserId} Failed updating listing {listingId}", 
+                        model.ListingId,
+                        landlordUserId
+                    );
+
                     ModelState.AddModelError("", "Listing could not be updated. It may have been removed or you may no longer have access.");
                     TempData["ErrorMessage"] = "Listing could not be updated.";
                     return View(model);
                 }
 
+                _logger.LogInformation(
+                    "Landlord {LandlordUserId} successfully  updated listing {ListingId}",
+                    landlordUserId, model.ListingId
+                );
                 TempData["SuccessMessage"] = "Listing updated successfully. Verification has been reset and the listing must be approved before it appears publicly again.";
+                return RedirectToAction(
+                    "ListingDetails",
+                    new { listingId = model.ListingId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred while updating the listing.");
-                TempData["ErrorMessage"] = "An error occurred while updating the listing.";
+                _logger.LogError(
+                    ex,
+                    "An unexpected error occurred while updating Listing {listingId} of Landlord {LandlordUserId}.",
+                    model.ListingId, landlordUserId
+                );
+
+                ModelState.AddModelError("", "Unable to update listing at this time. Please try again later.");
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
                 return View(model);
             }
-
-            return RedirectToAction(
-                "ListingDetails",
-                new { listingId = model.ListingId });
         }
+
         [Authorize(Roles = "Landlord")]
         [HttpGet]
         public async Task<IActionResult> ManageListingPhotos(int listingId)
@@ -388,10 +461,18 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return Forbid();
             }
 
+            var viewModel = new ManageListingPhotosViewModel
+            {
+                ListingId = listing.ListingId,
+                Title = listing.Title,
+                Photos = await _listingRepository.GetListingPhotos(listingId)
+            };
             string? dbPath = null;
 
             try
             {
+                _logger.LogInformation("Uploading ListingPhoto of Listing {listingId}.", listingId);
+
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
@@ -406,24 +487,55 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 if (!added)
                 {
+                    _logger.LogWarning(
+                        "Repository Rejected photo upload for listing {listingId}, Removing uploaded files.", 
+                            listingId
+                    );
+
                     _photoStorageService.DeletePhoto(dbPath);
 
                     ModelState.AddModelError(
                         "",
                         "Photo could not be uploaded because the listing was not found or you no longer have access.");
 
-                    return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                    return View("ManageListingPhotos", viewModel);
                 }
+
+                _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
+
+                TempData["PhotoUploaded"] = "Photo uploaded successfully";
+            
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
             catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(
+                    ex,
+                    "Photo validation failed for listing {ListingId}.", 
+                    listingId
+                );
+
                 ModelState.AddModelError("", ex.Message);
-                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                return View("ManageListingPhotos", viewModel);
             }
+            catch(Exception ex)
+            {
+                if(!string.IsNullOrWhiteSpace(dbPath)){
+                    _photoStorageService.DeletePhoto(dbPath);
+                }
 
-            TempData["SuccessMessage"] = "Photo uploaded successfully.";
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while uploading photo for listing {listingId}.", 
+                    listingId
+                );
 
-            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                ModelState.AddModelError("",
+                    "Something went wrong while uploading your photo please try again."
+                );
+
+                return View("ManageListingPhotos", viewModel);
+            }
         }
         [Authorize(Roles = "Landlord")]
         [HttpPost]
@@ -449,17 +561,32 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                var deleted = await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
-                TempData[deleted ? "SuccessMessage" : "ErrorMessage"] = deleted
-                    ? "Photo deleted successfully."
-                    : "Photo could not be deleted because it was not found for this listing.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "An error occurred while deleting the photo.";
-            }
+                _logger.LogInformation(
+                    "Deleting listing photo of {listingId} by Landlord {LandlordID}.", 
+                    listingId, landlordUserId
+                );
 
-            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+                await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
+                
+                _logger.LogInformation(
+                    "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.", 
+                    photoId, listingId, landlordUserId
+                );
+
+                TempData["SuccessMessage"] = "Photo deleted successfully.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An unexpected error occurred while deleting photo {PhotoId} of Listing {listingId} of Landlord {LandlordUserId}.",
+                    photoId, listingId, landlordUserId
+                );
+
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            }
         }
         
 
@@ -487,17 +614,28 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                var updated = await _listingRepository.SetPrimaryListingPhoto(listingId, photoId, landlordUserId);
-                TempData[updated ? "SuccessMessage" : "ErrorMessage"] = updated
-                    ? "Primary photo updated successfully."
-                    : "Primary photo could not be updated because the photo was not found for this listing.";
+                await _listingRepository.SetPrimaryListingPhoto(listingId, photoId, landlordUserId);
+                TempData["SuccessMessage"] = "Primary photo updated successfully.";
+
+                _logger.LogInformation(
+                    "Primary photo of Listing {ListingId} was updated successfully",
+                    listingId
+                );
+
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while updating the primary photo.";
+                _logger.LogError(
+                    ex,
+                    "An expected exception occurred while updating primary photo for listing {listingId}.",
+                    listingId
+                );
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
 
-            return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
+            
         }
     }
 }

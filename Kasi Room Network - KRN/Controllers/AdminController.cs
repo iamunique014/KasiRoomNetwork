@@ -10,15 +10,18 @@ namespace Kasi_Room_Network___KRN.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+        private readonly ILogger<AdminController> _logger;
         private readonly IAdminRepository _adminRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public AdminController(
+            ILogger<AdminController> logger,
             IAdminRepository 
             adminRepository, 
             UserManager<ApplicationUser> 
             userManager)
         {
+            _logger = logger;
             _adminRepository = adminRepository;
             _userManager = userManager;
         }
@@ -136,16 +139,18 @@ namespace Kasi_Room_Network___KRN.Controllers
                     model.IsApproved,
                     model.Notes
                 );
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(ex.Message, "Failure");
-                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+                _logger.LogError(ex,
+                    "Admin {AdminUserId} could not verify Listing {ListingId}",
+                    adminUserId,
+                    model.ListingId
+                );
+                ModelState.AddModelError("", "Unable to verify the listing at this time. Please try again later.");
+                TempData["Error"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(UnverifiedListings));
             }
-
-            
-            
 
             TempData["Success"] = model.IsApproved
                 ? "Listing approved successfully."
@@ -182,16 +187,22 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 await _adminRepository.VerifyLandlordAsync(
-                model.LandlordUserId,
-                model.LandlordProfileId,
-                adminUserId,
-                model.IsApproved,
-                model.Notes);
+                    model.LandlordUserId,
+                    model.LandlordProfileId,
+                    adminUserId,
+                    model.IsApproved,
+                    model.Notes);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(ex.Message, "Failure");
-                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+                _logger.LogError(ex,
+                    "Admin {AdminUserId} could not verify Landlord {LandlordUserId}",
+                    adminUserId,
+                    model.LandlordUserId
+                );
+                ModelState.AddModelError("", "Unable to verify the landlord at this time. Please try again later.");
+                TempData["Error"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(UnverifiedLandlords));
             }
 
             TempData["Success"] = model.IsApproved
@@ -224,10 +235,16 @@ namespace Kasi_Room_Network___KRN.Controllers
                     model.Notes
                 );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(ex.Message, "Failure");
-                TempData["Error"] = "Failure, Something went wrong, Try Again Later.";
+                _logger.LogError(ex,
+                    "Admin {AdminUserId} could not verify Property {PropertyId}",
+                    adminUserId,
+                    model.PropertyId
+                );
+                ModelState.AddModelError("", "Unable to verify the property at this time. Please try again later.");
+                TempData["Error"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(UnverifiedProperties));
             }
 
             TempData["Success"] = model.IsApproved

@@ -11,11 +11,13 @@ namespace Kasi_Room_Network___KRN.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileRepository _profileRepository;
+        private readonly ILogger<ProfileController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProfileController(IProfileRepository profileRepository, UserManager<ApplicationUser> userManager)
+        public ProfileController(IProfileRepository profileRepository, ILogger<ProfileController> logger, UserManager<ApplicationUser> userManager)
         {
             _profileRepository = profileRepository;
+            _logger = logger;
             _userManager = userManager;
         }
 
@@ -60,16 +62,32 @@ namespace Kasi_Room_Network___KRN.Controllers
 
 
             var isLandlord = User.IsInRole("Landlord");
-            if (isLandlord) 
+            try
             {
-                await _profileRepository.SaveLandlordProfile(model, userId);
+                if (isLandlord)
+                {
+                    await _profileRepository.SaveLandlordProfile(model, userId);
+                }
+                else
+                {
+                    await _profileRepository.SaveProfile(model, userId);
+                }
+
+                TempData["SuccessMessage"] = "Profile saved successfully";
+                _logger.LogInformation("User {UserId} saved profile successfully", userId);
             }
-            else
+            catch (Exception ex)
             {
-                await _profileRepository.SaveProfile(model, userId);
+                _logger.LogError(
+                    ex,
+                    "User {User} Could not save profile. Failure.",
+                    userId
+                );
+                ModelState.AddModelError("", "Unable to save profile at this time. Please try again later.");
+                ViewBag.IsLandlord = isLandlord;
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
             }
-                
-            TempData["SuccessMessage"] = "Profile saved successfully";
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
