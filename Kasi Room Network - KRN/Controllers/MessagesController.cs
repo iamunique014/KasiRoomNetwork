@@ -13,12 +13,14 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IProfileRepository _profileRepository;
         private readonly IMessagingRepository _messagingRepository;
         private readonly IListingRepository _listingRepository;
-        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository, IMessagingRepository messagingRepository, IListingRepository listingRepository)
+        private readonly ILogger<MessagesController> _logger;
+        public MessagesController(UserManager<ApplicationUser> userManager, IProfileRepository profileRepository, IMessagingRepository messagingRepository, IListingRepository listingRepository, ILogger<MessagesController> logger)
         {
             _userManager = userManager;
             _profileRepository = profileRepository;
             _messagingRepository = messagingRepository;
             _listingRepository = listingRepository;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Tenant")]
@@ -77,10 +79,21 @@ namespace Kasi_Room_Network___KRN.Controllers
                         conversationId);
                 }
 
+                _logger.LogInformation("User {UserId} started conversation {ConversationId} for Listing {ListingId}.",
+                    userId,
+                    conversationId,
+                    listingId
+                );
+
                 return RedirectToAction("Conversation", new { conversationId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex,
+                    "User {UserId} unable to start conversation for Listing {ListingId}",
+                    userId,
+                    listingId
+                );
                 TempData["Error"] = "Unable to start conversation at this time. Please try again later.";
                 return RedirectToAction("ListingDetails", "Listing", new { listingId });
             }
@@ -163,9 +176,19 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 await _messagingRepository.SendMessage(model);
+                _logger.LogInformation("User {UserId} Sent a Message in conversation {ConversationId}.",
+                    userId,
+                    model.ConversationId
+                );
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex,
+                    "User {UserId} Could not send a Message in conversation {ConversationId}.",
+                    userId, 
+                    model.ConversationId
+                );
+
                 TempData["Error"] = "Unable to send message at this time. Please try again later.";
             }
 
@@ -210,8 +233,12 @@ namespace Kasi_Room_Network___KRN.Controllers
                     "WhatsApp",
                     null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex,
+                "Listing {ListingId} Contact log could not be created",
+                listingId
+                );
                 // We don't want to block the redirect if logging fails, 
                 // but we also don't want to crash.
             }

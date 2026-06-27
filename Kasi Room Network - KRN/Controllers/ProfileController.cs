@@ -11,11 +11,13 @@ namespace Kasi_Room_Network___KRN.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileRepository _profileRepository;
+        private readonly ILogger<ProfileController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProfileController(IProfileRepository profileRepository, UserManager<ApplicationUser> userManager)
+        public ProfileController(IProfileRepository profileRepository, ILogger<ProfileController> logger, UserManager<ApplicationUser> userManager)
         {
             _profileRepository = profileRepository;
+            _logger = logger;
             _userManager = userManager;
         }
 
@@ -72,9 +74,15 @@ namespace Kasi_Room_Network___KRN.Controllers
                 }
 
                 TempData["SuccessMessage"] = "Profile saved successfully";
+                _logger.LogInformation("User {UserId} saved profile successfully", userId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(
+                    ex,
+                    "User {User} Could not save profile. Failure.",
+                    userId
+                );
                 ModelState.AddModelError("", "Unable to save profile at this time. Please try again later.");
                 ViewBag.IsLandlord = isLandlord;
                 ViewBag.ReturnUrl = returnUrl;

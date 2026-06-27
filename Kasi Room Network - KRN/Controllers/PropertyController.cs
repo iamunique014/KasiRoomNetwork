@@ -15,18 +15,21 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly ILandlordRepository _landlordRepository;
         private readonly IAmenityRepository _amenityRepository;
         private readonly IPhotoStorageService _photoStorageService;
+        private readonly ILogger<PropertyController> _logger;
 
         public PropertyController(IPropertyRepository propertyRepository,
             IProfileRepository profileRepository, 
             ILandlordRepository landlordRepository, 
             IAmenityRepository amenityRepository,
-            IPhotoStorageService photoStorageService)
+            IPhotoStorageService photoStorageService,
+            ILogger<PropertyController> logger)
         {
             _propertyRepository = propertyRepository;
             _profileRepository = profileRepository;
             _landlordRepository = landlordRepository;
             _amenityRepository = amenityRepository;
             _photoStorageService = photoStorageService;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Landlord")]
@@ -36,17 +39,27 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning("Anonymous user attempted to access CreateProperty.");
                 return Challenge();
             }
 
             var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
             if (!hasCompleteProfile)
             {
+                _logger.LogInformation(
+                    "Landlord {LandlordUserId} redirected to complete profile before creating a property.",
+                    landlordUserId);
+
                 TempData["ProfilePrompt"] = "Before creating a property, complete your landlord profile first.";
-                return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
+
+                return RedirectToAction(
+                    "MyProfile",
+                    "Profile",
+                    new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
 
             var amenities = await _amenityRepository.GetAllAmenities();
+
             var model = new CreatePropertyViewModel
             {
                 Amenities = amenities.ToList()
@@ -71,12 +84,18 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning("Anonymous user attempted to access createProperty");
                 return Challenge();
             }
 
             var hasCompleteProfile = await _profileRepository.IsComplete(landlordUserId);
             if (!hasCompleteProfile)
             {
+                _logger.LogInformation(
+                    "Landlord {LandlordUserId} attempted to create a property with incomplete profile.",
+                     landlordUserId
+                );
+
                 TempData["ProfilePrompt"] = "Complete your profile first to continue creating your property.";
                 return RedirectToAction("MyProfile", "Profile", new { returnUrl = Url.Action("CreateProperty", "Property") });
             }
@@ -93,11 +112,20 @@ namespace Kasi_Room_Network___KRN.Controllers
                     }
                 }
 
+                _logger.LogInformation(
+                    "Property {PropertyId} created successfully for landlord {LandlordUserId}.", propertyId, landlordUserId);
+
                 TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
                 return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+               _logger.LogError(
+                    ex,
+                    "Failed to create property for landlord {LandlordUserId}.",
+                    landlordUserId
+                );
+
                 ModelState.AddModelError("", "Unable to create property at this time. Please try again later.");
                 var amenities = await _amenityRepository.GetAllAmenities();
                 model.Amenities = amenities.ToList();
@@ -116,17 +144,28 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning(
+                    "Anonymous user tried to access AddPropertyPhotos for propertyId {PropertyId}.", propertyId);
+
                 return Challenge();
             }
 
             var property = await _propertyRepository.GetPropertyById(propertyId);
             if (property == null)
             {
+                _logger.LogWarning(
+                    "Property {PropertyId} was not found. Landlord {LandlordUserId} attempted to add photos.",
+                    propertyId,
+                    landlordUserId
+                );
                 return NotFound();
             }
 
             if (property.LandlordUserId != landlordUserId)
             {
+                _logger.LogWarning(
+                    "Landlord {LandlordUserId} attempted unauthorized access to AddPropertyPhotos of Property {PropertyId}", landlordUserId, propertyId);
+
                 return Forbid();
             }
 
@@ -143,17 +182,24 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning(
+                    "Anonymous user tried to upload photos for propertyId {PropertyId}.", propertyId);
                 return Challenge();
             }
 
             var property = await _propertyRepository.GetPropertyById(propertyId);
             if (property == null)
             {
+                _logger.LogWarning(
+                    "Property {PropertyId} was not found, Landlord {LandlordUserId} tried to add photos.", propertyId, landlordUserId);
                 return NotFound();
             }
 
             if (property.LandlordUserId != landlordUserId)
             {
+                _logger.LogWarning(
+                    "Landlord {LandlordUserId} attempted unauthorized access to upload photos for Property {PropertyId}", landlordUserId, propertyId);
+
                 return Forbid();
             }
 
@@ -178,6 +224,9 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 if (!added)
                 {
+                    _logger.LogWarning(
+                        "Repository Rejected photo upload for property {PropertyId}, Removing uploaded files.", propertyId);
+
                     _photoStorageService.DeletePhoto(dbPath);
 
                     ModelState.AddModelError(
@@ -186,16 +235,39 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                     return View();
                 }
+
+                TempData["PhotoUploaded"] = "Photo uploaded successfully";
+
+                return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
             }
             catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(
+                    ex,
+                    "Photo validation failed for property {PropertyId}.", propertyId);
+
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
-           
-            TempData["PhotoUploaded"] = "Photo uploaded successfully";
+            catch(Exception ex)
+            {
+                if(!string.IsNullOrWhiteSpace(dbPath)){
+                    _photoStorageService.DeletePhoto(dbPath);
+                }
 
-            return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordUserId} could not upload photo for property {PropertyId}.",
+                    landlordUserId,
+                    propertyId
+                );
+
+                ModelState.AddModelError("",
+                    "Something went wrong while uploading your photo please try again."
+                );
+
+                return View();
+            }
         }
 
         [Authorize(Roles = "Landlord")]
@@ -207,6 +279,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning("Anonymous user tried accessing My Properties");
                 return Challenge();
             }
 
@@ -240,6 +313,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning("Anonymous user attempted access to EditProperty");
                 return Challenge();
             }
 
@@ -248,8 +322,17 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             if (property == null)
             {
+                _logger.LogWarning("Landlord {LandlordUserId} attempted editing unkown property", landlordUserId);
                 return NotFound();
             }
+
+            //if (property.LandlordUserId != landlordUserId)
+            //{
+            //    _logger.LogWarning(
+            //        "Landlord {LandlordUserId} attempted unauthorized access to EditProperty of Property {PropertyId}", landlordUserId, propertyId);
+//
+            //    return Forbid();
+            //}
 
             return View(property);
         }
@@ -260,24 +343,41 @@ namespace Kasi_Room_Network___KRN.Controllers
         public async Task<IActionResult> EditProperty(EditPropertyViewModel model)
         {
             if (!ModelState.IsValid)
-            {
+            {             
                 return View(model);
             }
 
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
             {
+                _logger.LogWarning(
+                    "Anonymous user tried to Edit Property {PropertyId}.", model.PropertyId);
                 return Challenge();
             }
 
             try
             {
+                
                 await _propertyRepository.UpdatePropertyAsync(model, landlordUserId);
                 TempData["SuccessMessage"] = "Property updated successfully.";
+
+                _logger.LogInformation(
+                    "Landlord {LandlordUserId} successfully updated property {PropertyId}",
+                    landlordUserId, model.PropertyId
+                );
+
                 return RedirectToAction("PropertyDetails", new { propertyId = model.PropertyId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordUserId} could not update property {PropertyId}.",
+                    landlordUserId, 
+                    model.PropertyId
+                );
+
                 ModelState.AddModelError("", "Unable to update property at this time. Please try again later.");
                 return View(model);
             }
@@ -296,14 +396,29 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
+               
                 await _propertyRepository.DeletePropertyAsync(propertyId, landlordUserId);
+                
+
+                _logger.LogInformation(
+                    "Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
+                    propertyId, landlordUserId
+                );
+
                 TempData["SuccessMessage"] = "Property deleted successfully.";
+                return RedirectToAction(nameof(MyProperties));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordUserId} Could not Delete property {PropertyId}.",
+                    landlordUserId, 
+                    propertyId
+                );
                 TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(MyProperties));
             }
-            return RedirectToAction(nameof(MyProperties));
         }
 
         [Authorize(Roles = "Landlord")]
@@ -319,6 +434,9 @@ namespace Kasi_Room_Network___KRN.Controllers
             var property = await _propertyRepository.GetPropertyById(propertyId);
             if (property == null || property.LandlordUserId != landlordUserId)
             {
+                _logger.LogWarning("Landlord {LandlordUserId} attempted access to ManagePropertyPhotos, Property unkown or unauthorised access",
+                    landlordUserId
+                );
                 return NotFound();
             }
 
@@ -350,10 +468,18 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
             }
 
+            var viewModel = new ManagePropertyPhotosViewModel
+            {
+                PropertyId = property.PropertyId,
+                PropertyName = property.PropertyName,
+                Photos = await _propertyRepository.GetPropertyPhotos(propertyId)
+            };
+
             string? dbPath = null;
 
             try
             {
+                
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
                         photo,
@@ -368,24 +494,57 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 if (!added)
                 {
+                    _logger.LogWarning(
+                        "Repository rejected photo upload of property {PropertyId}. Removing upload files",
+                        propertyId
+                    );
                     _photoStorageService.DeletePhoto(dbPath);
 
                     ModelState.AddModelError(
                         "",
                         "Photo could not be uploaded because the listing was not found or you no longer have access.");
 
-                    return View();
+                    return View("ManagePropertyPhotos", viewModel);
                 }
+
+                _logger.LogInformation("Photo uploaded successfully for property {propertyId}.",
+                    propertyId
+                );
+
+                TempData["SuccessMessage"] = "Photo uploaded successfully.";
+
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
             }
             catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                return View();
+                _logger.LogWarning(
+                    ex,
+                    "Landlord {LandlordId} Could not upload photo to property {PropertyId}.",
+                    landlordUserId,
+                    propertyId
+                );
+
+                ModelState.AddModelError("",ex.Message);
+                return View("ManagePropertyPhotos", viewModel);
             }
+            catch(Exception ex)
+            {
+                if(!string.IsNullOrWhiteSpace(dbPath)){
+                    _photoStorageService.DeletePhoto(dbPath);
+                }
 
-            TempData["SuccessMessage"] = "Photo uploaded successfully.";
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordId} Could not upload photo to property {PropertyId}.",
+                    landlordUserId,
+                    propertyId
+                );
+                ModelState.AddModelError("",
+                    "Something went wrong while uploading your photo please try again."
+                );
 
-            return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+                return View("ManagePropertyPhotos", viewModel);
+            }  
         }
 
         public IActionResult PropertySubmitted(int propertyId)
@@ -416,14 +575,28 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 await _propertyRepository.DeletePropertyPhoto(photoId, propertyId);
-                TempData["SuccessMessage"] = "Photo deleted successfully.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
-            }
+                
+                _logger.LogInformation(
+                    "Photo {PhotoID} Of Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
+                    photoId, propertyId, landlordUserId
+                );
 
-            return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+                TempData["SuccessMessage"] = "Photo deleted successfully.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordUserId} Could not delete Photo {PhotoId} of property {PropertyId}.",
+                    landlordUserId,
+                    photoId, 
+                    propertyId
+                );
+
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
         }
 
         [Authorize(Roles = "Landlord")]
@@ -449,13 +622,25 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 await _propertyRepository.SetPrimaryPropertyPhoto(propertyId, photoId);
                 TempData["SuccessMessage"] = "Primary photo updated successfully.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
-            }
 
-            return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+                _logger.LogInformation(
+                    "Primary photo of Property {PropertyId} was updated successfully.",
+                    propertyId
+                );
+
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordUserId} could not set primary photo for property {PropertyId}.",
+                    landlordUserId,
+                    propertyId
+                );
+                TempData["ErrorMessage"] = "Unable to complete your request. Please try again later.";
+                return RedirectToAction(nameof(ManagePropertyPhotos), new { propertyId });
+            }
         }
         [Authorize(Roles = "Landlord")]
         [HttpGet]
@@ -498,13 +683,23 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 await _amenityRepository.UpdatePropertyAmenitiesAsync(model.PropertyId, selectedAmenityIds, landlordId);
                 TempData["Success"] = "Amenities updated successfully.";
-            }
-            catch (Exception)
-            {
-                TempData["Error"] = "Unable to update amenities at this time. Please try again later.";
-            }
 
-            return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
+                _logger.LogInformation("Amenities for property {propertyId} were updated successfully.",
+                    model.PropertyId
+                );
+                return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Landlord {LandlordId} could not update amenities for property {PropertyId}.",
+                    landlordId,
+                    model.PropertyId
+                );
+                TempData["Error"] = "Unable to update amenities at this time. Please try again later.";
+                return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
+            } 
         }
     }
 }

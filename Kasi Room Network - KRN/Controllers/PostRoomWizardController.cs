@@ -18,6 +18,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IAmenityRepository _amenityRepository;
         private readonly IPropertyRepository _propertyRepository;
         private readonly IListingRepository _listingRepository;
+        private readonly ILogger<PostRoomWizardController> _logger;
         private readonly IPhotoStorageService _photoStorageService;
 
         public PostRoomWizardController(
@@ -25,12 +26,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             IAmenityRepository amenityRepository,
             IPropertyRepository propertyRepository,
             IListingRepository listingRepository,
+            ILogger<PostRoomWizardController> logger,
             IPhotoStorageService photoStorageService)
         {
             _profileRepository = profileRepository;
             _amenityRepository = amenityRepository;
             _propertyRepository = propertyRepository;
             _listingRepository = listingRepository;
+            _logger = logger;
             _photoStorageService = photoStorageService;
         }
 
@@ -604,11 +607,13 @@ namespace Kasi_Room_Network___KRN.Controllers
                 };
 
                 createdPropertyId = await _propertyRepository.CreateProperty(propertyModel, landlordUserId);
-
+                
                 foreach (var amenityId in propertyModel.SelectedAmenityIds)
                 {
                     await _amenityRepository.AddPropertyAmenity(createdPropertyId.Value, amenityId, landlordUserId);
                 }
+
+               
 
                 var propertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList();
                 for (var index = 0; index < propertyPhotos.Count; index++)
@@ -620,6 +625,8 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                     await _propertyRepository.AddPropertyPhoto(createdPropertyId.Value, permanentPhotoPath, index == 0, landlordUserId);
                 }
+
+                 
 
                 var listingModel = new CreateListingViewModel
                 {
@@ -633,6 +640,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 createdListingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
 
+                
                 var listingPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
                     .Where(photo => photo.UseForRoom)
                     .ToList();
@@ -653,12 +661,37 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
                 _photoStorageService.DeleteTemporaryWizardFolder(landlordUserId);
+               
+                _logger.LogInformation("Landlord {LandlordUserId} Posted Listing {CreatedListingId} of property {CreatedPropertyId} via wizard. Wizard Complete",
+                    landlordUserId, 
+                    createdListingId,
+                    createdPropertyId
+                );
 
                 TempData["SuccessMessage"] = "Your listing was submitted successfully.";
                 return RedirectToAction("PropertyDetails", "Property", new { propertyId = createdPropertyId.Value });
             }
-            catch (Exception)
+            catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(
+                    ex,
+                    "Wizard submission failed validation. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.", 
+                    landlordUserId,
+                    createdPropertyId,
+                    createdListingId);
+
+                ModelState.AddModelError("", ex.Message);
+                return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Wizard submission failed. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.",
+                    landlordUserId,
+                    createdPropertyId,
+                    createdListingId
+                );
+
                 await CleanupFailedSubmitAsync(
                     createdListingId,
                     createdPropertyId,
@@ -670,52 +703,85 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
         }
 
-        private async Task CleanupFailedSubmitAsync(
-            int? createdListingId,
-            int? createdPropertyId,
-            IEnumerable<string> copiedPermanentListingPhotoPaths,
-            IEnumerable<string> copiedPermanentPropertyPhotoPaths)
+    private async Task CleanupFailedSubmitAsync(
+        int? createdListingId,
+        int? createdPropertyId,
+        IEnumerable<string> copiedPermanentListingPhotoPaths,
+        IEnumerable<string> copiedPermanentPropertyPhotoPaths)
+    {
+        var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Exception? cleanupException = null;
+
+        try
         {
-            var landlordId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Exception? cleanupException = null;
+            if (createdListingId.HasValue)
+            {
+                try
+                {
+                    await _listingRepository.DeleteListing(createdListingId.Value);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to delete listing {ListingId} during wizard rollback.",
+                        createdListingId.Value);
+
+                    cleanupException ??= ex;
+                }
+            }
+
+            if (createdPropertyId.HasValue)
+            {
+                try
+                {
+                    await _propertyRepository.DeletePropertyAsync(
+                        createdPropertyId.Value,
+                        landlordUserId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to delete property {PropertyId} during wizard rollback.",
+                        createdPropertyId.Value);
+
+                    cleanupException ??= ex;
+                }
+            }
+        }
+        finally
+        {
+            try
+            {
+                _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to delete copied listing photos during wizard rollback.");
+            }
 
             try
             {
-                if (createdListingId.HasValue)
-                {
-                    try
-                    {
-                        await _listingRepository.DeleteListing(createdListingId.Value);
-                    }
-                    catch (Exception exception)
-                    {
-                        cleanupException ??= exception;
-                    }
-                }
-
-                if (createdPropertyId.HasValue)
-                {
-                    try
-                    {
-                        await _propertyRepository.DeletePropertyAsync(createdPropertyId.Value, landlordId);
-                    }
-                    catch (Exception exception)
-                    {
-                        cleanupException ??= exception;
-                    }
-                }
-            }
-            finally
-            {
-                _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
                 _photoStorageService.DeletePhotos(copiedPermanentPropertyPhotoPaths);
             }
-
-            if (cleanupException != null)
+            catch (Exception ex)
             {
-                throw cleanupException;
+                _logger.LogError(
+                    ex,
+                    "Failed to delete copied property photos during wizard rollback.");
             }
         }
+
+        if (cleanupException != null)
+        {
+            _logger.LogError(
+                cleanupException,
+                "Wizard rollback completed with one or more cleanup failures.");
+        }
+    }
 
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
         {
