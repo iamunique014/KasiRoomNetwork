@@ -16,6 +16,8 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; }
         public bool IsVerified { get; set; }
+        public string VerificationNotes { get; set; }
+        public DateTime VerifiedOn { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsNew => CreatedAt >= DateTime.Now.AddDays(-30);
 

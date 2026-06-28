@@ -8,6 +8,13 @@
 
 <div class="container mt-4">
 
+    @if (!Model.IsVerified && !string.IsNullOrWhiteSpace(Model.VerificationNotes))
+    {
+        <div class="alert alert-danger rounded-4 shadow-sm">
+            Model.VerificationNotes
+        </div>
+    }
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success rounded-4 shadow-sm">
@@ -40,7 +47,7 @@
     @if (isOwner)
     {
         <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
+            <span class="badge @(Model.IsVerified ? "bg-info" : "bg-warning text-dark")">
                 @(Model.IsVerified ? "Published" : "Pending Verification")
             </span>
             <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
