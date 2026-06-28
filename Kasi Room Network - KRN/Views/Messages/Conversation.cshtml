@@ -28,8 +28,7 @@
 
         <div class="conversation-header">
 
-            <a asp-action="Index"
-               asp-route-returnUrl="@ViewBag.ReturnUrl"
+            <a href="@(ViewBag.ReturnUrl ?? Url.Action("Inbox","Messages"))"
                class="back-btn">
                 <i class="bi bi-arrow-left"></i>
             </a>
@@ -134,6 +133,10 @@
                 <input type="hidden"
                        name="ConversationId"
                        value="@conversationId" />
+
+                <input type="hidden"
+                       name="returnUrl"
+                       value="@(ViewBag.ReturnUrl)" />
 
                 <div class="input-group">
 
