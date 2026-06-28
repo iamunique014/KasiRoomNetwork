@@ -17,6 +17,7 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public bool IsAvailable { get; set; }
         public bool IsVerified { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsNew => CreatedAt >= DateTime.Now.AddDays(-30);
 
         //property
         public int PropertyId { get; set; }

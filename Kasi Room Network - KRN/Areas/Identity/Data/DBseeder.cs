@@ -1,4 +1,6 @@
 ﻿using Kasi_Room_Network___KRN.Constants;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using KasiRoomNetwork.Data.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
@@ -9,16 +11,25 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Data
     {
         public static async Task SeedRolesAndAdminAsync(IServiceProvider service)
         {
-            var configuration = service.GetRequiredService<IConfinguration>();
-            var email = configuration.["SeedAmin:Email"];
-            var password =  configuration.["SeedAdmin:Password"];
+            var configuration = service.GetRequiredService<IConfiguration>();
+            var email = configuration["SeedAdmin:Email"];
+            var password = configuration["SeedAdmin:Password"];
 
             //seed roles
-            var userManager = service.GetService<UserManager<ApplicationUser>>();
-            var roleManager = service.GetService<RoleManager<IdentityRole>>();
-            await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(Roles.Tenant.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(Roles.Landlord.ToString()));
+            var userManager = service.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
+
+            if(!await roleManager.RoleExistsAsync(Roles.Admin.ToString())) 
+                await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
+            if(!await roleManager.RoleExistsAsync(Roles.Tenant.ToString())) 
+                await roleManager.CreateAsync(new IdentityRole(Roles.Tenant.ToString()));
+            if(!await roleManager.RoleExistsAsync(Roles.Landlord.ToString())) 
+                await roleManager.CreateAsync(new IdentityRole(Roles.Landlord.ToString()));
+
+            if (string.IsNullOrWhiteSpace(email))
+                throw new InvalidOperationException("SeedAdmin:Email is missing");
+            if (string.IsNullOrWhiteSpace(password))
+                throw new InvalidOperationException("SeedAdmin:Password is missing");
 
             var user = new ApplicationUser
             {
@@ -32,8 +43,12 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Data
 
             if (userInDb == null)
             {
-                await userManager.CreateAsync(user, password);
-                await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+                var result = await userManager.CreateAsync(user, password);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+                }
+                
             }
         }
     }

@@ -47,13 +47,13 @@ body {
     width: 100%;
     object-fit: cover;
 }
-
+/*New badge*/
 .verified-badge {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #198754;
-    color: #fff;
+    background: #76ddeb83;
+    color: #131313;
     padding: .4rem .65rem;
     border-radius: 999px;
     font-size: .75rem;

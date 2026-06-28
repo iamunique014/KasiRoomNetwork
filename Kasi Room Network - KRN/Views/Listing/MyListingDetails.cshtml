@@ -41,7 +41,7 @@
     {
         <div class="d-flex flex-wrap gap-2 mb-3">
             <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
-                @(Model.IsVerified ? "Verified" : "Pending Verification")
+                @(Model.IsVerified ? "Published" : "Pending Verification")
             </span>
             <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
                 @(Model.IsAvailable ? "Available" : "Unavailable")
@@ -117,11 +117,6 @@
                 Local landlord
             </p>
 
-            <p>
-                <small class="text-muted">
-                    Listing verified by Kasi Room Network: @(Model.PropertyVerified ? "Yes" : "Pending")
-                </small>
-            </p>
 
             @if (!isOwner)
             {
@@ -161,10 +156,6 @@
 
         </div>
     }
-
-    <a asp-action="SearchListings" class="btn btn-outline-secondary w-100">
-        Back to search results
-    </a>
 
 </div>
 

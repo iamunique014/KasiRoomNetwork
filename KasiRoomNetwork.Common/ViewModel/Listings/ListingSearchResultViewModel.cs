@@ -11,6 +11,8 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         public int ListingId { get; set; }
         public string Title { get; set; }
         public decimal Price { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool  IsNew => CreatedAt >= DateTime.Now.AddDays(-30);
 
         public string Province { get; set; }
         public string City { get; set; }

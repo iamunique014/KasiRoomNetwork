@@ -67,10 +67,6 @@
                             
                             <!-- Status Badges Overlay -->
                             <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
-                                <span class="badge @(listing.IsVerified ? "bg-success" : "bg-warning text-dark") rounded-pill px-3 py-2 shadow-sm">
-                                    <i class="bi @(listing.IsVerified ? "bi-patch-check-fill" : "bi-clock-history") me-1"></i>
-                                    @(listing.IsVerified ? "Verified" : "Pending")
-                                </span>
                                 <span class="badge @(listing.IsAvailable ? "bg-info" : "bg-secondary") rounded-pill px-3 py-2 shadow-sm">
                                     <i class="bi @(listing.IsAvailable ? "bi-check-circle-fill" : "bi-dash-circle-fill") me-1"></i>
                                     @(listing.IsAvailable ? @listing.AvailableUnits + " Available" : "Occupied")
