@@ -181,6 +181,7 @@
                                asp-action="ContactLandlord"
                                asp-route-listingId="@Model.ListingId"
                                asp-route-landlordId="@Model.LandlordUserId"
+                               asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
                                class="btn btn-success btn-lg flex-grow-1">
 
                                 Contact Landlord
@@ -308,6 +309,7 @@
                    asp-action="ContactLandlord"
                    asp-route-listingId="@Model.ListingId"
                    asp-route-landlordId="@Model.LandlordUserId"
+                   asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
                    class="btn btn-success">
 
                     Contact Landlord

@@ -24,7 +24,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
 
         [Authorize(Roles = "Tenant")]
-        public async Task<IActionResult> ContactLandlord(int listingId, string landlordId)
+        public async Task<IActionResult> ContactLandlord(int listingId, string landlordId, string? returnUrl = null)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrWhiteSpace(userId))
@@ -45,10 +45,10 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             // if profile exists continue
-            return RedirectToAction("StartConversation", new { listingId, landlordId });
+            return RedirectToAction("StartConversation", new { listingId, landlordId, returnUrl});
         }
 
-        public async Task<IActionResult> StartConversation(int listingId, string landlordId)
+        public async Task<IActionResult> StartConversation(int listingId, string landlordId, string? returnUrl = null)
         {
             var userId = _userManager.GetUserId(User);
 
@@ -85,7 +85,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     listingId
                 );
 
-                return RedirectToAction("Conversation", new { conversationId });
+                return RedirectToAction("Conversation", new { conversationId, returnUrl});
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
         }
 
-        public async Task<IActionResult> Conversation(int conversationId)
+        public async Task<IActionResult> Conversation(int conversationId, string? returnUrl = null)
         {
             var userId = _userManager.GetUserId(User);
 
@@ -134,19 +134,19 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             ViewBag.ConversationId = conversationId;
             ViewBag.ConversationHeader = header;
-            ViewBag.ReturnUrl = Request.Headers["Referer"].ToString();
+            ViewBag.ReturnUrl = returnUrl;
             return View(messages);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(SendMessageViewModel model)
+        public async Task<IActionResult> Send(SendMessageViewModel model, string? returnUrl = null)
         {
-            if (!ModelState.IsValid)
-            {
-                return RedirectToAction(
-                    nameof(Conversation),
-                    new { conversationId = model.ConversationId });
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return RedirectToAction(
+            //        nameof(Conversation),
+            //        new { conversationId = model.ConversationId });
+            //}
 
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrWhiteSpace(userId))
@@ -192,7 +192,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 TempData["Error"] = "Unable to send message at this time. Please try again later.";
             }
 
-            return RedirectToAction("Conversation", new { conversationId = model.ConversationId });
+            return RedirectToAction("Conversation", new { conversationId = model.ConversationId, returnUrl });
         }
         public async Task<IActionResult> Inbox()
         {
