@@ -41,12 +41,40 @@
 <div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
     @if(!Model.IsVerified && !string.IsNullOrWhiteSpace(Model.VerificationNotes))
     {
-        <div class="alert alert-danger alert-dismissible fade show mx-3 mx-sm-0" role="alert">
+        <div class="alert alert-danger mx-sm-0" role="alert">
             <i class="bi bi-exclamation-circle me-2"></i>
+            <strong>Property Issues:</strong>         
             @Model.VerificationNotes
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <p class="text-muted">
+                Please use the tools provided below to edit and submit again. 
+            </p>
+        </div>
+        
+    }
+    else if(!Model.IsVerified)
+    {
+        <div class="alert alert-warning mx-sm-0" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            <strong>Under Review:</strong>           
+            <p class="text-muted">
+                We are reviewing your property. Please make sure your property details are up to date.
+            </p>
+        </div>
+        
+    }
+    else
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-sm-0" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong>Approved:</strong>
+            
+           <p class="text-muted">
+                Your property is has been reviewed, Use the tools below to Advertise your rooms. 
+            </p>
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
 
 
     @* Success Messages *@
@@ -59,14 +87,6 @@
         </div>
     }
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show mx-3 mx-sm-0" role="alert">
-            <i class="bi bi-check-circle me-2"></i>
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 
     @if (TempData["ErrorMessage"] != null)
     {
@@ -97,91 +117,157 @@
     </div>
 
     <!-- Property Photos Section -->
-    @if(photos.Any())
-    {
-        <div class="mb-4">
-            <div id="propertyCarousel"
-                 class="carousel slide rounded-3 overflow-hidden shadow-sm"
-                 data-bs-ride="carousel">
 
-                <div class="carousel-inner">
+    <div class="row g-3 mb-4">
 
-                    @for (int i = 0; i < photos.Count; i++)
+        <div class="col-12 col-sm-6">
+            @if(photos.Any())
+            {
+                <div id="propertyCarousel"
+                    class="carousel slide rounded-3 overflow-hidden shadow-sm"
+                    data-bs-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        @for (int i = 0; i < photos.Count; i++)
+                        {
+                            var photo = photos[i];
+                            var photoUrl = GetPhotoUrl(photo.PhotoPath);
+
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                                <img src="@photoUrl"
+                                    class="d-block w-100"
+                                    style="height: 325px; object-fit: cover;"
+                                    alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
+
+                            </div>
+                        }
+
+                    </div>
+
+                    @if (photos.Count > 1)
                     {
-                        var photo = photos[i];
-                        var photoUrl = GetPhotoUrl(photo.PhotoPath);
+                        <button class="carousel-control-prev"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="prev"
+                                aria-label="Previous property photo">
 
-                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
 
-                            <img src="@photoUrl"
-                                 class="d-block w-100"
-                                 style="height: 300px; object-fit: cover;"
-                                 alt="@(photo.IsPrimary ? "Primary property photo" : "Property photo")" />
+                        </button>
 
+                        <button class="carousel-control-next"
+                                type="button"
+                                data-bs-target="#propertyCarousel"
+                                data-bs-slide="next"
+                                aria-label="Next property photo">
+
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+
+                        </button>
+                    }
+
+                    @if (canEditProperty)
+                    {
+                        <div class="position-absolute bottom-0 start-0 end-0 p-2">
+                            <a asp-controller="Property"
+                            asp-action="ManagePropertyPhotos"
+                            asp-route-propertyId="@Model.PropertyId"
+                            class="btn btn-sm btn-light">
+                                <i class="bi bi-pencil me-1"></i>
+                                Manage Photos
+                            </a>
                         </div>
                     }
 
                 </div>
+            }
+            else
+            {
+                <div class="card border-0 bg-light rounded-3 mb-4 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-image text-muted mb-3" style="font-size: 3rem; display: block;"></i>
+                        <p class="text-muted mb-3">No property photos uploaded yet.</p>
 
-                @if (photos.Count > 1)
-                {
-                    <button class="carousel-control-prev"
-                            type="button"
-                            data-bs-target="#propertyCarousel"
-                            data-bs-slide="prev"
-                            aria-label="Previous property photo">
-
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-
-                    </button>
-
-                    <button class="carousel-control-next"
-                            type="button"
-                            data-bs-target="#propertyCarousel"
-                            data-bs-slide="next"
-                            aria-label="Next property photo">
-
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-
-                    </button>
-                }
-
-                @if (canEditProperty)
-                {
-                    <div class="position-absolute bottom-0 start-0 end-0 p-2">
-                        <a asp-controller="Property"
-                           asp-action="ManagePropertyPhotos"
-                           asp-route-propertyId="@Model.PropertyId"
-                           class="btn btn-sm btn-light">
-                            <i class="bi bi-pencil me-1"></i>
-                            Manage Photos
-                        </a>
+                        @if (canEditProperty)
+                        {
+                            <a asp-controller="Property"
+                            asp-action="AddPropertyPhotos"
+                            asp-route-propertyId="@Model.PropertyId"
+                            class="btn btn-primary">
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                Upload Photos
+                            </a>
+                        }
                     </div>
-                }
+                </div>
+            }
+        </div>
+                
+        <div class="col-12 col-sm-6 d-none d-sm-block">
+            <!-- Property Summary Card -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3 text-dark">
+                        <i class="bi bi-info-circle me-2 text-info"></i>
+                        Property Information
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-building text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Property Type</p>
+                                    <p class="mb-0 fw-semibold">@Model.PropertyType</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-door-closed text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Total Rooms</p>
+                                    <p class="mb-0 fw-semibold">@Model.TotalRooms</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-geo-alt text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Location</p>
+                                    <p class="mb-0 fw-semibold">@Model.Suburb, @Model.City</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-calendar-event text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Created</p>
+                                    <p class="mb-0 fw-semibold">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
         </div>
-        }
-        else
-        {
-            <div class="card border-0 bg-light rounded-3 mb-4 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <i class="bi bi-image text-muted mb-3" style="font-size: 3rem; display: block;"></i>
-                    <p class="text-muted mb-3">No property photos uploaded yet.</p>
-
-                    @if (canEditProperty)
-                    {
-                        <a asp-controller="Property"
-                           asp-action="AddPropertyPhotos"
-                           asp-route-propertyId="@Model.PropertyId"
-                           class="btn btn-primary">
-                            <i class="bi bi-cloud-upload me-2"></i>
-                            Upload Photos
-                        </a>
-                    }
-                </div>
-            </div>
-        }
+            
+    </div>
+   
 
     <!-- Landlord Action Hub (Only visible to property owner) -->
     @if (canEditProperty)
@@ -361,8 +447,9 @@
         </div>
     }
 
+
     <!-- Property Summary Card -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card border-0 shadow-sm rounded-3 mb-4 d-block d-sm-none">
 
         <div class="card-body p-4">
 
@@ -406,10 +493,10 @@
                 <div class="col-12 col-sm-6">
                     <div class="d-flex align-items-start">
                         <i class="bi bi-calendar-event text-primary me-3 mt-1"></i>
-                        <div>
-                            <p class="small text-muted mb-1">Created</p>
-                            <p class="mb-0 fw-semibold">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
-                        </div>
+                            <div>
+                                <p class="small text-muted mb-1">Created</p>
+                                <p class="mb-0 fw-semibold">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                            </div>
                     </div>
                 </div>
 
@@ -417,6 +504,6 @@
 
         </div>
 
-    </div>
-
+    </div>   
+                     
 </div>

@@ -64,24 +64,25 @@
 
     @if (completionPercent == 100)
     {
-        <div class="alert alert-success border-0 shadow-sm">
-
-            <strong>Profile Complete!</strong>
-
-            @if (isLandlord)
-            {
+        @if (isLandlord && Model.LandlordProfile.IsVerified)
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <strong>Profile Complete!</strong>
                 <span>
                     Your profile is ready for tenants to view.
                 </span>
-            }
-            else
-            {
+            </div>
+        }
+        else if (!isLandlord)
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <strong>Profile Complete!</strong>
                 <span>
                     You're ready to contact landlords.
                 </span>
-            }
-
-        </div>
+            </div>
+                
+        }    
     }
 
     <!-- Landlord Verification -->

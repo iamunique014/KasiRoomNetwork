@@ -6,12 +6,62 @@
         User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.LandlordUserId;
 }
 
-<div class="container mt-4">
+<div class="container py-4">
+
+    @* ---------------------------------------
+       STATUS ALERTS
+    ---------------------------------------- *@
 
     @if (!Model.IsVerified && !string.IsNullOrWhiteSpace(Model.VerificationNotes))
     {
-        <div class="alert alert-danger rounded-4 shadow-sm">
-            Model.VerificationNotes
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+
+                <div>
+                    <h5 class="mb-2">Changes Required</h5>
+
+                    <p class="mb-2">
+                        @Model.VerificationNotes
+                    </p>
+
+                    <small class="text-muted">
+                        Update the listing or photos below and submit again.
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!Model.IsVerified)
+    {
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-hourglass-split fs-3 me-3"></i>
+
+                <div>
+                    <h5 class="mb-2">Under Review</h5>
+
+                    <p class="mb-0">
+                        Your listing is currently being reviewed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+
+                <div>
+                    <h5 class="mb-2">Published</h5>
+
+                    <p class="mb-0">
+                        Your listing is live and visible to tenants.
+                    </p>
+                </div>
+            </div>
         </div>
     }
 
@@ -29,140 +79,497 @@
         </div>
     }
 
-    <!-- TITLE + PRICE -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="row g-4">
 
-        <h2 class="fw-bold">@Model.Title</h2>
+        <!-- LEFT -->
+        <div class="col-lg-8">
 
-        <div class="text-end">
-            <h4 class="text-success fw-bold mb-0">
-                R @Model.Price
-            </h4>
-            <small class="text-muted">
-                per month
-            </small>
-        </div>
-    </div>
+            <!-- HERO -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
 
-    @if (isOwner)
-    {
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="badge @(Model.IsVerified ? "bg-info" : "bg-warning text-dark")">
-                @(Model.IsVerified ? "Published" : "Pending Verification")
-            </span>
-            <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
-                @(Model.IsAvailable ? "Available" : "Unavailable")
-            </span>
-        </div>
-    }
+                <div class="card-body">
 
-    <!-- PHOTOS -->
-    @if (Model.Photos != null && Model.Photos.Any())
-    {
-        <p class="text-muted small mb-2">
-            Photos (@Model.Photos.Count)
-        </p>
-        <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-            <div class="carousel-inner">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
 
-                @for (int i = 0; i < Model.Photos.Count; i++)
-                {
-                    var photo = Model.Photos[i];
-                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                        <img src="@photo.PhotoPath"
-                             class="d-block w-100 rounded"
-                             style="max-height: 350px; object-fit: cover;"
-                             alt="Listing photo" />
+                        <div>
+
+                            <h2 class="fw-bold mb-1">
+                                @Model.Title
+                            </h2>
+
+                            <div class="text-muted mb-3">
+                                <i class="bi bi-geo-alt"></i>
+
+                                @Model.Suburb,
+                                @Model.City,
+                                @Model.Province
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
+
+                                    <i class="bi bi-patch-check-fill"></i>
+
+                                    @(Model.IsVerified
+                                        ? "Published"
+                                        : "Pending Review")
+
+                                </span>
+
+                                <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
+
+                                    <i class="bi bi-house-fill"></i>
+
+                                    @(Model.IsAvailable
+                                        ? "Available"
+                                        : "Unavailable")
+
+                                </span>
+
+                                @if (Model.PropertyVerified)
+                                {
+                                    <span class="badge bg-info text-dark">
+
+                                        <i class="bi bi-building-check"></i>
+
+                                        Verified Property
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <div class="text-end">
+
+                            <h2 class="text-success fw-bold mb-0">
+
+                                R @Model.Price
+
+                            </h2>
+
+                            <div class="text-muted">
+
+                                / month
+
+                            </div>
+
+                        </div>
+
                     </div>
-                }
+
+                    <hr />
+
+                    <div class="row text-center">
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Property
+                            </small>
+
+                            <strong>
+                                @Model.PropertyName
+                            </strong>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Type
+                            </small>
+
+                            <strong>
+                                @Model.PropertyType
+                            </strong>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted d-block">
+                                Rooms
+                            </small>
+
+                            <strong>
+                                @Model.TotalRooms
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
+            <!-- PHOTOS -->
 
-            <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div class="card-header bg-white border-0">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-images me-2"></i>
+
+                            Gallery
+
+                        </h5>
+
+                        <span class="badge bg-light text-dark">
+
+                            @Model.Photos.Count Photos
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    @if (Model.Photos.Any())
+                    {
+                        <div id="listingCarousel"
+                             class="carousel slide"
+                             data-bs-ride="carousel">
+
+                            <div class="carousel-inner rounded-4">
+
+                                @for (int i = 0; i < Model.Photos.Count; i++)
+                                {
+                                    var photo = Model.Photos[i];
+
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                                        <img src="@photo.PhotoPath"
+                                             class="d-block w-100"
+                                             style="height:450px;object-fit:cover;"
+                                             alt="Listing Photo">
+
+                                    </div>
+                                }
+
+                            </div>
+
+                            @if (Model.Photos.Count > 1)
+                            {
+                                <button class="carousel-control-prev"
+                                        type="button"
+                                        data-bs-target="#listingCarousel"
+                                        data-bs-slide="prev">
+
+                                    <span class="carousel-control-prev-icon"></span>
+
+                                </button>
+
+                                <button class="carousel-control-next"
+                                        type="button"
+                                        data-bs-target="#listingCarousel"
+                                        data-bs-slide="next">
+
+                                    <span class="carousel-control-next-icon"></span>
+
+                                </button>
+                            }
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-image fs-1 text-muted"></i>
+
+                            <h5 class="mt-3">
+                                No Photos
+                            </h5>
+
+                            <p class="text-muted">
+                                Add photos to increase tenant interest.
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
         </div>
-    }
-    else
-    {
-        <div class="alert alert-secondary mb-4">
-            No photos available for this listing.
+
+        <!-- RIGHT -->
+        <div class="col-lg-4">
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+                <div class="card-header bg-white">
+
+                    <h5 class="mb-0">
+
+                        Manage Listing
+
+                    </h5>
+
+                </div>
+
+                <div class="card-body d-grid gap-3">
+
+                    <a asp-action="EditListing"
+                       asp-route-listingId="@Model.ListingId"
+                       class="btn btn-warning">
+
+                        <i class="bi bi-pencil-square me-2"></i>
+
+                        Edit Listing
+
+                    </a>
+
+                    <a asp-action="ManageListingPhotos"
+                       asp-route-listingId="@Model.ListingId"
+                       class="btn btn-outline-primary">
+
+                        <i class="bi bi-images me-2"></i>
+
+                        Manage Photos
+
+                    </a>
+
+                    <a asp-controller="Property"
+                       asp-action="PropertyDetails"
+                       asp-route-propertyId="@Model.PropertyId"
+                       class="btn btn-outline-dark">
+
+                        <i class="bi bi-building me-2"></i>
+
+                        View Property
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- LISTING INFO -->
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div class="card-header bg-white">
+
+                    <h5 class="mb-0">
+
+                        Listing Summary
+
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span class="text-muted">
+                            Created
+                        </span>
+
+                        <strong>
+                            @Model.CreatedAt.ToString("dd MMM yyyy")
+                        </strong>
+
+                    </div>
+
+                    @if (Model.IsVerified)
+                    {
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span class="text-muted">
+                                Verified
+                            </span>
+
+                            <strong>
+                                @Model.VerifiedOn.ToString("dd MMM yyyy")
+                            </strong>
+
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between">
+
+                        <span class="text-muted">
+                            Listing ID
+                        </span>
+
+                        <strong>
+                            #@Model.ListingId
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-    }
 
-    <!-- DETAILS -->
-    <div class="card mb-4">
-        <div class="card-body">
-
-            <h5>Description</h5>
-            <p class="mb-0">
-                @Model.Description
-            </p>
-
-            <hr />
-
-            <h5>Location</h5>
-            <p>
-                @Model.Suburb, @Model.City<br />
-                @Model.Province
-            </p>
-
-        </div>
     </div>
 
-    <!-- LANDLORD INFO -->
-    <div class="card mb-4 border-success">
-        <div class="card-body">
+   <!-- DESCRIPTION -->
 
-            <h5 class="fw-bold mb-2">@Model.FullName</h5>
+<div class="card shadow-sm border-0 rounded-4 mt-4">
 
-            <p class="mb-1">
-                Local landlord
+    <div class="card-header bg-white border-0">
+
+        <h5 class="mb-0">
+            <i class="bi bi-card-text me-2"></i>
+            Description
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="mb-0" style="white-space:pre-line;">
+                @Model.Description
             </p>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                No description has been added.
+            </p>
+        }
+
+    </div>
+
+</div>
 
 
-            @if (!isOwner)
+<!-- AMENITIES -->
+
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+
+    <div class="card-header bg-white border-0">
+
+        <h5 class="mb-0">
+            <i class="bi bi-stars me-2"></i>
+            Amenities
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (Model.Amenities.Any())
+        {
+            <div class="d-flex flex-wrap gap-2">
+
+                @foreach (var amenity in Model.Amenities)
+                {
+                    <span class="badge rounded-pill bg-success-subtle text-success border px-3 py-2">
+
+                        <i class="bi bi-check-circle-fill me-1"></i>
+
+                        @amenity.Name
+
+                    </span>
+                }
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                No amenities have been added to this property.
+            </p>
+        }
+
+    </div>
+
+</div>
+
+
+<!-- LOCATION -->
+
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+
+    <div class="card-header bg-white border-0">
+
+        <h5 class="mb-0">
+            <i class="bi bi-geo-alt me-2"></i>
+            Location
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block">
+                    Province
+                </small>
+
+                <strong>
+                    @Model.Province
+                </strong>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block">
+                    City
+                </small>
+
+                <strong>
+                    @Model.City
+                </strong>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block">
+                    Suburb
+                </small>
+
+                <strong>
+                    @Model.Suburb
+                </strong>
+
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Street))
             {
-                <a asp-action="ContactLandlord" asp-controller="Messages" asp-route-listingId="@Model.ListingId" asp-route-landlordId="@Model.LandlordUserId" class="btn btn-success btn-lg w-100">
-                    Contact Landlord
-                </a>
+                <div class="col-md-6">
 
-                <p class="text-muted small mt-2 text-center">
-                    Chat safely without sharing your phone number
-                </p>
-            }
-            else
-            {
-                <div class="alert alert-info mb-0">
-                    You are viewing your own listing.
+                    <small class="text-muted d-block">
+                        Street
+                    </small>
+
+                    <strong>
+                        @Model.Street
+                    </strong>
+
                 </div>
             }
 
         </div>
+
     </div>
 
-    @if (isOwner)
-    {
-        <div class="d-flex gap-2 mb-3">
-
-            <a asp-action="EditListing"
-               asp-route-listingId="@Model.ListingId"
-               class="btn btn-warning">
-                Edit Listing
-            </a>
-
-            <a asp-action="ManageListingPhotos"
-               asp-route-listingId="@Model.ListingId"
-               class="btn btn-outline-primary">
-                Manage Photos
-            </a>
-
-        </div>
-    }
-
 </div>
+
 

@@ -502,7 +502,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                     ModelState.AddModelError(
                         "",
-                        "Photo could not be uploaded because the listing was not found or you no longer have access.");
+                        "Photo could not be uploaded because the property was not found or you no longer have access.");
 
                     return View("ManagePropertyPhotos", viewModel);
                 }
@@ -682,7 +682,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 await _amenityRepository.UpdatePropertyAmenitiesAsync(model.PropertyId, selectedAmenityIds, landlordId);
-                TempData["Success"] = "Amenities updated successfully.";
+                TempData["SuccessMessage"] = "Amenities updated successfully.";
 
                 _logger.LogInformation("Amenities for property {propertyId} were updated successfully.",
                     model.PropertyId
@@ -697,7 +697,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     landlordId,
                     model.PropertyId
                 );
-                TempData["Error"] = "Unable to update amenities at this time. Please try again later.";
+                TempData["ErrorMessage"] = "Unable to update amenities at this time. Please try again later.";
                 return RedirectToAction(nameof(PropertyDetails), new { propertyId = model.PropertyId });
             } 
         }

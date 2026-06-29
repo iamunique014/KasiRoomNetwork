@@ -50,6 +50,7 @@
             </h5>
             <form asp-action="UploadListingPhoto" asp-controller="Listing" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="mt-2"></div>
                 <input type="hidden" name="listingId" value="@Model.ListingId" />
                 
                 <div class="mb-3">

@@ -503,7 +503,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
 
-                TempData["PhotoUploaded"] = "Photo uploaded successfully";
+                TempData["SuccessMessage"] = "Photo uploaded successfully";
             
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }
