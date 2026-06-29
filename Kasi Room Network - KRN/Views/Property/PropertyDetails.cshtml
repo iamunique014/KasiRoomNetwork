@@ -41,38 +41,56 @@
 <div class="container-fluid px-0 px-sm-3 py-3 py-sm-4">
     @if(!Model.IsVerified && !string.IsNullOrWhiteSpace(Model.VerificationNotes))
     {
-        <div class="alert alert-danger mx-sm-0" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            <strong>Property Issues:</strong>         
-            @Model.VerificationNotes
-            <p class="text-muted">
-                Please use the tools provided below to edit and submit again. 
-            </p>
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                <div>
+                    <h5 class="mb-2">Changes Required:</h5>
+
+                    <p class="mb-2">
+                        @Model.VerificationNotes
+                    </p>
+
+                    <small class="text-muted">
+                        Please use the tools provided below to edit and submit again. 
+                    </small>
+                </div>                
+            </div>
         </div>
         
     }
     else if(!Model.IsVerified)
     {
-        <div class="alert alert-warning mx-sm-0" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            <strong>Under Review:</strong>           
-            <p class="text-muted">
-                We are reviewing your property. Please make sure your property details are up to date.
-            </p>
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-hourglass-split fs-3 me-3"></i>
+
+                <div>
+                    <h5 class="mb-2">Under Review:</h5>
+
+                    <p class="mb-0">
+                         We are reviewing your property. Please make sure your property details are up to date.
+                    </p>
+                </div>
+            </div>
         </div>
-        
     }
     else
     {
-        <div class="alert alert-success alert-dismissible fade show mx-sm-0" role="alert">
-            <i class="bi bi-check-circle me-2"></i>
-            <strong>Approved:</strong>
-            
-           <p class="text-muted">
-                Your property is has been reviewed, Use the tools below to Advertise your rooms. 
-            </p>
-             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
+            <div class="d-flex">
+                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+
+                <div>
+                    <h5 class="mb-2">Approved:</h5>
+
+                    <p class="mb-0">
+                        Your property is has been reviewed, Use the tools below to Advertise your rooms. 
+                    </p>
+                </div>
+            </div>
         </div>
+
     }
 
 

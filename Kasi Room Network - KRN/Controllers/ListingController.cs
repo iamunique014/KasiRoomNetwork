@@ -267,7 +267,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             listing.Photos = await _listingRepository.GetListingPhotos(listingId);
-
+            listing.Amenities = (await _amenityRepository.GetAmenitiesByPropertyId(listing.PropertyId)).ToList();
             return View(listing);
         }
 
