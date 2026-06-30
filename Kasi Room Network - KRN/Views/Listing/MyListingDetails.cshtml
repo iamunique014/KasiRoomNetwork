@@ -108,70 +108,104 @@
         </div>
     }
 
-    <!--Listing Header Section -->
-    <div class="mb-4">
-        <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+<!-- Listing Header -->
+<!-- ========================================= -->
+<div class="card border-0 shadow-sm mb-4 overflow-hidden">
+
+    <!-- Hero -->
+    <div class="bg-info text-white p-4">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+            <!-- Left -->
             <div>
-                <h1 class="h3 mb-1 fw-bold">
-                     @Model.Title
+
+                <div class="small text-dark-50 mb-2">
+                    <i class="bi bi-house-door-fill me-1"></i>
+                    Listing Overview
+                </div>
+
+                <h1 class="fw-bold mb-2">
+                    @Model.Title
                 </h1>
-                <p class="text-muted mb-0">
-                    <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+
+                <p class="mb-3 text-dark-50">
+                    <i class="bi bi-geo-alt-fill me-1"></i>
                     @Model.Suburb, @Model.City, @Model.Province
                 </p>
+
                 <div class="d-flex flex-wrap gap-2">
 
                     <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark")">
-
-                        <i class="bi bi-patch-check-fill"></i>
-
-                            @(Model.IsVerified
-                                ? "Published"
-                                : "Pending Review")
-
-                     </span>
-
-                    <span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-secondary")">
-
-                        <i class="bi bi-house-fill"></i>
-
-                            @(Model.IsAvailable
-                                ? "Available"
-                                : "Unavailable")
-
+                        <i class="bi bi-patch-check-fill me-1"></i>
+                        @(Model.IsVerified ? "Published" : "Pending Review")
                     </span>
 
-                    @if (Model.PropertyVerified)
-                    {
-                        <span class="badge bg-info text-dark">
-
-                            <i class="bi bi-building-check"></i>
-
-                                Approved Property
-
-                        </span>
-                    }
+                    <span class="badge @(Model.IsAvailable ? "bg-light text-dark" : "bg-secondary")">
+                        <i class="bi bi-house-fill me-1"></i>
+                        @(Model.IsAvailable ? "Available" : "Unavailable")
+                    </span>
 
                 </div>
-                <div class="text-end">
 
-                    <h2 class="text-success fw-bold mb-0">
-
-                        R @Model.Price
-
-                    </h2>
-
-                    <div class="text-muted">
-
-                        / month
-
-                    </div>
-
-                </div>
             </div>
+
+            <!-- Right -->
+            <div class="text-md-end">
+
+                <div class="small text-white-50">
+                    Rent
+                </div>
+
+                <h2 class="display-6 fw-bold mb-0">
+                    R @Model.Price
+                </h2>
+
+                <div class="text-white-50">
+                    per month
+                </div>
+
+            </div>
+
         </div>
+
     </div>
 
+    <!-- Action Bar -->
+    <div class="card-body py-3">
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+
+            <a asp-action="EditListing"
+               asp-route-listingId="@Model.ListingId"
+               class="btn btn-primary btn-sm">
+                <i class="bi bi-pencil-square"></i>
+                <span class="d-sm-inline ms-1">
+                    Edit Listing
+                </span>
+            </a>
+
+            <a asp-action="AddListingPhotos"
+               asp-route-listingId="@Model.ListingId"
+               class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-images"></i>
+                <span class="d-sm-inline ms-1">
+                    Manage Photos
+                </span>
+            </a>
+
+            <a asp-action="ListingDetails"
+               asp-route-listingId="@Model.ListingId"
+               class="btn btn-outline-secondary btn-sm ms-md-auto d-none d-md-inline-flex">
+                <i class="bi bi-eye me-1"></i>
+                View Public Listing
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
 
     <!-- Listing Photos Section -->
 
@@ -195,7 +229,7 @@
 
                                 <img src="@photoUrl"
                                     class="d-block w-100"
-                                    style="height: 325px; object-fit: cover;"
+                                    style="height: 350px; object-fit: cover;"
                                     alt="@(photo.IsPrimary ? "Primary Listing photo" : "Listing photo")" />
 
                             </div>
@@ -288,8 +322,8 @@
                             <div class="d-flex align-items-start">
                                 <i class="bi bi-door-closed text-primary me-3 mt-1"></i>
                                 <div>
-                                    <p class="small text-muted mb-1">Total Rooms</p>
-                                    <p class="mb-0 fw-semibold">@Model.TotalRooms</p>
+                                    <p class="small text-muted mb-1">Available Units</p>
+                                    <p class="mb-0 fw-semibold">@Model.AvailableUnits</p>
                                 </div>
                             </div>
                         </div>
@@ -300,16 +334,6 @@
                                 <div>
                                     <p class="small text-muted mb-1">Location</p>
                                     <p class="mb-0 fw-semibold">@Model.Suburb, @Model.City</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-calendar-event text-primary me-3 mt-1"></i>
-                                <div>
-                                    <p class="small text-muted mb-1">Created</p>
-                                    <p class="mb-0 fw-semibold">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
                                 </div>
                             </div>
                         </div>
@@ -434,53 +458,57 @@
         </div>
     </div>
 
+<!-- DESCRIPTION & amenities  -->
+<div class="row g-3 mb-4">
+    <!-- DESCRIPTION -->
+    <div class="col-12 col-sm-4 order-sm-2">
+        <div class="card shadow-sm border-0 rounded-4 mt-4 mb-4">
 
+            <div class="card-header bg-white border-0">
 
+                <h5 class="mb-0">
+                    <i class="bi bi-card-text me-2"></i>
+                    Description
+                </h5>
 
-   <!-- DESCRIPTION -->
+            </div>
 
-<div class="card shadow-sm border-0 rounded-4 mt-4">
+            <div class="card-body">
 
-    <div class="card-header bg-white border-0">
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="mb-0" style="white-space:pre-line;">
+                        @Model.Description
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">
+                        No description has been added.
+                    </p>
+                }
 
-        <h5 class="mb-0">
-            <i class="bi bi-card-text me-2"></i>
-            Description
-        </h5>
+            </div>
+
+        </div>
 
     </div>
 
-    <div class="card-body">
-
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
+    <!-- Amenities Section -->
+    <div class="col-12 col-sm-8 order-sm-1">
+        @if (Model.Amenities != null && Model.Amenities.Any())
         {
-            <p class="mb-0" style="white-space:pre-line;">
-                @Model.Description
-            </p>
-        }
-        else
-        {
-            <p class="text-muted mb-0">
-                No description has been added.
-            </p>
-        }
-
-    </div>
-
-</div>
-
-
-<!-- Amenities Section -->
-    @if (Model.Amenities != null && Model.Amenities.Any())
-    {
-        <div class="mb-4">
-            <h5 class="fw-bold mb-3 text-dark">
-                <i class="bi bi-star-fill me-2 text-warning"></i>
-                Amenities
-            </h5>
-
             <div class="card border-0 shadow-sm rounded-3">
 
+                <div class="card-header bg-white border-0">
+
+                    <h5 class="fw-bold mb-2 text-dark">
+                        <i class="bi bi-star-fill me-2 text-warning"></i>
+                        Amenities
+                    </h5>
+
+                </div>
+                    
                 <div class="card-body p-4">
 
                     @foreach (var categoryGroup in Model.Amenities.GroupBy(a => a.Category))
@@ -517,81 +545,103 @@
                 </div>
 
             </div>
-        </div>
-    }
-
-
-
-<!-- LOCATION -->
-
-<div class="card shadow-sm border-0 rounded-4 mt-4">
-
-    <div class="card-header bg-white border-0">
-
-        <h5 class="mb-0">
-            <i class="bi bi-geo-alt me-2"></i>
-            Location
-        </h5>
-
+        }   
     </div>
+</div>
 
-    <div class="card-body">
 
-        <div class="row g-4">
 
-            <div class="col-md-6">
+<div class="col-12 col-sm-6 d-block d-sm-none">
+            <!-- Listing Summary Card -->
+            <div class="card border-0 shadow-sm rounded-3">
 
-                <small class="text-muted d-block">
-                    Province
-                </small>
+                <div class="card-body p-4">
 
-                <strong>
-                    @Model.Province
-                </strong>
+                    <h5 class="fw-bold mb-3 text-dark">
+                        <i class="bi bi-info-circle me-2 text-info"></i>
+                        Listing Information
+                    </h5>
 
-            </div>
+                    <div class="row g-3">
 
-            <div class="col-md-6">
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-house text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Title</p>
+                                    <p class="mb-0 fw-semibold">@Model.Title</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <small class="text-muted d-block">
-                    City
-                </small>
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-door-closed text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Available Units</p>
+                                    <p class="mb-0 fw-semibold">@Model.AvailableUnits</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <strong>
-                    @Model.City
-                </strong>
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-geo-alt text-primary me-3 mt-1"></i>
+                                <div>
+                                    <p class="small text-muted mb-1">Location</p>
+                                    <p class="mb-0 fw-semibold">@Model.Suburb, @Model.City</p>
+                                </div>
+                            </div>
+                        </div>
 
-            </div>
+                        <!-- LISTING INFO -->
 
-            <div class="col-md-6">
+                        <div class="card shadow-sm border-0 rounded-4">
 
-                <small class="text-muted d-block">
-                    Suburb
-                </small>
+                            <div class="card-header bg-white">
 
-                <strong>
-                    @Model.Suburb
-                </strong>
+                                <h5 class="mb-0">
 
-            </div>
+                                    Listing Summary
 
-            @if (!string.IsNullOrWhiteSpace(Model.Street))
-            {
-                <div class="col-md-6">
+                                </h5>
 
-                    <small class="text-muted d-block">
-                        Street
-                    </small>
+                            </div>
 
-                    <strong>
-                        @Model.Street
-                    </strong>
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between mb-3">
+
+                                    <span class="text-muted">
+                                        Created
+                                    </span>
+
+                                    <strong>
+                                        @Model.CreatedAt.ToString("dd MMM yyyy")
+                                    </strong>
+
+                                </div>
+
+                                @if (Model.IsVerified)
+                                {
+                                    <div class="d-flex justify-content-between mb-3">
+
+                                        <span class="text-muted">
+                                            Approved
+                                        </span>
+
+                                        <strong>
+                                            @Model.VerifiedOn.ToString("dd MMM yyyy")
+                                        </strong>
+
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
 
                 </div>
-            }
 
+            </div>
         </div>
-
-    </div>
-
-</div>
