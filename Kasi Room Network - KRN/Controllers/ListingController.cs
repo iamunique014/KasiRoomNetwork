@@ -267,7 +267,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             listing.Photos = await _listingRepository.GetListingPhotos(listingId);
-
+            listing.Amenities = (await _amenityRepository.GetAmenitiesByPropertyId(listing.PropertyId)).ToList();
             return View(listing);
         }
 
@@ -503,7 +503,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                 _logger.LogInformation("Photo uploaded successfully for listing {listingId}.", listingId);
 
-                TempData["PhotoUploaded"] = "Photo uploaded successfully";
+                TempData["SuccessMessage"] = "Photo uploaded successfully";
             
                 return RedirectToAction(nameof(ManageListingPhotos), new { listingId });
             }

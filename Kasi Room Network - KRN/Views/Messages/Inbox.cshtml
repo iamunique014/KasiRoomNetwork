@@ -4,8 +4,6 @@
     ViewData["Title"] = "Inbox";
 }
 
-<h2 class="mb-4">Inbox</h2>
-
 @if (!Model.Any())
 {
     <div class="alert alert-info">
@@ -14,22 +12,21 @@
 }
 else
 {
+
     <div class="list-group shadow-sm">
 
         @foreach (var conversation in Model)
         {
             var preview = conversation.LastMessage;
 
-            if (string.IsNullOrWhiteSpace(preview))
+            if (!string.IsNullOrWhiteSpace(preview))
             {
-                preview = "No messages yet.";
-            }
-            else if (preview.Length > 40)
-            {
-                preview = preview.Substring(0, 40) + "...";
-            }
+                if (preview.Length > 40)
+                {
+                    preview = preview.Substring(0, 40) + "...";
+                }
 
-            <a asp-controller="Messages"
+               <a asp-controller="Messages"
                asp-action="Conversation"
                asp-route-conversationId="@conversation.ConversationId"
                class="list-group-item list-group-item-action @(conversation.UnreadCount > 0 ? "bg-light" : "")">
@@ -86,6 +83,8 @@ else
                 </div>
 
             </a>
+            }
+
         }
 
     </div>

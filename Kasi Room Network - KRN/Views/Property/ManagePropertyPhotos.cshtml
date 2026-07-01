@@ -51,6 +51,7 @@
             
             <form asp-action="UploadPropertyPhoto" asp-controller="Property" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="mt-2"></div>
                 <input type="hidden" name="propertyId" value="@Model.PropertyId" />
                 
                 <div class="mb-3">

@@ -16,7 +16,9 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
 
         public string PropertyType { get; set; }
         
-        //public bool IsVerified { get; set; }
+        public bool IsVerified { get; set; }
+        public string VerificationNotes { get; set; }
+        public DateTime VerifiedOn { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

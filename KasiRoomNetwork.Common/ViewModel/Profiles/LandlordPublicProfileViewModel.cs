@@ -20,5 +20,6 @@ namespace KasiRoomNetwork.Common.ViewModel.Profiles
 
         public bool IsVerified { get; set; }
         public DateTime? VerifiedAt { get; set; }
+        public string? VerificationNotes { get; set; }
     }
 }
