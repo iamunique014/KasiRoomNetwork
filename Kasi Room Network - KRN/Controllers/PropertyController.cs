@@ -231,7 +231,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
                     ModelState.AddModelError(
                         "",
-                        "Photo could not be uploaded because the listing was not found or you no longer have access.");
+                        "Photo could not be uploaded because the property was not found or you no longer have access.");
 
                     return View();
                 }

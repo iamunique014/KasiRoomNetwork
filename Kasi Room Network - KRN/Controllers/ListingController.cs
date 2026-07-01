@@ -392,7 +392,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 );
                 TempData["SuccessMessage"] = "Listing updated successfully. Verification has been reset and the listing must be approved before it appears publicly again.";
                 return RedirectToAction(
-                    "ListingDetails",
+                    "MyListingDetails",
                     new { listingId = model.ListingId });
             }
             catch (Exception ex)
@@ -471,7 +471,6 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                _logger.LogInformation("Uploading ListingPhoto of Listing {listingId}.", listingId);
 
                 dbPath = await _photoStorageService
                     .SaveOptimizedImageAsync(
