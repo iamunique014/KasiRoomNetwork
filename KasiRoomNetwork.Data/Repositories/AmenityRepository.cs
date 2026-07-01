@@ -99,7 +99,7 @@ namespace KasiRoomNetwork.Data.Repositories
                     {
                         PropertyId = propertyId,
                         AmenityId = amenityId,
-                        LandlordId = landlordId
+                        LandlordUserId = landlordId
                     });
             }
         }
