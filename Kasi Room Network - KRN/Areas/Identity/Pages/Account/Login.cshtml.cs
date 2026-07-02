@@ -119,8 +119,13 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User logged in.");
 
-                    if(!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    if(!string.IsNullOrWhiteSpace(returnUrl) 
+                        && returnUrl != Url.Content("~/") 
+                        && Url.IsLocalUrl(returnUrl))
+                    {
                         return LocalRedirect(returnUrl);
+                    }
+                        
 
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
@@ -134,7 +139,7 @@ namespace Kasi_Room_Network___KRN.Areas.Identity.Pages.Account
                         {
                             return RedirectToAction("LandlordDashboard", "Landlord");
                         }
-                        else if (roles.Contains("Tenant")   )
+                        else if (roles.Contains("Tenant"))
                         {
                             return RedirectToAction("TenantDashboard", "Tenant");
                         }

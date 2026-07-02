@@ -24,11 +24,11 @@ namespace KasiRoomNetwork.Common.ViewModel.Listings
         [Required]
         public string Description { get; set; }
 
-        [Required]
-        [Range(0, 100000)]
+        [Required(ErrorMessage = "Please enter an amount between 500 and 15000")]
+        [Range(typeof(decimal), "500", "15000")]
         public decimal Price { get; set; }
-        public int AvailableUnits { get; set; }
 
+        public int AvailableUnits { get; set; }
         public bool IsAvailable { get; set; } = true;
     }
 }
