@@ -72,7 +72,7 @@ namespace KasiRoomNetwork.Data.Repositories
                 new
                 {
                     PropertyId = propertyId,
-                    LandlordId = landlordId
+                    LandlordUserId  = landlordId
                 });
         }
 

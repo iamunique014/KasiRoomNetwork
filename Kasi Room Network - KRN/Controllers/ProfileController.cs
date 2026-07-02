@@ -91,6 +91,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
+                TempData.Remove("SuccessMessage");
                 return Redirect(returnUrl);
             }
 

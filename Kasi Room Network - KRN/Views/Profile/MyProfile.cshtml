@@ -189,25 +189,25 @@
             <div class="card-body">
 
                 <div class="mb-3">
-                    <label asp-for="UserProfile.FullName" class="form-label"></label>
+                    <label asp-for="UserProfile.FullName" class="form-label">Full Name<span class="text-danger">*</span></label>
                     <input asp-for="UserProfile.FullName" class="form-control" />
                     <span asp-validation-for="UserProfile.FullName" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="UserProfile.PhoneNumber" class="form-label"></label>
+                    <label asp-for="UserProfile.PhoneNumber" class="form-label">Phone Number<span class="text-danger">*</span></label>
                     <input asp-for="UserProfile.PhoneNumber" class="form-control" />
                     <span asp-validation-for="UserProfile.PhoneNumber" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="UserProfile.City" class="form-label"></label>
+                    <label asp-for="UserProfile.City" class="form-label">City<span class="text-danger">*</span></label>
                     <input asp-for="UserProfile.City" class="form-control" />
                     <span asp-validation-for="UserProfile.City" class="text-danger"></span>
                 </div>
 
                 <div class="mb-0">
-                    <label asp-for="UserProfile.Province" class="form-label"></label>
+                    <label asp-for="UserProfile.Province" class="form-label">Province<span class="text-danger">*</span></label>
 
                     <select asp-for="UserProfile.Province" class="form-select">
                         <option value="">Select Province</option>

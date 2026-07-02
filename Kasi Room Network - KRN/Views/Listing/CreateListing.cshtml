@@ -84,8 +84,8 @@
                         <div class="input-group">
                             <span class="input-group-text border-light bg-light">R</span>
                             <input asp-for="Price" 
-                                   class="form-control rounded-end-2 border-light bg-light" 
-                                   placeholder="0.00" />
+                               class="form-control rounded-end-2 border-light bg-light" 
+                               type="number" placeholder="1200" />
                         </div>
                         <span asp-validation-for="Price" class="text-danger small d-block mt-1"></span>
                     </div>
@@ -93,7 +93,7 @@
                         <label asp-for="AvailableUnits" class="form-label fw-semibold small text-muted">Available Units <span class="text-danger">*</span></label>
                         <input asp-for="AvailableUnits" 
                                class="form-control rounded-2 border-light bg-light" 
-                               type="number" min="1" />
+                               type="number" min="1" max="99"/>
                         <span asp-validation-for="AvailableUnits" class="text-danger small d-block mt-1"></span>
                     </div>
                 </div>
