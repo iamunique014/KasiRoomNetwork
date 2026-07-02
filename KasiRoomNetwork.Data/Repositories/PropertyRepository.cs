@@ -138,6 +138,7 @@ namespace KasiRoomNetwork.Data.Repositories
             await _db.SaveData("sp_PropertyPhoto_Delete", new
             {
                 PhotoId = photoId,
+                PropertyId = propertyId,
                 LandlordUserId = landlordUserId
             });
         }

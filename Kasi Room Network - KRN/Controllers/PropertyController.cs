@@ -574,7 +574,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                await _propertyRepository.DeletePropertyPhoto(photoId, propertyId, LandlordUserId);
+                await _propertyRepository.DeletePropertyPhoto(photoId, propertyId, landlordUserId);
                 
                 _logger.LogInformation(
                     "Photo {PhotoID} Of Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
