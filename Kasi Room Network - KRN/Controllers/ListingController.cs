@@ -566,7 +566,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 );
 
                 await _listingRepository.DeleteListingPhoto(photoId, listingId, landlordUserId);
-                
+                _photoStorageService.DeletePhoto(dbPath);
                 _logger.LogInformation(
                     "Photo {PhotoID} Of listing {listingId} of Landlord {LandlordID} was deleted successfully.", 
                     photoId, listingId, landlordUserId

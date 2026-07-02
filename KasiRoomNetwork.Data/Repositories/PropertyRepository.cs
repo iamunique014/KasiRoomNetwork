@@ -133,21 +133,22 @@ namespace KasiRoomNetwork.Data.Repositories
                 .ToList();
         }
 
-        public async Task DeletePropertyPhoto(int photoId, int propertyId)
+        public async Task DeletePropertyPhoto(int photoId, int propertyId, string landlordUserId)
         {
             await _db.SaveData("sp_PropertyPhoto_Delete", new
             {
                 PhotoId = photoId,
-                PropertyId = propertyId
+                LandlordUserId = landlordUserId
             });
         }
 
-        public async Task SetPrimaryPropertyPhoto(int propertyId, int photoId)
+        public async Task SetPrimaryPropertyPhoto(int propertyId, int photoId, string landlordUserId)
         {
             await _db.SaveData("sp_PropertyPhoto_Set_Primary", new
             {
                 PropertyId = propertyId,
-                PhotoId = photoId
+                PhotoId = photoId,
+                LandlordUserId = landlordUserId
             });
         }
     }
