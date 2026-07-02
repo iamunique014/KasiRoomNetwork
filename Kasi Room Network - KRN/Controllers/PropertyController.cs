@@ -574,7 +574,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                await _propertyRepository.DeletePropertyPhoto(photoId, propertyId);
+                await _propertyRepository.DeletePropertyPhoto(photoId, propertyId, landlordUserId);
                 
                 _logger.LogInformation(
                     "Photo {PhotoID} Of Property {PropertyId} of Landlord {LandlordID} was deleted successfully.", 
@@ -620,7 +620,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                await _propertyRepository.SetPrimaryPropertyPhoto(propertyId, photoId);
+                await _propertyRepository.SetPrimaryPropertyPhoto(propertyId, photoId, landlordUserId);
                 TempData["SuccessMessage"] = "Primary photo updated successfully.";
 
                 _logger.LogInformation(

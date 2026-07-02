@@ -48,6 +48,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             return RedirectToAction("StartConversation", new { listingId, landlordId, returnUrl});
         }
 
+        [Authorize(Roles = "Tenant")]
         public async Task<IActionResult> StartConversation(int listingId, string landlordId, string? returnUrl = null)
         {
             var userId = _userManager.GetUserId(User);
@@ -99,6 +100,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
         }
 
+        [Authorize(Roles = "Tenant")]
         public async Task<IActionResult> Conversation(int conversationId, string? returnUrl = null)
         {
             var userId = _userManager.GetUserId(User);
@@ -137,6 +139,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View(messages);
         }
+
+        [Authorize(Roles = "Tenant")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(SendMessageViewModel model, string? returnUrl = null)
