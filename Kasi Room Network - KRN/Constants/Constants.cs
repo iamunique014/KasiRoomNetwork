@@ -13,6 +13,7 @@
     public enum ImageCategory
     {
         Property,
-        Listing
+        Listing,
+        WizardTemp
     }
 }
