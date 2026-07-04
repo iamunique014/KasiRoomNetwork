@@ -120,10 +120,10 @@ namespace Kasi_Room_Network___KRN.Services
 
         public void DeleteTemporaryWizardFolder(string landlordUserId)
         {
-            // In Azure Blob Storage, there are no 
-actual folders, so we delete blobs with the specified prefix.
+            // In Azure Blob Storage, there are no actual folders, so we delete blobs with the specified prefix.
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
-            var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, $"wizard-temp/{landlordUserId}/");
+            var prefix = $"wizard-temp/{landlordUserId}/";
+            var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None);
             foreach (var blob in blobs)
             {
                 containerClient.DeleteBlobIfExists(blob.Name);

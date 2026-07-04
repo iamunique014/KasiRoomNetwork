@@ -19,7 +19,7 @@ namespace Kasi_Room_Network___KRN.Services
         ? "uploads-test"
         : "uploads";
 
-        public PhotoStorageService(IWebHostEnvironment webHostEnvironment)
+        public LocalStorageService (IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
