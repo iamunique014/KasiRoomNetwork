@@ -37,25 +37,6 @@ namespace Kasi_Room_Network___KRN.Services
             };
         }
 
-        private string GetBlobName(string relativePath)
-        {
-            // Remove leading slash if present
-            if (relativePath.StartsWith('/'))
-            {
-                relativePath = relativePath.Substring(1);
-            }
-            // Replace wwwroot/uploads or wwwroot/uploads-test with empty string
-            if (relativePath.StartsWith("uploads/"))
-            {
-                relativePath = relativePath.Substring("uploads/".Length);
-            }
-            else if (relativePath.StartsWith("uploads-test/"))
-            {
-                relativePath = relativePath.Substring("uploads-test/".Length);
-            }
-            return relativePath;
-        }
-
         public async Task<string> SaveTemporaryPhotoAsync(IFormFile? photo, string landlordUserId)
         {
             ValidatePhoto(photo);
@@ -83,11 +64,17 @@ namespace Kasi_Room_Network___KRN.Services
                 throw new InvalidOperationException("Permanent photo folder is missing.");
             }
 
-            // Extract blob name from URL
             var uri = new Uri(tempRelativePath);
-            var blobNameWithContainer = uri.Segments.Skip(uri.Segments.Length - 2).Aggregate((a, b) => a + b);
+            var blobNameWithContainer = uri.AbsolutePath.TrimStart('/');
             var parts = blobNameWithContainer.Split('/');
-            var originalBlobName = parts[1]; // e.g., {landlordUserId}/{Guid.NewGuid()}.jpg
+            
+            if (parts.Length < 2)
+            {
+                 throw new InvalidOperationException("Invalid temporary photo path.");
+            }
+            
+            var sourceContainerName = parts[0];
+            var sourceBlobName = string.Join("/", parts.Skip(1));
 
             ImageCategory category = permanentFolderName.ToLowerInvariant() switch
             {
@@ -96,23 +83,22 @@ namespace Kasi_Room_Network___KRN.Services
                 _ => throw new InvalidOperationException("Unsupported permanent folder name.")
             };
 
-            var sourceContainerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
-            var sourceBlobClient = sourceContainerClient.GetBlobClient($"wizard-temp/{originalBlobName}");
+            var sourceContainerClient = _blobServiceClient.GetBlobContainerClient(sourceContainerName);
+            var sourceBlobClient = sourceContainerClient.GetBlobClient(sourceBlobName);
 
             if (!await sourceBlobClient.ExistsAsync())
             {
                 throw new InvalidOperationException("One of your uploaded photos could not be found. Please upload it again.");
             }
 
-            var destinationContainerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(category));
+            var destinationContainerName = GetContainerName(category);
+            var destinationContainerClient = _blobServiceClient.GetBlobContainerClient(destinationContainerName);
             await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
-            var newBlobName = $"{permanentFolderName}/{Guid.NewGuid()}{Path.GetExtension(originalBlobName)}";
+            var newBlobName = $"{permanentFolderName}/{Guid.NewGuid()}{Path.GetExtension(sourceBlobName)}";
             var destinationBlobClient = destinationContainerClient.GetBlobClient(newBlobName);
 
             await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-
-            // Delete the temporary blob after copying
             await sourceBlobClient.DeleteIfExistsAsync();
 
             return destinationBlobClient.Uri.ToString();
@@ -120,7 +106,6 @@ namespace Kasi_Room_Network___KRN.Services
 
         public void DeleteTemporaryWizardFolder(string landlordUserId)
         {
-            // In Azure Blob Storage, there are no actual folders, so we delete blobs with the specified prefix.
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
             var prefix = $"wizard-temp/{landlordUserId}/";
             var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None);
@@ -147,31 +132,30 @@ namespace Kasi_Room_Network___KRN.Services
                 return;
             }
 
-            var uri = new Uri(relativePath);
-            var containerName = uri.Segments[1].TrimEnd('/');
-            var blobName = string.Join("", uri.Segments.Skip(2));
+            try
+            {
+                var uri = new Uri(relativePath);
+                var pathParts = uri.AbsolutePath.TrimStart('/').Split('/');
+                if (pathParts.Length < 2) return;
 
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            containerClient.DeleteBlobIfExists(blobName);
+                var containerName = pathParts[0];
+                var blobName = string.Join("/", pathParts.Skip(1));
+
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                containerClient.DeleteBlobIfExists(blobName);
+            }
+            catch
+            {
+                // Ignore invalid URIs or deletion failures
+            }
         }
 
         public void DeletePhotos(IEnumerable<string>? relativePaths)
         {
-            if (relativePaths == null)
-            {
-                return;
-            }
-
+            if (relativePaths == null) return;
             foreach (var path in relativePaths)
             {
-                try
-                {
-                    DeletePhoto(path);
-                }
-                catch
-                {
-                    // Ignore individual failures
-                }
+                DeletePhoto(path);
             }
         }
 
@@ -183,12 +167,9 @@ namespace Kasi_Room_Network___KRN.Services
         public void CleanupExpiredTemporaryPhotos(TimeSpan maxAge)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
-            if (!containerClient.Exists())
-            {
-                return;
-            }
+            if (!containerClient.Exists()) return;
 
-            foreach (var blobItem in containerClient.GetBlobs())
+            foreach (var blobItem in containerClient.GetBlobs(BlobTraits.None, BlobStates.None, null, CancellationToken.None))
             {
                 if (blobItem.Properties.CreatedOn.HasValue && (DateTimeOffset.UtcNow - blobItem.Properties.CreatedOn.Value) > maxAge)
                 {
@@ -205,8 +186,16 @@ namespace Kasi_Room_Network___KRN.Services
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
+            var folderName = category switch
+            {
+                ImageCategory.Listing => "listings",
+                ImageCategory.Property => "properties",
+                _ => throw new InvalidOperationException("Unsupported image category.")
+            };
+
             var fileName = $"{Guid.NewGuid()}.jpg";
-            var blobClient = containerClient.GetBlobClient(fileName);
+            var blobName = $"{folderName}/{fileName}";
+            var blobClient = containerClient.GetBlobClient(blobName);
 
             using (var memoryStream = new MemoryStream())
             {
@@ -219,12 +208,7 @@ namespace Kasi_Room_Network___KRN.Services
                             Size = new Size(1200, 1200)
                         }));
 
-                    await image.SaveAsJpegAsync(
-                        memoryStream,
-                        new JpegEncoder
-                        {
-                            Quality = 80
-                        });
+                    await image.SaveAsJpegAsync(memoryStream, new JpegEncoder { Quality = 80 });
                 }
                 memoryStream.Position = 0;
                 await blobClient.UploadAsync(memoryStream, true);
@@ -237,24 +221,18 @@ namespace Kasi_Room_Network___KRN.Services
         {
             if (photo == null || photo.Length == 0)
             {
-                throw new InvalidOperationException(
-                    "Please upload a photo.");
+                throw new InvalidOperationException("Please upload a photo.");
             }
 
-            var extension = Path
-                .GetExtension(photo.FileName)
-                .ToLowerInvariant();
-
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
             if (!AllowedExtensions.Contains(extension))
             {
-                throw new InvalidOperationException(
-                    "Only JPG, JPEG and PNG images are allowed.");
+                throw new InvalidOperationException("Only JPG, JPEG and PNG images are allowed.");
             }
 
             if (photo.Length > MaxPhotoSizeBytes)
             {
-                throw new InvalidOperationException(
-                    "Image size cannot exceed 5MB.");
+                throw new InvalidOperationException("Image size cannot exceed 5MB.");
             }
         }
     }
