@@ -4,9 +4,12 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
 namespace Kasi_Room_Network___KRN.Services
 {
-    public class PhotoStorageService : IPhotoStorageService
+    public class LocalStorageService : IPhotoStorageService
     {
         private const long MaxPhotoSizeBytes = 5 * 1024 * 1024;
         private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png"];
@@ -16,7 +19,7 @@ namespace Kasi_Room_Network___KRN.Services
         ? "uploads-test"
         : "uploads";
 
-        public PhotoStorageService(IWebHostEnvironment webHostEnvironment)
+        public LocalStorageService (IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
