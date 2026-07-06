@@ -143,13 +143,14 @@ Listing search form atyling*/
 
 .featured-properties-scroll {
     display: flex;
-    flex-wrap: nowrap;          /* Important */
-    overflow-x: scroll;   /* instead of auto */
+    flex-wrap: nowrap;
+    overflow-x: auto;
     overflow-y: hidden;
-    gap: 1rem;
-    padding: .25rem .25rem .75rem;
+    gap: 1.25rem;
+    padding: .5rem .25rem 1rem;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 .featured-properties-scroll::-webkit-scrollbar {
@@ -158,6 +159,6 @@ Listing search form atyling*/
 }
 
 .featured-property-card {
-    flex: 0 0 240px;            /* was 300px */
-    min-width: 240px;
+    flex: 0 0 auto;
+    width: 280px;
 }
