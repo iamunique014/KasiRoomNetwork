@@ -151,11 +151,29 @@ Listing search form atyling*/
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     width: 100%;
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
 }
 
 .featured-properties-scroll::-webkit-scrollbar {
+    height: 8px;
     display: block;
-    height: 10px;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+    border: 2px solid #f8f9fa;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
 }
 
 .featured-property-card {
