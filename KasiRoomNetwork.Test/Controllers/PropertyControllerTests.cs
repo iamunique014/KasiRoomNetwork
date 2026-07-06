@@ -3,6 +3,7 @@ using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Controllers;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.Models;
+using KasiRoomNetwork.Common.Models.Enums;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
@@ -198,7 +199,7 @@ namespace KasiRoomNetwork.Test.Controllers
 
             var model = new CreatePropertyViewModel
             {
-                PropertyType = "House",
+                PropertyType = PropertyType.RentalUnits,
                 Province = "North West",
                 City = "Rustenburg",
                 Street = "123 Main Street"
@@ -254,7 +255,7 @@ namespace KasiRoomNetwork.Test.Controllers
 
             var model = new CreatePropertyViewModel
             {
-                PropertyType = "House",
+                PropertyType = PropertyType.RentalUnits,
                 PropertyName = "Test Property",
                 Province = "North West",
                 City = "Rustenburg",
@@ -776,7 +777,7 @@ namespace KasiRoomNetwork.Test.Controllers
             {
                 PropertyId = propertyId,
                 PropertyName = "Room Available",
-                PropertyType = "A clean room",
+                PropertyType = "Backrooms",
                 LandlordUserId = landlordUserId,
                 FullName = "Test Landlord",
                 PhoneNumber = "123",
