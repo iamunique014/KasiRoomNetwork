@@ -129,8 +129,9 @@
 
         @if ((int)ViewBag.PhotoCount > 0)
         {
-            <a asp-action="PropertySubmitted" 
-               asp-route-id="@propertyId" 
+            <a asp-controller="Listing"
+               asp-action="CreateListing" 
+               asp-route-propertyId="@propertyId" 
                class="btn btn-success rounded-pill px-4 shadow-sm ms-auto">
                 <i class="bi bi-check-circle me-2"></i>Finish & Submit
             </a>
