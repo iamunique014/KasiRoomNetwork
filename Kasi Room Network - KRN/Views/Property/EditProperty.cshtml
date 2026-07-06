@@ -50,7 +50,7 @@
                             @foreach (var type in Enum.GetValues(typeof(PropertyType)).Cast<PropertyType>())
                             {
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="PropertyType" value="@type" id="type_@type" @(Model.PropertyType == type ? "checked" : "")>
+                                    <input class="form-check-input" type="radio" asp-for="PropertyType" value="@type" id="type_@type">
                                     <label class="form-check-label" for="type_@type">
                                         @Html.DisplayFor(_ => type)
                                     </label>

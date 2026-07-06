@@ -899,7 +899,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         private static bool HasCompletedBasicPropertyInfo(PostRoomWizardStateViewModel wizardState)
         {
-            return !string.IsNullOrWhiteSpace(wizardState.BasicPropertyInfo.PropertyType);
+            return wizardState.BasicPropertyInfo.PropertyType.HasValue;
         }
 
         private static bool HasCompletedAddress(PostRoomWizardStateViewModel wizardState)
