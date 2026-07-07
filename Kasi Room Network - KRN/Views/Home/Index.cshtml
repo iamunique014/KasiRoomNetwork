@@ -142,17 +142,17 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
 
                 <h2 class="fw-bold mb-0">
-                    Featured Rooms
+                    Featured Properties
                 </h2>
 
                 <a href="/Listing/SearchListings"
-                   class="btn btn-outline-primary">
-                    View All Rooms
+                   class="btn btn-sm-outline-primary">
+                    Search Rooms
                 </a>
 
             </div>
 
-            <div class="row">
+            <div id="featured-properties">
 
                 @* Render latest verified listings here *@
 
@@ -499,3 +499,18 @@
 
     </section>
 </div>
+
+
+@section Scripts{
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            const response = await fetch("/Home/FeaturedProperties");
+
+            if (response.ok) {
+                document.getElementById("featured-properties").innerHTML =
+                    await response.text();
+            }
+        });
+    </script>
+}

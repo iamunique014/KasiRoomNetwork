@@ -115,7 +115,6 @@ namespace Kasi_Room_Network___KRN.Controllers
                 _logger.LogInformation(
                     "Property {PropertyId} created successfully for landlord {LandlordUserId}.", propertyId, landlordUserId);
 
-                TempData["SuccessMessage"] = "Property created successfully. You can now add a room listing for it.";
                 return RedirectToAction(nameof(AddPropertyPhotos), new { propertyId });
             }
             catch (Exception ex)

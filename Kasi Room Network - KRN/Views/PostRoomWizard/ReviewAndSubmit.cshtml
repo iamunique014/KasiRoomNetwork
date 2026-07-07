@@ -31,7 +31,7 @@
                         <dd class="col-7 col-sm-8">@(string.IsNullOrWhiteSpace(Model.BasicPropertyInfo.PropertyName) ? "Not provided" : Model.BasicPropertyInfo.PropertyName)</dd>
 
                         <dt class="col-5 col-sm-4 text-muted">Property Type</dt>
-                        <dd class="col-7 col-sm-8">@Model.BasicPropertyInfo.PropertyType</dd>
+                        <dd class="col-7 col-sm-8">@Html.DisplayFor(_ => Model.BasicPropertyInfo.PropertyType)</dd>
 
                         <dt class="col-5 col-sm-4 text-muted">Total Rooms</dt>
                         <dd class="col-7 col-sm-8 mb-0">@(Model.BasicPropertyInfo.TotalRooms?.ToString() ?? "Not provided")</dd>

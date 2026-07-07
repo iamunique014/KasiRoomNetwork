@@ -1,6 +1,7 @@
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
+using KasiRoomNetwork.Common.Models.Enums;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
@@ -19,7 +20,7 @@ namespace KasiRoomNetwork.Data.Repositories
             var result = await _db.GetData<int, dynamic>("sp_Landlord_Create_Property", new
             {
                 LandlordUserId = landlordUserId,
-                model.PropertyType,
+                PropertyType = model.PropertyType?.ToString() ?? string.Empty,
                 model.TotalRooms,
                 model.PropertyName,
                 model.Street,
@@ -54,7 +55,7 @@ namespace KasiRoomNetwork.Data.Repositories
                     LandlordId = landlordId,
 
                     model.PropertyName,
-                    model.PropertyType,
+                    PropertyType = model.PropertyType?.ToString() ?? string.Empty,
                     model.TotalRooms,
 
                     model.Province,

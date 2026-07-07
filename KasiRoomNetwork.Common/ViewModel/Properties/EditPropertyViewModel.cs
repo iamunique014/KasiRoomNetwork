@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using KasiRoomNetwork.Common.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace KasiRoomNetwork.Common.ViewModel.Properties
 {
@@ -12,10 +13,10 @@ namespace KasiRoomNetwork.Common.ViewModel.Properties
         [Display(Name = "Property Name")]
         public string PropertyName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "Property Type is required.")]
+        [EnumDataType(typeof(PropertyType), ErrorMessage = "Invalid Property Type.")]
         [Display(Name = "Property Type")]
-        public string PropertyType { get; set; } = string.Empty;
+        public PropertyType? PropertyType { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Total rooms must be at least 1.")]
         [Display(Name = "Total Rooms")]
