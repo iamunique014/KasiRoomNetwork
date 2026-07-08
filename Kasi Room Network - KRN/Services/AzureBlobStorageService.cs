@@ -30,9 +30,9 @@ namespace Kasi_Room_Network___KRN.Services
         {
             return category switch
             {
-                ImageCategory.Listing => "listing-images",
-                ImageCategory.Property => "property-images",
-                ImageCategory.WizardTemp => "wizard-temp-images",
+                ImageCategory.Listing => "listing-images-krn",
+                ImageCategory.Property => "property-images-krn",
+                ImageCategory.WizardTemp => "wizard-temp-images-krn",
                 _ => throw new InvalidOperationException("Unsupported image category.")
             };
         }
