@@ -22,7 +22,7 @@ namespace Kasi_Room_Network___KRN.Services
         {
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
-            var connectionString = _configuration.GetConnectionString("AzureStorage");
+            var connectionString = _configuration.GetConnectionString("AzureBlobStorage");
             _blobServiceClient = new BlobServiceClient(connectionString);
         }
 

@@ -137,3 +137,46 @@ Listing search form atyling*/
         .search-card .accordion-button:not(.collapsed) {
             color: var(--bs-primary);
         }
+
+
+/*-------FEATURED PROPERTIES CSS--------*/
+
+.featured-properties-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 1.25rem;
+    padding: .5rem .25rem 1rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}
+
+.featured-properties-scroll::-webkit-scrollbar {
+    height: 8px;
+    display: block;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+    border: 2px solid #f8f9fa;
+}
+
+.featured-properties-scroll::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}
+
+.featured-property-card {
+    flex: 0 0 auto;
+    width: 280px;
+}
