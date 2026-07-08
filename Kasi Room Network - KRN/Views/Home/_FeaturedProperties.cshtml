@@ -29,7 +29,7 @@ else
                     />
 
                      <span class="badge bg-success position-absolute top-0 end-0 m-2">
-                        @property.AvailableRooms @(property.AvailableRooms == 1 ? "Room" : "Rooms")
+                        @property.AvailableRooms @(property.AvailableRooms == 1 ? "Room available" : "Rooms available")
                     </span>
                 </div>
 
@@ -52,12 +52,12 @@ else
                             From R @property.StartingPrice.ToString("N0") / month
                         </h5>
 
-                        @* <a asp-controller="Property"
+                        <a asp-controller="Property"
                            asp-action="PropertyDetails"
                            asp-route-propertyId="@property.PropertyId"
                            class="btn btn-outline-primary mt-auto">
                             View Property
-                        </a> *@
+                        </a> 
 
                     </div>
 
