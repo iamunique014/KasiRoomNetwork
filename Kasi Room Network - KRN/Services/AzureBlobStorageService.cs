@@ -49,6 +49,9 @@ namespace Kasi_Room_Network___KRN.Services
             {
                 await blobClient.UploadAsync(stream, true);
             }
+
+
+
             return blobClient.Uri.ToString();
         }
 
@@ -99,7 +102,11 @@ namespace Kasi_Room_Network___KRN.Services
             var destinationBlobClient = destinationContainerClient.GetBlobClient(newBlobName);
 
             await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-            await sourceBlobClient.DeleteIfExistsAsync();
+            
+            // BUG IDENTIFIED: Deleting the source blob here causes subsequent copies of the same 
+            // temporary photo (e.g., when used for both Property and Listing) to fail because 
+            // the source no longer exists.
+            // await sourceBlobClient.DeleteIfExistsAsync();
 
             return destinationBlobClient.Uri.ToString();
         }

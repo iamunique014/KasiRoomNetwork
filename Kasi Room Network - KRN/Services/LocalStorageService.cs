@@ -117,6 +117,10 @@ namespace Kasi_Room_Network___KRN.Services
                 {
                     await sourceStream.CopyToAsync(destinationStream);
                 }
+                
+                // Note: We do not delete the source file here to allow the same temporary photo 
+                // to be copied multiple times (e.g., once for the property and once for the listing).
+                // Cleanup is handled at the end of the wizard or via background expiration.
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
