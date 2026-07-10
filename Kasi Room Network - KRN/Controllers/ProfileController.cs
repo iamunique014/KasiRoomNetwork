@@ -49,7 +49,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var userId = _userManager.GetUserId(User);
             var isLandlord = User.IsInRole("Landlord");
 
-            if(!isLandlord)
+            /*if(!isLandlord)
             {
                 model.LandlordProfile.WhatsAppNumber = model.UserProfile.PhoneNumber;
             }
@@ -62,7 +62,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(model);
             }
 
-            
+            */
             if (string.IsNullOrEmpty(userId))
             {
                 return Challenge();
