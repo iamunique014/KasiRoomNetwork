@@ -46,6 +46,12 @@ namespace Kasi_Room_Network___KRN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MyProfile(ProfilePageViewModel model, string? returnUrl)
         {
+            var userId = _userManager.GetUserId(User);
+            var isLandlord = User.IsInRole("Landlord");
+
+            if(!IsLandlord){
+                model.Whast
+            }
             if (!ModelState.IsValid)
             {
                 ViewBag.IsLandlord = User.IsInRole("Landlord");
@@ -54,7 +60,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(model);
             }
 
-            var userId = _userManager.GetUserId(User);
+            
             if (string.IsNullOrEmpty(userId))
             {
                 return Challenge();
