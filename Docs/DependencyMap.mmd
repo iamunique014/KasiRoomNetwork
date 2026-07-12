@@ -1,0 +1,35 @@
+
+graph LR
+    subgraph KRN.UI
+        Controller
+        Services
+        View
+    end
+
+    subgraph KRN.Data
+        Repositories
+        Interfaces
+        StoredProcedures
+    end
+
+    subgraph KRN.Common
+        ViewModels
+    end
+
+    subgraph External
+        AzureBlobStorageService
+        SQLServer
+    end
+
+    Controller --> Services
+    Controller --> Repositories
+    Controller --> ViewModels
+    Controller --> View
+    Services --> Repositories
+    Services --> AzureBlobStorageService
+    Repositories --> Interfaces
+    Repositories --> StoredProcedures
+    StoredProcedures --> SQLServer
+    AzureBlobStorageService --> AzureBlobStorage
+    ViewModels --> Controller
+    ViewModels --> View

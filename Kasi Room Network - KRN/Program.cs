@@ -49,6 +49,7 @@ builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+builder.Services.AddScoped<IPropertyCreationService, PropertyCreationService>();
 if (builder.Environment.IsProduction())
 {
     builder.Services.AddScoped<IPhotoStorageService, AzureBlobStorageService>();

@@ -1,0 +1,33 @@
+
+# Data Flow Diagram for Property Creation Workflow
+
+UI.PropertyWizard -> Controller
+
+Controller -> Session.WizardState: Store/Retrieve Wizard State
+
+Controller -> AzureBlobStorageService: Upload Temporary Photos
+AzureBlobStorageService -> AzureBlobStorage: Store Temp Blobs
+AzureBlobStorage -> AzureBlobStorageService: Retrieve Temp Blobs
+AzureBlobStorageService -> Controller: Return Temp Paths
+
+Controller -> PropertyRepository: Submit Property Data
+PropertyRepository -> SQLServer: Create Property & Amenities
+SQLServer -> PropertyRepository: Return PropertyId
+
+Controller -> AzureBlobStorageService: Copy Temp to Permanent
+AzureBlobStorageService -> AzureBlobStorage: Store Permanent Blobs
+AzureBlobStorageService -> Controller: Return Permanent Paths
+
+Controller -> PropertyRepository: Add Photo Metadata
+PropertyRepository -> SQLServer: Persist Photo Metadata
+
+Controller -> ListingRepository: Submit Listing Data
+ListingRepository -> SQLServer: Create Listing
+SQLServer -> ListingRepository: Return ListingId
+ListingRepository -> SQLServer: Add Listing Photo Metadata
+
+AzureBlobStorageService -> AzureBlobStorage: Store Permanent Listing Blobs
+AzureBlobStorageService -> Controller: Return Permanent Listing Paths
+
+Controller -> Session.WizardState: Clear Session & Temp Photos
+Session.WizardState -> AzureBlobStorageService: Delete Temp Blobs

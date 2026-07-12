@@ -1,0 +1,18 @@
+
+Property Wizard -> Controller: User input
+Controller -> Repositories: Create Property
+Repositories -> StoredProcedures: Persist Property
+Controller -> Repositories: Add Amenities
+Repositories -> StoredProcedures: Persist Amenities
+Controller -> PhotoStorageService: Upload Photos (temp)
+PhotoStorageService -> AzureBlobStorage: Store Temp Blobs
+Controller -> PhotoStorageService: Copy Temp to Permanent
+PhotoStorageService -> AzureBlobStorage: Store Permanent Blobs
+Controller -> Repositories: Add Photo Metadata
+Repositories -> StoredProcedures: Persist Photo Metadata
+Controller -> Session: Store Wizard State
+Session -> Controller: Retrieve Wizard State
+AzureBlobStorage -> PhotoStorageService: Retrieve Photo
+StoredProcedures -> Repositories: Return IDs/Status
+Repositories -> Controller: Return IDs/Status
+Controller -> View: Render UI

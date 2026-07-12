@@ -2,6 +2,8 @@ using Kasi_Room_Network___KRN.Constants;
 using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.Interfaces;
+using KasiRoomNetwork.KRN.Services;
+using KasiRoomNetwork.Common.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -15,6 +17,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly ILandlordRepository _landlordRepository;
         private readonly IAmenityRepository _amenityRepository;
         private readonly IPhotoStorageService _photoStorageService;
+        private readonly IPropertyCreationService _propertyCreationService;
         private readonly ILogger<PropertyController> _logger;
 
         public PropertyController(IPropertyRepository propertyRepository,
@@ -22,6 +25,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             ILandlordRepository landlordRepository, 
             IAmenityRepository amenityRepository,
             IPhotoStorageService photoStorageService,
+            IPropertyCreationService propertyCreationService,
             ILogger<PropertyController> logger)
         {
             _propertyRepository = propertyRepository;
@@ -29,6 +33,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             _landlordRepository = landlordRepository;
             _amenityRepository = amenityRepository;
             _photoStorageService = photoStorageService;
+            _propertyCreationService = propertyCreationService;
             _logger = logger;
         }
 
@@ -102,15 +107,20 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             {
-                int propertyId = await _propertyRepository.CreateProperty(model, landlordUserId);
-
-                if (model.SelectedAmenityIds != null && model.SelectedAmenityIds.Any())
+                var dto = new PropertyListingCreationDto
                 {
-                    foreach (var amenityId in model.SelectedAmenityIds)
-                    {
-                        await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, landlordUserId);
-                    }
-                }
+                    LandlordUserId = landlordUserId,
+                    PropertyType = model.PropertyType,
+                    TotalRooms = model.TotalRooms,
+                    PropertyName = model.PropertyName,
+                    Street = model.Street,
+                    Province = model.Province,
+                    City = model.City,
+                    Suburb = model.Suburb,
+                    AmenityIds = model.SelectedAmenityIds ?? new List<int>()
+                };
+
+                var (propertyId, _) = await _propertyCreationService.CreatePropertyAndListingAsync(dto);
 
                 _logger.LogInformation(
                     "Property {PropertyId} created successfully for landlord {LandlordUserId}.", propertyId, landlordUserId);

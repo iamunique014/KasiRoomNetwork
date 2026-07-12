@@ -1,0 +1,35 @@
+
+graph TD
+    subgraph UI
+        A[Property Wizard]
+    end
+
+    subgraph Application Layer
+        B[Controller]
+        C[Session]
+        D[AzureBlobStorageService]
+        F[PropertyRepository]
+        H[ListingRepository]
+    end
+
+    subgraph Data Layer
+        E[Azure Blob Storage]
+        G[SQL Server]
+    end
+
+    A --> B
+    B --> C
+    C --> B
+    B --> D
+    D --> E
+    E --> D
+    D --> B
+    B --> F
+    F --> G
+    G --> F
+    F --> B
+    B --> H
+    H --> G
+    G --> H
+    H --> B
+    B --> C

@@ -9,7 +9,9 @@ namespace KasiRoomNetwork.Data.DataAccess
     public interface ISqlDataAccess
     {
         Task<IEnumerable<T>> GetData<T, P>(string spName, P parameters, string connectionID = "conn");
+        Task<IEnumerable<T>> GetData<T, P>(string spName, P parameters, IDbTransaction transaction, string connectionID = "conn");
         Task SaveData<T>(string spName, T parametrs, string connectionID = "conn");
+        Task SaveData<T>(string spName, T parametrs, IDbTransaction transaction, string connectionID = "conn");
 
 
         Task<IEnumerable<TReturn>> GetMultiData<TFirst, TSecond, TReturn>(
