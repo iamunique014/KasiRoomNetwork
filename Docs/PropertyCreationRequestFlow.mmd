@@ -1,0 +1,30 @@
+
+graph TD
+    A[Property Wizard] --> B(Controller)
+    B --> C{Repositories}
+    C -- Create Property --> D[StoredProcedures]
+    D -- Persist Property --> C
+    B --> E{Repositories}
+    E -- Add Amenities --> F[StoredProcedures]
+    F -- Persist Amenities --> E
+    B --> G[PhotoStorageService]
+    G -- Upload Photos (temp) --> H[AzureBlobStorage]
+    H -- Store Temp Blobs --> G
+    B --> I[PhotoStorageService]
+    I -- Copy Temp to Permanent --> J[AzureBlobStorage]
+    J -- Store Permanent Blobs --> I
+    B --> K{Repositories}
+    K -- Add Photo Metadata --> L[StoredProcedures]
+    L -- Persist Photo Metadata --> K
+    B --> M(Session)
+    M -- Store Wizard State --> B
+    B -- Retrieve Wizard State --> M
+    H -- Retrieve Photo --> G
+    D -- Return IDs/Status --> C
+    F -- Return IDs/Status --> E
+    L -- Return IDs/Status --> K
+    C -- Return IDs/Status --> B
+    E -- Return IDs/Status --> B
+    K -- Return IDs/Status --> B
+    B --> N(View)
+    N -- Render UI --> B

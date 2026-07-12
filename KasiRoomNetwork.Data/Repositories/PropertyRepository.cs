@@ -2,6 +2,7 @@ using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 using KasiRoomNetwork.Common.Models.Enums;
+using System.Data;
 
 namespace KasiRoomNetwork.Data.Repositories
 {
@@ -28,6 +29,23 @@ namespace KasiRoomNetwork.Data.Repositories
                 model.City,
                 model.Suburb
             });
+
+            return result.First();
+        }
+
+        public async Task<int> CreateProperty(CreatePropertyViewModel model, string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Landlord_Create_Property", new
+            {
+                LandlordUserId = landlordUserId,
+                PropertyType = model.PropertyType?.ToString() ?? string.Empty,
+                model.TotalRooms,
+                model.PropertyName,
+                model.Street,
+                model.Province,
+                model.City,
+                model.Suburb
+            }, transaction);
 
             return result.First();
         }
@@ -98,6 +116,18 @@ namespace KasiRoomNetwork.Data.Repositories
                 IsPrimary = isPrimary,
                 LandlordUserId = landlordUserId
             });
+            return result.FirstOrDefault() == 1;
+        }
+
+        public async Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Property_Add_Photo", new
+            {
+                propertyId,
+                PhotoPath = dbPath,
+                IsPrimary = isPrimary,
+                LandlordUserId = landlordUserId
+            }, transaction);
             return result.FirstOrDefault() == 1;
         }
 

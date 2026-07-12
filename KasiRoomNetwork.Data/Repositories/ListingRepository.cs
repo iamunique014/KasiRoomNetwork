@@ -1,4 +1,5 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Listings;
+using System.Data;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
@@ -36,6 +37,21 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.First();
         }
 
+        public async Task<int> CreateListing(CreateListingViewModel model,string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Create_Listing", new
+            {
+                LandlordUserId = landlordUserId,
+                model.PropertyId,
+                model.Title,
+                model.Description,
+                model.AvailableUnits,
+                model.Price
+            }, transaction);
+
+            return result.First();
+        }
+
         // sp_Listing_Delete
         public async Task DeleteListing(int listingId)
         {
@@ -66,6 +82,19 @@ namespace KasiRoomNetwork.Data.Repositories
                 PhotoPath = photoPath,
                 IsPrimary = isPrimary
             });
+
+            return result.FirstOrDefault() == 1;
+        }
+
+        public async Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Add_Listing_Photo", new
+            {
+                ListingId = listingId,
+                LandlordUserId = landlordUserId,
+                PhotoPath = photoPath,
+                IsPrimary = isPrimary
+            }, transaction);
 
             return result.FirstOrDefault() == 1;
         }
