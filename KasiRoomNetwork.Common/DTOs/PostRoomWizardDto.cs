@@ -9,7 +9,7 @@ namespace KasiRoomNetwork.Common.DTOs
         // Property Details
         public string LandlordUserId { get; set; }
         public PropertyType? PropertyType { get; set; }
-        public int TotalRooms { get; set; }
+        public int? TotalRooms { get; set; }
         public string PropertyName { get; set; }
 
         // Address Details
@@ -23,7 +23,7 @@ namespace KasiRoomNetwork.Common.DTOs
 
         // Photos
         public List<string> TemporaryPhotoPaths { get; set; } = new List<string>();
-        public string PrimaryPhotoPath { get; set; }
+        //public string PrimaryPhotoPath { get; set; }
 
         // Listing Details
         public string ListingTitle { get; set; }

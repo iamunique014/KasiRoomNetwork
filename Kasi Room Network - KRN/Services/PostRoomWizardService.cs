@@ -12,7 +12,6 @@ namespace Kasi_Room_Network___KRN.Services
 {
     public class PostRoomWizardService : IPostRoomWizardService
     {
-        private readonly ISqlDataAccess _db;
         private readonly IPropertyRepository _propertyRepository;
         private readonly IAmenityRepository _amenityRepository;
         private readonly IListingRepository _listingRepository;
@@ -20,14 +19,12 @@ namespace Kasi_Room_Network___KRN.Services
         private readonly IConfiguration _configuration;
 
         public PostRoomWizardService(
-            ISqlDataAccess db,
             IPropertyRepository propertyRepository,
             IAmenityRepository amenityRepository,
             IListingRepository listingRepository,
             IPhotoStorageService photoStorageService,
             IConfiguration configuration)
         {
-            _db = db;
             _propertyRepository = propertyRepository;
             _amenityRepository = amenityRepository;
             _listingRepository = listingRepository;
@@ -72,12 +69,13 @@ namespace Kasi_Room_Network___KRN.Services
                     await _amenityRepository.AddPropertyAmenity(propertyId, amenityId, dto.LandlordUserId, transaction);
                 }
 
-                // 3. Handle Photos (Move from temp to permanent storage and add metadata)
+                // 3. Handle Photos (Move from temp to permanent storage and add metadata) 
+                //(Only the Last photo is set to primary by stored procedure)
                 foreach (var tempPhotoPath in dto.TemporaryPhotoPaths)
                 {
                     string permanentPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(tempPhotoPath, "properties");
                     PermanentPropertyPhotoPaths.Add(permanentPath);
-                    bool isPrimary = (tempPhotoPath == dto.PrimaryPhotoPath);
+                    bool isPrimary = true; //Every photo is set primary, this is changed in db by Sp.
                     await _propertyRepository.AddPropertyPhoto(propertyId, permanentPath, isPrimary, dto.LandlordUserId, transaction);
                 }
 
@@ -91,13 +89,13 @@ namespace Kasi_Room_Network___KRN.Services
                 };
                 listingId = await _listingRepository.CreateListing(createListingViewModel, dto.LandlordUserId, transaction);
     
-                // 5. Add Listing Photos
+                // 5. Add Listing Photos (Only Last photo is set to primary by stored procedure)
                 foreach (var selectedListingPhotoPath in dto.SelectedListingPhotoPaths)
                 {
                     string permanentPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(selectedListingPhotoPath, "listings");
                     PermanentListingPhotoPaths.Add(permanentPath);
-                    bool isPrimaryListingPhoto = (selectedListingPhotoPath == dto.PrimaryPhotoPath);
-                    await _listingRepository.AddListingPhoto(listingId, selectedListingPhotoPath, isPrimaryListingPhoto, dto.LandlordUserId, transaction);
+                    bool isPrimaryListingPhoto = true; //Every photo is set primary, this is changed in db by Sp.
+                    await _listingRepository.AddListingPhoto(listingId, permanentPath, isPrimaryListingPhoto, dto.LandlordUserId, transaction);
                 }
 
                 // Commit the transaction if all database operations are successful

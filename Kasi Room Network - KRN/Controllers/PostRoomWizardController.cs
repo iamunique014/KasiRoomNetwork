@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using Kasi_Room_Network___KRN.Services;
+using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -17,8 +18,6 @@ namespace Kasi_Room_Network___KRN.Controllers
         private readonly IPostRoomWizardService _postRoomWizardService;
         private readonly IProfileRepository _profileRepository;
         private readonly IAmenityRepository _amenityRepository;
-        private readonly IPropertyRepository _propertyRepository;
-        private readonly IListingRepository _listingRepository;
         private readonly ILogger<PostRoomWizardController> _logger;
         private readonly IPhotoStorageService _photoStorageService;
 
@@ -26,16 +25,12 @@ namespace Kasi_Room_Network___KRN.Controllers
             IPostRoomWizardService postRoomWizardService,
             IProfileRepository profileRepository,
             IAmenityRepository amenityRepository,
-            IPropertyRepository propertyRepository,
-            IListingRepository listingRepository,
             ILogger<PostRoomWizardController> logger,
             IPhotoStorageService photoStorageService)
         {
             _postRoomWizardService = postRoomWizardService;
             _profileRepository = profileRepository;
             _amenityRepository = amenityRepository;
-            _propertyRepository = propertyRepository;
-            _listingRepository = listingRepository;
             _logger = logger;
             _photoStorageService = photoStorageService;
         }
@@ -604,7 +599,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     Suburb = wizardState.Address.Suburb,
                     AmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList(),
                     TemporaryPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Select(p => p.TempRelativePath).ToList(),
-                    PrimaryPhotoPath = wizardState.UploadedPhotos.FirstOrDefault(p => p.IsPrimaryPropertyPhoto)?.TempRelativePath,
+                    //PrimaryPhotoPath = wizardState.UploadedPhotos.FirstOrDefault(p => p.IsPrimaryPropertyPhoto)?.TempRelativePath,
                     ListingTitle = wizardState.RoomDetails.Title,
                     ListingDescription = wizardState.RoomDetails.Description,
                     AvailableUnits = wizardState.RoomDetails.AvailableUnits,
@@ -618,21 +613,19 @@ namespace Kasi_Room_Network___KRN.Controllers
                
                 _logger.LogInformation("Landlord {LandlordUserId} Posted Listing {CreatedListingId} of property {CreatedPropertyId} via wizard. Wizard Complete",
                     landlordUserId, 
-                    createdListingId,
-                    createdPropertyId
+                    listingId,
+                    propertyId
                 );
 
                 TempData["SuccessMessage"] = "Your listing was submitted successfully.";
-                return RedirectToAction("PropertyDetails", "Property", new { propertyId = createdPropertyId.Value });
+                return RedirectToAction("PropertyDetails", "Property", new { propertyId = propertyId });
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(
                     ex,
-                    "Wizard submission failed validation. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.", 
-                    landlordUserId,
-                    propertyId,
-                    listingId);
+                    "Wizard submission failed validation. Landlord {LandlordUserId}.", 
+                    landlordUserId);
 
                 ModelState.AddModelError("", ex.Message);
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
@@ -640,10 +633,8 @@ namespace Kasi_Room_Network___KRN.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Wizard submission failed. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.",
-                    landlordUserId,
-                    propertyId,
-                    listingId
+                    "Wizard submission failed. Landlord {LandlordUserId}, .",
+                    landlordUserId
                 );
 
                 ModelState.AddModelError(string.Empty, "Unable to complete your request. Please try again later.");
