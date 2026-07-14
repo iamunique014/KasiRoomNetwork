@@ -1,4 +1,3 @@
-using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
 using KasiRoomNetwork.Common.ViewModel.Properties;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
+using Kasi_Room_Network___KRN.Services;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -612,7 +612,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                     SelectedListingPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Where(p => p.UseForRoom).Select(p => p.TempRelativePath).ToList()
                 };
 
-                var (createdPropertyId, createdListingId) = await _postRoomWizardService.CreatePropertyAndListingAsync(dto);
+                var (propertyId, listingId) = await _postRoomWizardService.CreatePropertyAndListingAsync(dto);
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
                
@@ -631,8 +631,8 @@ namespace Kasi_Room_Network___KRN.Controllers
                     ex,
                     "Wizard submission failed validation. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.", 
                     landlordUserId,
-                    createdPropertyId,
-                    createdListingId);
+                    propertyId,
+                    listingId);
 
                 ModelState.AddModelError("", ex.Message);
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
@@ -642,8 +642,8 @@ namespace Kasi_Room_Network___KRN.Controllers
                 _logger.LogError(ex,
                     "Wizard submission failed. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.",
                     landlordUserId,
-                    createdPropertyId,
-                    createdListingId
+                    propertyId,
+                    listingId
                 );
 
                 ModelState.AddModelError(string.Empty, "Unable to complete your request. Please try again later.");

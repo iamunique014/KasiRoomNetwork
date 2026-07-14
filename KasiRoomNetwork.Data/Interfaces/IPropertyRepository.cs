@@ -18,6 +18,8 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<List<LandlordPropertyViewModel>> GetPropertiesByUser(string landlordUserId);
         // sp_Add_Property_Photo
         Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId);
+        //Transaction baseed 
+        Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId, IDbTransaction transaction);
 
         // sp_Get_Property_By_Id
         Task<PropertyDetailsViewModel?> GetPropertyById(int propertyId);

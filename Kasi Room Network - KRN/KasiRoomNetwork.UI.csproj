@@ -33,4 +33,9 @@
     <Folder Include="wwwroot\uploads\listings\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Services\IPostRoomWizardService.cs" />
+    <None Include="Services\PostRoomWizardService.cs" />
+  </ItemGroup>
+
 </Project>

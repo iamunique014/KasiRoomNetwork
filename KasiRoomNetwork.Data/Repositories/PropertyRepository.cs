@@ -120,6 +120,19 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.FirstOrDefault() == 1;
         }
 
+         // Transactioon based
+        public async Task<bool> AddPropertyPhoto(int propertyId, string dbPath, bool isPrimary, string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Property_Add_Photo", new
+            {
+                propertyId,
+                PhotoPath = dbPath,
+                IsPrimary = isPrimary,
+                LandlordUserId = landlordUserId
+            }, transaction);
+            return result.FirstOrDefault() == 1;
+        }
+
         // sp_Get_Property_By_Id
         public async Task<PropertyDetailsViewModel?> GetPropertyById(int propertyId)
         {
