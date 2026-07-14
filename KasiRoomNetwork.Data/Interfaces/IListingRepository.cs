@@ -20,7 +20,8 @@ namespace KasiRoomNetwork.Data.Interfaces
 
         // sp_Add_Listing_Photo
         Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId);
-
+        //Transaction Based
+        Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId, IDbTransaction transaction);
         // sp_Get_Listing_By_Id
         Task<ListingDetailsViewModel?> GetListingById(int listingId);
         Task<ListingDetailsViewModel?> GetListingDetailsById(int RoomId);
