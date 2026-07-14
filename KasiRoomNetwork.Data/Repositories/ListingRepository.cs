@@ -36,6 +36,22 @@ namespace KasiRoomNetwork.Data.Repositories
             return result.First();
         }
 
+        //Transaction based
+        public async Task<int> CreateListing(CreateListingViewModel model,string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Create_Listing", new
+            {
+                LandlordUserId = landlordUserId,
+                model.PropertyId,
+                model.Title,
+                model.Description,
+                model.AvailableUnits,
+                model.Price
+            }, transaction);
+
+            return result.First();
+        }
+
         // sp_Listing_Delete
         public async Task DeleteListing(int listingId)
         {

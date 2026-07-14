@@ -1,5 +1,6 @@
 ﻿using KasiRoomNetwork.Common.ViewModel.Listings;
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,9 @@ namespace KasiRoomNetwork.Data.Interfaces
     {
         // sp_Create_Listing
         Task<int> CreateListing(CreateListingViewModel model,string landlordUserId);
-
+        //Transaction Based
+        Task<int> CreateListing(CreateListingViewModel model,string landlordUserId, IDbTransaction transaction);
+        
         // sp_Delete_Listing
         Task DeleteListing(int listingId);
 
