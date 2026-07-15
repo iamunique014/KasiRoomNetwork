@@ -50,6 +50,7 @@ builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 builder.Services.AddScoped<IHomeRepository, HomeRepository>();
 builder.Services.AddScoped<IPostRoomWizardService, PostRoomWizardService>();
+builder.Services.AddScoped<ICreatePropertyService, CreatePropertyService>();
 if (builder.Environment.IsProduction())
 {
     builder.Services.AddScoped<IPhotoStorageService, AzureBlobStorageService>();

@@ -36,6 +36,8 @@
   <ItemGroup>
     <None Include="Services\IPostRoomWizardService.cs" />
     <None Include="Services\PostRoomWizardService.cs" />
+    <None Include="Services\ICreatePropertyService.cs" />
+    <None Include="Services\CreatePropertydService.cs" />
   </ItemGroup>
 
 </Project>
