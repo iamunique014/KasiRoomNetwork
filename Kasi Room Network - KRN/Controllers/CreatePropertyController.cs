@@ -1,41 +1,45 @@
-using KasiRoomNetwork.Common.ViewModel.Listings;
-using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
+using Kasi_Room_Network___KRN.Constants;
+using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Properties;
+using KasiRoomNetwork.Common.ViewModel.CreatePropertyWizard;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
-using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
-    [Authorize(Roles = "Landlord")]
-    public class PostRoomWizardController : Controller
+    public class CreatePropertyController : Controller
     {
         private const int MaxWizardPhotoCount = 10;
-        private readonly IPostRoomWizardService _postRoomWizardService;
+        private readonly IPropertyRepository _propertyRepository;
         private readonly IProfileRepository _profileRepository;
+        private readonly ILandlordRepository _landlordRepository;
         private readonly IAmenityRepository _amenityRepository;
-        private readonly ILogger<PostRoomWizardController> _logger;
         private readonly IPhotoStorageService _photoStorageService;
+        private readonly ICreatePropertyService _createPropertyService;
+        private readonly ILogger<PropertyController> _logger;
 
-        public PostRoomWizardController(
-            IPostRoomWizardService postRoomWizardService,
-            IProfileRepository profileRepository,
+        public CreatePropertyController(IPropertyRepository propertyRepository,
+            IProfileRepository profileRepository, 
+            ILandlordRepository landlordRepository, 
             IAmenityRepository amenityRepository,
-            ILogger<PostRoomWizardController> logger,
-            IPhotoStorageService photoStorageService)
+            IPhotoStorageService photoStorageService,
+            ICreatePropertyService CreatePropertyService,
+            ILogger<PropertyController> logger)
         {
-            _postRoomWizardService = postRoomWizardService;
+            _propertyRepository = propertyRepository;
             _profileRepository = profileRepository;
+            _landlordRepository = landlordRepository;
             _amenityRepository = amenityRepository;
-            _logger = logger;
             _photoStorageService = photoStorageService;
+            _createPropertyService = CreatePropertyService;
+            _logger = logger;
         }
-
-        [HttpGet]
+        
+         [HttpGet]
         public async Task<IActionResult> Start()
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -60,7 +64,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 GetSessionKey(landlordUserId));
 
             var now = DateTime.UtcNow;
-            var wizardState = new PostRoomWizardStateViewModel
+            var wizardState = new PropertyWizardStateViewModel
             {
                 LandlordUserId = landlordUserId,
                 StartedAtUtc = now,
@@ -81,7 +85,7 @@ namespace Kasi_Room_Network___KRN.Controllers
         }
 
         [HttpGet]
-        public IActionResult BasicPropertyInfo()
+        public async Task<IActionResult> BasicPropertyInfo()
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
@@ -94,13 +98,14 @@ namespace Kasi_Room_Network___KRN.Controllers
             {
                 return RedirectToAction(nameof(Start));
             }
+
 
             return View(wizardState.BasicPropertyInfo);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult BasicPropertyInfo(PostRoomBasicPropertyInfoStepViewModel model)
+        public IActionResult BasicPropertyInfo(BasicPropertyInfoStepViewModel model)
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
@@ -111,7 +116,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!ModelState.IsValid)
@@ -139,7 +144,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -152,7 +157,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Address(PostRoomAddressStepViewModel model)
+        public IActionResult Address(AddressStepViewModel model)
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
@@ -163,7 +168,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -196,7 +201,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -210,7 +215,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             var amenities = await _amenityRepository.GetAllAmenities();
-            var model = new PostRoomAmenitiesStepViewModel
+            var model = new AmenitiesStepViewModel
             {
                 Amenities = amenities.ToList(),
                 SelectedAmenityIds = wizardState.SelectedAmenityIds.ToList()
@@ -221,7 +226,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Amenities(PostRoomAmenitiesStepViewModel model)
+        public IActionResult Amenities(AmenitiesStepViewModel model)
         {
             var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(landlordUserId))
@@ -232,7 +237,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -265,7 +270,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -294,7 +299,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedAddress(wizardState))
@@ -311,12 +316,11 @@ namespace Kasi_Room_Network___KRN.Controllers
             try
             {
                 var tempRelativePath = await _photoStorageService.SaveTemporaryPhotoAsync(photo, landlordUserId);
-                wizardState.UploadedPhotos.Add(new PostRoomUploadedPhotoViewModel
+                wizardState.UploadedPhotos.Add(new UploadedPhotoViewModel
                 {
                     TempPhotoId = Guid.NewGuid().ToString(),
                     TempRelativePath = tempRelativePath,
-                    OriginalFileName = Path.GetFileName(photo?.FileName ?? string.Empty),
-                    UseForRoom = false
+                    OriginalFileName = Path.GetFileName(photo?.FileName ?? string.Empty)
                 });
                 wizardState.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -344,7 +348,7 @@ namespace Kasi_Room_Network___KRN.Controllers
             var wizardState = GetWizardState(landlordUserId);
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             var photo = wizardState.UploadedPhotos.FirstOrDefault(uploadedPhoto => uploadedPhoto.TempPhotoId == tempPhotoId);
@@ -366,186 +370,6 @@ namespace Kasi_Room_Network___KRN.Controllers
             }
 
             return RedirectToAction(nameof(Photos));
-        }
-
-        [HttpGet]
-        public IActionResult RoomDetails()
-        {
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
-
-            var wizardState = GetWizardState(landlordUserId);
-            if (wizardState == null)
-            {
-                return RedirectToAction(nameof(Start));
-            }
-
-            if (!HasCompletedBasicPropertyInfo(wizardState))
-            {
-                return RedirectToAction(nameof(BasicPropertyInfo));
-            }
-
-            if (!HasCompletedAddress(wizardState))
-            {
-                return RedirectToAction(nameof(Address));
-            }
-
-            if (!wizardState.UploadedPhotos.Any())
-            {
-                TempData["PhotoError"] = "Upload at least one photo before continuing.";
-                return RedirectToAction(nameof(Photos));
-            }
-
-            return View(wizardState.RoomDetails);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult RoomDetails(PostRoomDetailsStepViewModel model)
-        {
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
-
-            var wizardState = GetWizardState(landlordUserId);
-            if (wizardState == null)
-            {
-                return RedirectToAction(nameof(Start));
-            }
-
-            if (!HasCompletedBasicPropertyInfo(wizardState))
-            {
-                return RedirectToAction(nameof(BasicPropertyInfo));
-            }
-
-            if (!HasCompletedAddress(wizardState))
-            {
-                return RedirectToAction(nameof(Address));
-            }
-
-            if (!wizardState.UploadedPhotos.Any())
-            {
-                TempData["PhotoError"] = "Upload at least one photo before continuing.";
-                return RedirectToAction(nameof(Photos));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            wizardState.RoomDetails = model;
-            wizardState.UpdatedAtUtc = DateTime.UtcNow;
-
-            SaveWizardState(landlordUserId, wizardState);
-
-            return RedirectToAction(nameof(SelectRoomPhotos));
-        }
-
-        [HttpGet]
-        public IActionResult SelectRoomPhotos()
-        {
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
-
-            var wizardState = GetWizardState(landlordUserId);
-            if (wizardState == null)
-            {
-                return RedirectToAction(nameof(Start));
-            }
-
-            if (!HasCompletedBasicPropertyInfo(wizardState))
-            {
-                return RedirectToAction(nameof(BasicPropertyInfo));
-            }
-
-            if (!HasCompletedAddress(wizardState))
-            {
-                return RedirectToAction(nameof(Address));
-            }
-
-            if (!wizardState.UploadedPhotos.Any())
-            {
-                TempData["PhotoError"] = "Upload at least one photo before continuing.";
-                return RedirectToAction(nameof(Photos));
-            }
-
-            if (!HasCompletedRoomDetails(wizardState))
-            {
-                return RedirectToAction(nameof(RoomDetails));
-            }
-
-            return View(BuildSelectRoomPhotosViewModel(wizardState));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SelectRoomPhotos(SelectRoomPhotosStepViewModel model)
-        {
-            var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(landlordUserId))
-            {
-                return Challenge();
-            }
-
-            var wizardState = GetWizardState(landlordUserId);
-            if (wizardState == null)
-            {
-                return RedirectToAction(nameof(Start));
-            }
-
-            if (!HasCompletedBasicPropertyInfo(wizardState))
-            {
-                return RedirectToAction(nameof(BasicPropertyInfo));
-            }
-
-            if (!HasCompletedAddress(wizardState))
-            {
-                return RedirectToAction(nameof(Address));
-            }
-
-            if (!wizardState.UploadedPhotos.Any())
-            {
-                TempData["PhotoError"] = "Upload at least one photo before continuing.";
-                return RedirectToAction(nameof(Photos));
-            }
-
-            if (!HasCompletedRoomDetails(wizardState))
-            {
-                return RedirectToAction(nameof(RoomDetails));
-            }
-
-            var selectedTempPhotoIds = (model.Photos ?? new List<RoomPhotoSelectionItemViewModel>())
-                .Where(photo => photo.UseForRoom)
-                .Select(photo => photo.TempPhotoId.ToString())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            var hasSelectedUploadedPhoto = wizardState.UploadedPhotos
-                .Any(uploadedPhoto => selectedTempPhotoIds.Contains(uploadedPhoto.TempPhotoId));
-
-            if (!hasSelectedUploadedPhoto)
-            {
-                ModelState.AddModelError(string.Empty, "Select at least one room photo before continuing.");
-                return View(BuildSelectRoomPhotosViewModel(wizardState, selectedTempPhotoIds));
-            }
-
-            foreach (var uploadedPhoto in wizardState.UploadedPhotos)
-            {
-                uploadedPhoto.UseForRoom = selectedTempPhotoIds.Contains(uploadedPhoto.TempPhotoId);
-            }
-
-            wizardState.UpdatedAtUtc = DateTime.UtcNow;
-            SaveWizardState(landlordUserId, wizardState);
-
-            return RedirectToAction(nameof(ReviewAndSubmit));
         }
 
         [HttpGet]
@@ -587,7 +411,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             try
             { 
-                var dto = new PostRoomWizardDto
+                var dto = new CreatePropertyWizardDto
                 {
                     LandlordUserId = landlordUserId,
                     PropertyType = wizardState.BasicPropertyInfo.PropertyType,
@@ -600,24 +424,18 @@ namespace Kasi_Room_Network___KRN.Controllers
                     AmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList(),
                     TemporaryPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Select(p => p.TempRelativePath).ToList(),
                     //PrimaryPhotoPath = wizardState.UploadedPhotos.FirstOrDefault(p => p.IsPrimaryPropertyPhoto)?.TempRelativePath,
-                    ListingTitle = wizardState.RoomDetails.Title,
-                    ListingDescription = wizardState.RoomDetails.Description,
-                    AvailableUnits = wizardState.RoomDetails.AvailableUnits,
-                    Price = wizardState.RoomDetails.Price,
-                    SelectedListingPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Where(p => p.UseForRoom).Select(p => p.TempRelativePath).ToList()
                 };
 
-                var (propertyId, listingId) = await _postRoomWizardService.CreatePropertyAndListingAsync(dto);
+                var propertyId = await _createPropertyService.CreatePropertyAsync(dto);
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
                
-                _logger.LogInformation("Landlord {LandlordUserId} Posted Listing {CreatedListingId} of property {CreatedPropertyId} via wizard. Wizard Complete",
-                    landlordUserId, 
-                    listingId,
+                _logger.LogInformation("Landlord {LandlordUserId} Created property {CreatedPropertyId} via wizard. Wizard Complete",
+                    landlordUserId,
                     propertyId
                 );
 
-                TempData["SuccessMessage"] = "Your listing was submitted successfully.";
+                TempData["SuccessMessage"] = "Your property was submitted successfully.";
                 return RedirectToAction("PropertyDetails", "Property", new { propertyId = propertyId });
             }
             catch (InvalidOperationException ex)
@@ -641,88 +459,9 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
             }
         }
-/*
-    private async Task CleanupFailedSubmitAsync(
-        int? createdListingId,
-        int? createdPropertyId,
-        IEnumerable<string> copiedPermanentListingPhotoPaths,
-        IEnumerable<string> copiedPermanentPropertyPhotoPaths)
-    {
-        var landlordUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Exception? cleanupException = null;
 
-        try
-        {
-            if (createdListingId.HasValue)
-            {
-                try
-                {
-                    await _listingRepository.DeleteListing(createdListingId.Value);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        ex,
-                        "Failed to delete listing {ListingId} during wizard rollback.",
-                        createdListingId.Value);
 
-                    cleanupException ??= ex;
-                }
-            }
-
-            if (createdPropertyId.HasValue)
-            {
-                try
-                {
-                    await _propertyRepository.DeletePropertyAsync(
-                        createdPropertyId.Value,
-                        landlordUserId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        ex,
-                        "Failed to delete property {PropertyId} during wizard rollback.",
-                        createdPropertyId.Value);
-
-                    cleanupException ??= ex;
-                }
-            }
-        }
-        finally
-        {
-            try
-            {
-                _photoStorageService.DeletePhotos(copiedPermanentListingPhotoPaths);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to delete copied listing photos during wizard rollback.");
-            }
-
-            try
-            {
-                _photoStorageService.DeletePhotos(copiedPermanentPropertyPhotoPaths);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to delete copied property photos during wizard rollback.");
-            }
-        }
-
-        if (cleanupException != null)
-        {
-            _logger.LogError(
-                cleanupException,
-                "Wizard rollback completed with one or more cleanup failures.");
-        }
-    }
-*/
-        private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
+        private PropertyWizardStateViewModel? GetWizardState(string landlordUserId)
         {
             var sessionJson = HttpContext.Session.GetString(GetSessionKey(landlordUserId));
             if (string.IsNullOrWhiteSpace(sessionJson))
@@ -730,14 +469,13 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return null;
             }
 
-            var wizardState = JsonSerializer.Deserialize<PostRoomWizardStateViewModel>(sessionJson);
+            var wizardState = JsonSerializer.Deserialize<PropertyWizardStateViewModel>(sessionJson);
             if (wizardState != null)
             {
-                wizardState.BasicPropertyInfo ??= new PostRoomBasicPropertyInfoStepViewModel();
-                wizardState.Address ??= new PostRoomAddressStepViewModel();
-                wizardState.RoomDetails ??= new PostRoomDetailsStepViewModel();
+                wizardState.BasicPropertyInfo ??= new BasicPropertyInfoStepViewModel();
+                wizardState.Address ??= new AddressStepViewModel();
                 wizardState.SelectedAmenityIds ??= new List<int>();
-                wizardState.UploadedPhotos ??= new List<PostRoomUploadedPhotoViewModel>();
+                wizardState.UploadedPhotos ??= new List<UploadedPhotoViewModel>();
             }
 
             return wizardState;
@@ -745,31 +483,27 @@ namespace Kasi_Room_Network___KRN.Controllers
 
 
 
-        private async Task<PostRoomReviewStepViewModel> BuildReviewStepViewModel(PostRoomWizardStateViewModel wizardState)
+        private async Task<PropertyReviewStepViewModel> BuildReviewStepViewModel(PropertyWizardStateViewModel wizardState)
         {
             var allAmenities = (await _amenityRepository.GetAllAmenities()).ToList();
             var selectedAmenityIds = wizardState.SelectedAmenityIds.ToHashSet();
 
-            return new PostRoomReviewStepViewModel
+            return new PropertyReviewStepViewModel
             {
                 BasicPropertyInfo = wizardState.BasicPropertyInfo,
                 Address = wizardState.Address,
                 SelectedAmenities = allAmenities
                     .Where(amenity => selectedAmenityIds.Contains(amenity.AmenityId))
                     .ToList(),
-                RoomDetails = wizardState.RoomDetails,
-                PropertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList(),
-                RoomPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
-                    .Where(photo => photo.UseForRoom)
-                    .ToList()
+                PropertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList()
             };
         }
 
-        private IActionResult? EnsureReadyForReview(PostRoomWizardStateViewModel? wizardState)
+        private IActionResult? EnsureReadyForReview(PropertyWizardStateViewModel? wizardState)
         {
             if (wizardState == null)
             {
-                return RedirectToAction(nameof(Start));
+                return RedirectToAction(nameof(BasicPropertyInfo));
             }
 
             if (!HasCompletedBasicPropertyInfo(wizardState))
@@ -784,25 +518,14 @@ namespace Kasi_Room_Network___KRN.Controllers
 
             if (!wizardState.UploadedPhotos.Any())
             {
-                TempData["PhotoError"] = "Upload at least one photo before reviewing your listing.";
+                TempData["PhotoError"] = "Upload at least one photo before reviewing your property.";
                 return RedirectToAction(nameof(Photos));
-            }
-
-            if (!HasCompletedRoomDetails(wizardState))
-            {
-                return RedirectToAction(nameof(RoomDetails));
-            }
-
-            if (!wizardState.UploadedPhotos.Any(photo => photo.UseForRoom))
-            {
-                TempData["PhotoError"] = "Select at least one room photo before reviewing your listing.";
-                return RedirectToAction(nameof(SelectRoomPhotos));
             }
 
             return null;
         }
 
-        private static IEnumerable<PostRoomUploadedPhotoViewModel> GetUniqueUploadedPhotos(IEnumerable<PostRoomUploadedPhotoViewModel> uploadedPhotos)
+        private static IEnumerable<UploadedPhotoViewModel> GetUniqueUploadedPhotos(IEnumerable<UploadedPhotoViewModel> uploadedPhotos)
         {
             return uploadedPhotos
                 .Where(photo => !string.IsNullOrWhiteSpace(photo.TempRelativePath))
@@ -810,38 +533,18 @@ namespace Kasi_Room_Network___KRN.Controllers
                 .Select(group => group.First());
         }
 
-        private static SelectRoomPhotosStepViewModel BuildSelectRoomPhotosViewModel(
-            PostRoomWizardStateViewModel wizardState,
-            HashSet<string>? selectedTempPhotoIds = null)
-        {
-            return new SelectRoomPhotosStepViewModel
-            {
-                Photos = wizardState.UploadedPhotos
-                    .Select(photo => new RoomPhotoSelectionItemViewModel
-                    {
-                        TempPhotoId = Guid.TryParse(photo.TempPhotoId, out var tempPhotoId)
-                            ? tempPhotoId
-                            : Guid.Empty,
-                        PhotoPath = photo.TempRelativePath,
-                        OriginalFileName = photo.OriginalFileName,
-                        UseForRoom = selectedTempPhotoIds?.Contains(photo.TempPhotoId) ?? photo.UseForRoom
-                    })
-                    .ToList()
-            };
-        }
-
-        private void SaveWizardState(string landlordUserId, PostRoomWizardStateViewModel wizardState)
+         private void SaveWizardState(string landlordUserId, PropertyWizardStateViewModel wizardState)
         {
             var sessionJson = JsonSerializer.Serialize(wizardState);
             HttpContext.Session.SetString(GetSessionKey(landlordUserId), sessionJson);
         }
 
-        private static bool HasCompletedBasicPropertyInfo(PostRoomWizardStateViewModel wizardState)
+        private static bool HasCompletedBasicPropertyInfo(PropertyWizardStateViewModel wizardState)
         {
             return wizardState.BasicPropertyInfo.PropertyType.HasValue;
         }
 
-        private static bool HasCompletedAddress(PostRoomWizardStateViewModel wizardState)
+        private static bool HasCompletedAddress(PropertyWizardStateViewModel wizardState)
         {
             return !string.IsNullOrWhiteSpace(wizardState.Address.Province)
                 && !string.IsNullOrWhiteSpace(wizardState.Address.City)
@@ -849,15 +552,10 @@ namespace Kasi_Room_Network___KRN.Controllers
                 && !string.IsNullOrWhiteSpace(wizardState.Address.Street);
         }
 
-        private static bool HasCompletedRoomDetails(PostRoomWizardStateViewModel wizardState)
-        {
-            return !string.IsNullOrWhiteSpace(wizardState.RoomDetails.Title)
-                && wizardState.RoomDetails.Price >= 0;
-        }
-
         private static string GetSessionKey(string landlordUserId)
         {
             return $"PostRoomWizard:{landlordUserId}";
         }
+
     }
 }

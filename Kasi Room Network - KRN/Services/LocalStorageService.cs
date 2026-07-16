@@ -28,7 +28,7 @@ namespace Kasi_Room_Network___KRN.Services
         {
             ValidatePhoto(photo);
 
-            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+            //var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
             
             var safeLandlordUserId = SanitizePathSegment(landlordUserId);
             var uploadsFolder = Path.Combine(
@@ -42,15 +42,33 @@ namespace Kasi_Room_Network___KRN.Services
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            var fileName = Guid.NewGuid().ToString() + extension;
+            //var fileName = Guid.NewGuid().ToString() + extension;
+            var fileName = $"{Guid.NewGuid()}.jpg";
             var filePath = Path.Combine(uploadsFolder, fileName);
 
             try
             {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await photo.CopyToAsync(stream);
-                }
+
+                using var image = await Image.LoadAsync(photo.OpenReadStream());
+
+                    image.Mutate(x =>
+                        x.Resize(new ResizeOptions
+                        {
+                            Mode = ResizeMode.Max,
+                            Size = new Size(1200, 1200)
+                        }));
+
+                    await image.SaveAsJpegAsync(
+                        filePath,
+                        new JpegEncoder
+                        {
+                            Quality = 80
+                        });
+
+                //using (var stream = new FileStream(filePath, FileMode.Create))
+                //{
+                 //   await photo.CopyToAsync(stream);
+                //}
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
@@ -117,6 +135,10 @@ namespace Kasi_Room_Network___KRN.Services
                 {
                     await sourceStream.CopyToAsync(destinationStream);
                 }
+                
+                // Note: We do not delete the source file here to allow the same temporary photo 
+                // to be copied multiple times (e.g., once for the property and once for the listing).
+                // Cleanup is handled at the end of the wizard or via background expiration.
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
