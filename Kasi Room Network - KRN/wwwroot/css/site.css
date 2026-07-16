@@ -64,14 +64,14 @@ body {
 }
 
 .listing-price {
-    color: #198754;
+    color: #0037ffda;
     font-size: 1.8rem;
     font-weight: 700;
     line-height: 1;
 }
 
 .listing-price-period {
-    color: #6c757d;
+    color: #0633feda;
     font-size: .9rem;
 }
 
