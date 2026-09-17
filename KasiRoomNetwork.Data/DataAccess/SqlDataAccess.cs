@@ -50,5 +50,17 @@ namespace KasiRoomNetwork.Data.DataAccess
                 commandType: CommandType.StoredProcedure,
                 splitOn: splitOn);
         }
+
+        //Transation based data access methods
+        public async Task<IEnumerable<T>> GetData<T, P>(string spName, P parameters, IDbTransaction transaction, string connectionID = "conn")
+        {
+            IDbConnection connection = transaction.Connection;
+            return await connection.QueryAsync<T>(spName, parameters, transaction: transaction, commandType: CommandType.StoredProcedure);
+        }
+        public async Task SaveData<T>(string spName, T parameters, IDbTransaction transaction, string connectionID = "conn")
+        {
+            IDbConnection connection = transaction.Connection;
+            await connection.ExecuteAsync(spName, parameters, transaction: transaction, commandType: CommandType.StoredProcedure);
+        }
     }
 }

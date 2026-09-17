@@ -1,6 +1,7 @@
 ﻿using KasiRoomNetwork.Common.Models;
 using KasiRoomNetwork.Common.ViewModel.Properties;
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace KasiRoomNetwork.Data.Interfaces
         Task<IEnumerable<AmenityModel>> GetAllAmenities();
 
         Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId);
+        //Transaction baseed 
+        Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId, IDbTransaction transaction);
 
         Task RemovePropertyAmenity(int propertyId, int amenityId);
 

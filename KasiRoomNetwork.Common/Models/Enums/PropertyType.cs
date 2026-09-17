@@ -4,8 +4,8 @@ namespace KasiRoomNetwork.Common.Models.Enums
 {
     public enum PropertyType
     {
-        [Display(Name = "Backrooms")]
-        Backrooms,
+        [Display(Name = "Back Rooms")]
+        BackRooms,
 
         [Display(Name = "Rental Units")]
         RentalUnits,

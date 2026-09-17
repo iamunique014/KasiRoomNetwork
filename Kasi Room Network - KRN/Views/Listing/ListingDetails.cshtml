@@ -125,7 +125,7 @@
                             Monthly Rent
                         </div> *@
 
-                        <div class="display-6 fw-bold text-success">
+                        <div class="display-6 fw-bold text-primary">
                             R @Model.Price.ToString("N0")
                         </div>
 
@@ -170,7 +170,7 @@
                                 <a asp-controller="Messages"
                                    asp-action="WhatsAppContact"
                                    asp-route-listingId="@Model.ListingId"
-                                   class="btn btn-outline-success btn-lg">
+                                   class="btn btn-outline-primary btn-lg">
 
                                     <i class="bi bi-whatsapp"></i>
 
@@ -182,7 +182,7 @@
                                asp-route-listingId="@Model.ListingId"
                                asp-route-landlordId="@Model.LandlordUserId"
                                asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
-                               class="btn btn-success btn-lg flex-grow-1">
+                               class="btn btn-primary btn-lg flex-grow-1">
 
                                 Contact Landlord
 
@@ -303,7 +303,7 @@
                    asp-route-listingId="@Model.ListingId"
                    asp-route-landlordId="@Model.LandlordUserId"
                    asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
-                   class="btn btn-success">
+                   class="btn btn-primary">
 
                     Contact Landlord
 
