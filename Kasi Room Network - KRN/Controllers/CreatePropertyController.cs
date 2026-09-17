@@ -11,6 +11,7 @@ using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
+    [Authorize(Roles = "Landlord")]
     public class CreatePropertyController : Controller
     {
         private const int MaxWizardPhotoCount = 10;
@@ -554,7 +555,7 @@ namespace Kasi_Room_Network___KRN.Controllers
 
         private static string GetSessionKey(string landlordUserId)
         {
-            return $"PostRoomWizard:{landlordUserId}";
+            return $"CreatePropertyWizard:{landlordUserId}";
         }
 
     }
