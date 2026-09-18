@@ -132,12 +132,24 @@ namespace Kasi_Room_Network___KRN.Services
         public void DeleteTemporaryWizardFolder(string landlordUserId)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
+            if (!containerClient.Exists()) return;
+            
             var prefix = $"wizard-temp/{landlordUserId}/";
             var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None);
-            foreach (var blob in blobs)
+            
+            try
             {
-                containerClient.DeleteBlobIfExists(blob.Name);
+                foreach (var blob in blobs)
+                {
+                    containerClient.DeleteBlobIfExists(blob.Name);
+                }
+            
             }
+            catch
+            {
+                // Ignore cleanup failures
+            }
+
         }
 
         public void DeleteTemporaryPhoto(string tempRelativePath)
