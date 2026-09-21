@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,11 @@ namespace KasiRoomNetwork.Data.DataAccess
             object parameters,
             string splitOn,
             string connectionID = "conn");
+
+        //Transaction based data access
+        Task<IEnumerable<T>> GetData<T, P>(string spName, P parameters, IDbTransaction transaction, string connectionID = "conn");
+
+        Task SaveData<T>(string spName, T parametrs, IDbTransaction transaction, string connectionID = "conn");
        
     }
 }

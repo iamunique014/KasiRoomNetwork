@@ -1,4 +1,3 @@
-using Kasi_Room_Network___KRN.Services;
 using KasiRoomNetwork.Common.ViewModel.Listings;
 using KasiRoomNetwork.Common.ViewModel.PostRoomWizard;
 using KasiRoomNetwork.Common.ViewModel.Properties;
@@ -7,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
+using Kasi_Room_Network___KRN.Services;
+using KasiRoomNetwork.Common.DTOs;
 
 namespace Kasi_Room_Network___KRN.Controllers
 {
@@ -14,25 +15,22 @@ namespace Kasi_Room_Network___KRN.Controllers
     public class PostRoomWizardController : Controller
     {
         private const int MaxWizardPhotoCount = 10;
+        private readonly IPostRoomWizardService _postRoomWizardService;
         private readonly IProfileRepository _profileRepository;
         private readonly IAmenityRepository _amenityRepository;
-        private readonly IPropertyRepository _propertyRepository;
-        private readonly IListingRepository _listingRepository;
         private readonly ILogger<PostRoomWizardController> _logger;
         private readonly IPhotoStorageService _photoStorageService;
 
         public PostRoomWizardController(
+            IPostRoomWizardService postRoomWizardService,
             IProfileRepository profileRepository,
             IAmenityRepository amenityRepository,
-            IPropertyRepository propertyRepository,
-            IListingRepository listingRepository,
             ILogger<PostRoomWizardController> logger,
             IPhotoStorageService photoStorageService)
         {
+            _postRoomWizardService = postRoomWizardService;
             _profileRepository = profileRepository;
             _amenityRepository = amenityRepository;
-            _propertyRepository = propertyRepository;
-            _listingRepository = listingRepository;
             _logger = logger;
             _photoStorageService = photoStorageService;
         }
@@ -587,98 +585,47 @@ namespace Kasi_Room_Network___KRN.Controllers
                 return redirectResult;
             }
 
-            int? createdPropertyId = null;
-            int? createdListingId = null;
-            var copiedPermanentPropertyPhotoPaths = new List<string>();
-            var copiedPermanentListingPhotoPaths = new List<string>();
-
             try
-            {
-                var propertyModel = new CreatePropertyViewModel
+            { 
+                var dto = new PostRoomWizardDto
                 {
-                    PropertyType = wizardState!.BasicPropertyInfo.PropertyType,
+                    LandlordUserId = landlordUserId,
+                    PropertyType = wizardState.BasicPropertyInfo.PropertyType,
                     TotalRooms = wizardState.BasicPropertyInfo.TotalRooms,
                     PropertyName = wizardState.BasicPropertyInfo.PropertyName,
                     Street = wizardState.Address.Street,
                     Province = wizardState.Address.Province,
                     City = wizardState.Address.City,
                     Suburb = wizardState.Address.Suburb,
-                    SelectedAmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList()
-                };
-
-                createdPropertyId = await _propertyRepository.CreateProperty(propertyModel, landlordUserId);
-                
-                foreach (var amenityId in propertyModel.SelectedAmenityIds)
-                {
-                    await _amenityRepository.AddPropertyAmenity(createdPropertyId.Value, amenityId, landlordUserId);
-                }
-
-               
-
-                var propertyPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).ToList();
-                for (var index = 0; index < propertyPhotos.Count; index++)
-                {
-                    var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
-                        propertyPhotos[index].TempRelativePath,
-                        "properties");
-                    copiedPermanentPropertyPhotoPaths.Add(permanentPhotoPath);
-
-                    await _propertyRepository.AddPropertyPhoto(createdPropertyId.Value, permanentPhotoPath, index == 0, landlordUserId);
-                }
-
-                 
-
-                var listingModel = new CreateListingViewModel
-                {
-                    PropertyId = createdPropertyId.Value,
-                    Title = wizardState.RoomDetails.Title,
-                    Description = wizardState.RoomDetails.Description?.Trim() ?? string.Empty,
-                    Price = wizardState.RoomDetails.Price,
+                    AmenityIds = wizardState.SelectedAmenityIds.Distinct().ToList(),
+                    TemporaryPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Select(p => p.TempRelativePath).ToList(),
+                    //PrimaryPhotoPath = wizardState.UploadedPhotos.FirstOrDefault(p => p.IsPrimaryPropertyPhoto)?.TempRelativePath,
+                    ListingTitle = wizardState.RoomDetails.Title,
+                    ListingDescription = wizardState.RoomDetails.Description,
                     AvailableUnits = wizardState.RoomDetails.AvailableUnits,
-                    IsAvailable = wizardState.RoomDetails.IsAvailable
+                    Price = wizardState.RoomDetails.Price,
+                    SelectedListingPhotoPaths = GetUniqueUploadedPhotos(wizardState.UploadedPhotos).Where(p => p.UseForRoom).Select(p => p.TempRelativePath).ToList()
                 };
 
-                createdListingId = await _listingRepository.CreateListing(listingModel, landlordUserId);
-
-                
-                var listingPhotos = GetUniqueUploadedPhotos(wizardState.UploadedPhotos)
-                    .Where(photo => photo.UseForRoom)
-                    .ToList();
-
-                for (var index = 0; index < listingPhotos.Count; index++)
-                {
-                    var permanentPhotoPath = await _photoStorageService.CopyTemporaryPhotoToPermanentAsync(
-                        listingPhotos[index].TempRelativePath,
-                        "listings");
-                    copiedPermanentListingPhotoPaths.Add(permanentPhotoPath);
-
-                    var listingPhotoAdded = await _listingRepository.AddListingPhoto(createdListingId.Value, permanentPhotoPath, index == 0, landlordUserId);
-                    if (!listingPhotoAdded)
-                    {
-                        throw new InvalidOperationException("Listing photo could not be added for the current landlord.");
-                    }
-                }
+                var (propertyId, listingId) = await _postRoomWizardService.CreatePropertyAndListingAsync(dto);
 
                 HttpContext.Session.Remove(GetSessionKey(landlordUserId));
-                _photoStorageService.DeleteTemporaryWizardFolder(landlordUserId);
                
                 _logger.LogInformation("Landlord {LandlordUserId} Posted Listing {CreatedListingId} of property {CreatedPropertyId} via wizard. Wizard Complete",
                     landlordUserId, 
-                    createdListingId,
-                    createdPropertyId
+                    listingId,
+                    propertyId
                 );
 
                 TempData["SuccessMessage"] = "Your listing was submitted successfully.";
-                return RedirectToAction("PropertyDetails", "Property", new { propertyId = createdPropertyId.Value });
+                return RedirectToAction("PropertyDetails", "Property", new { propertyId = propertyId });
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(
                     ex,
-                    "Wizard submission failed validation. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.", 
-                    landlordUserId,
-                    createdPropertyId,
-                    createdListingId);
+                    "Wizard submission failed validation. Landlord {LandlordUserId}.", 
+                    landlordUserId);
 
                 ModelState.AddModelError("", ex.Message);
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
@@ -686,23 +633,15 @@ namespace Kasi_Room_Network___KRN.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Wizard submission failed. Landlord {LandlordUserId}, Property {CreatedPropertyId}, Listing {CreatedListingId}.",
-                    landlordUserId,
-                    createdPropertyId,
-                    createdListingId
+                    "Wizard submission failed. Landlord {LandlordUserId}, .",
+                    landlordUserId
                 );
-
-                await CleanupFailedSubmitAsync(
-                    createdListingId,
-                    createdPropertyId,
-                    copiedPermanentListingPhotoPaths,
-                    copiedPermanentPropertyPhotoPaths);
 
                 ModelState.AddModelError(string.Empty, "Unable to complete your request. Please try again later.");
                 return View(nameof(ReviewAndSubmit), await BuildReviewStepViewModel(wizardState!));
             }
         }
-
+/*
     private async Task CleanupFailedSubmitAsync(
         int? createdListingId,
         int? createdPropertyId,
@@ -782,7 +721,7 @@ namespace Kasi_Room_Network___KRN.Controllers
                 "Wizard rollback completed with one or more cleanup failures.");
         }
     }
-
+*/
         private PostRoomWizardStateViewModel? GetWizardState(string landlordUserId)
         {
             var sessionJson = HttpContext.Session.GetString(GetSessionKey(landlordUserId));

@@ -3,6 +3,7 @@ using KasiRoomNetwork.Common.ViewModel.Properties;
 using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,6 +37,17 @@ namespace KasiRoomNetwork.Data.Repositories
                     AmenityId = amenityId,
                     LandlordUserId = landlordUserId
                 });
+        }
+        public async Task AddPropertyAmenity(int propertyId, int amenityId, string landlordUserId, IDbTransaction transaction)
+        {
+            await _db.SaveData(
+                "sp_PropertyAmenity_Add",
+                new
+                {
+                    PropertyId = propertyId,
+                    AmenityId = amenityId,
+                    LandlordUserId = landlordUserId
+                }, transaction);
         }
 
         public async Task RemovePropertyAmenity(int propertyId, int amenityId)

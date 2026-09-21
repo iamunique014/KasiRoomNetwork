@@ -40,17 +40,35 @@ namespace Kasi_Room_Network___KRN.Services
         public async Task<string> SaveTemporaryPhotoAsync(IFormFile? photo, string landlordUserId)
         {
             ValidatePhoto(photo);
-            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-            var blobName = $"wizard-temp/{landlordUserId}/{Guid.NewGuid()}{extension}";
+            //var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+            var fileName = $"{Guid.NewGuid()}.jpg";
+            var blobName = $"wizard-temp/{landlordUserId}/{fileName}";
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
             var blobClient = containerClient.GetBlobClient(blobName);
-            using (var stream = photo.OpenReadStream())
+
+
+            using (var memoryStream = new MemoryStream())
             {
-                await blobClient.UploadAsync(stream, true);
+                using (var image = await Image.LoadAsync(photo.OpenReadStream()))
+                {
+                    image.Mutate(x =>
+                        x.Resize(new ResizeOptions
+                        {
+                            Mode = ResizeMode.Max,
+                            Size = new Size(1200, 1200)
+                        }));
+
+                    await image.SaveAsJpegAsync(memoryStream, new JpegEncoder { Quality = 80 });
+                }
+                memoryStream.Position = 0;
+                await blobClient.UploadAsync(memoryStream, true);
             }
 
-
+            //using (var stream = photo.OpenReadStream())
+            //{
+              //  await blobClient.UploadAsync(stream, true);
+            //}
 
             return blobClient.Uri.ToString();
         }
@@ -114,12 +132,24 @@ namespace Kasi_Room_Network___KRN.Services
         public void DeleteTemporaryWizardFolder(string landlordUserId)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(GetContainerName(ImageCategory.WizardTemp));
+            if (!containerClient.Exists()) return;
+            
             var prefix = $"wizard-temp/{landlordUserId}/";
             var blobs = containerClient.GetBlobs(BlobTraits.None, BlobStates.None, prefix, CancellationToken.None);
-            foreach (var blob in blobs)
+            
+            try
             {
-                containerClient.DeleteBlobIfExists(blob.Name);
+                foreach (var blob in blobs)
+                {
+                    containerClient.DeleteBlobIfExists(blob.Name);
+                }
+            
             }
+            catch
+            {
+                // Ignore cleanup failures
+            }
+
         }
 
         public void DeleteTemporaryPhoto(string tempRelativePath)

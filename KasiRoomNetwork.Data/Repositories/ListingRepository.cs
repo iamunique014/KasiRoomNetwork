@@ -4,6 +4,7 @@ using KasiRoomNetwork.Data.DataAccess;
 using KasiRoomNetwork.Data.Interfaces;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,22 @@ namespace KasiRoomNetwork.Data.Repositories
                 model.AvailableUnits,
                 model.Price
             });
+
+            return result.First();
+        }
+
+        //Transaction based
+        public async Task<int> CreateListing(CreateListingViewModel model,string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Create_Listing", new
+            {
+                LandlordUserId = landlordUserId,
+                model.PropertyId,
+                model.Title,
+                model.Description,
+                model.AvailableUnits,
+                model.Price
+            }, transaction);
 
             return result.First();
         }
@@ -66,6 +83,19 @@ namespace KasiRoomNetwork.Data.Repositories
                 PhotoPath = photoPath,
                 IsPrimary = isPrimary
             });
+
+            return result.FirstOrDefault() == 1;
+        }
+        // Transaction based
+        public async Task<bool> AddListingPhoto(int listingId, string photoPath, bool isPrimary, string landlordUserId, IDbTransaction transaction)
+        {
+            var result = await _db.GetData<int, dynamic>("sp_Listing_Add_Listing_Photo", new
+            {
+                ListingId = listingId,
+                LandlordUserId = landlordUserId,
+                PhotoPath = photoPath,
+                IsPrimary = isPrimary
+            }, transaction);
 
             return result.FirstOrDefault() == 1;
         }
